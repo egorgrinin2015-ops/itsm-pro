@@ -4,6 +4,7 @@ import statsService from '../services/statsService';
 import AnimatedPage from '../components/AnimatedPage';
 import StatCard from '../components/StatCard';
 import ChartCard from '../components/ChartCard';
+import GlassCard from '../components/GlassCard';
 import {
   Container,
   Box,
@@ -17,7 +18,8 @@ import {
   ListItemAvatar,
   ListItemText,
   LinearProgress,
-  Divider
+  Divider,
+  GlobalStyles
 } from '@mui/material';
 import {
   Activity,
@@ -33,7 +35,9 @@ import {
   TrendingUp,
   Calendar,
   Zap,
-  Award
+  Award,
+  Stars,
+  Sparkles
 } from 'lucide-react';
 import {
   LineChart,
@@ -53,22 +57,149 @@ import {
 } from 'recharts';
 import { motion, useInView } from 'framer-motion';
 
-// Современная цветовая палитра для графиков
-const CHART_COLORS = [
-  'rgba(102, 126, 234, 1)',
-  'rgba(34, 197, 94, 1)', 
-  'rgba(251, 191, 36, 1)',
-  'rgba(239, 68, 68, 1)',
-  'rgba(168, 85, 247, 1)',
-  'rgba(14, 165, 233, 1)'
-];
+// Принудительные глобальные стили для темного фона
+const darkBackgroundStyles = (
+  <GlobalStyles
+    styles={{
+      body: {
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        minHeight: '100vh !important',
+      },
+      '#root': {
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        minHeight: '100vh !important',
+      },
+      html: {
+        background: '#000000 !important',
+      }
+    }}
+  />
+);
 
-const GRADIENT_COLORS = [
-  'rgba(102, 126, 234, 0.1)',
-  'rgba(34, 197, 94, 0.1)', 
-  'rgba(251, 191, 36, 0.1)',
-  'rgba(239, 68, 68, 0.1)',
-  'rgba(168, 85, 247, 0.1)',
+// Усиленный IT-фон для Dashboard
+const DashboardBackground = () => {
+  return (
+    <Box
+      sx={{
+        position: 'fixed !important',
+        top: '0 !important',
+        left: '0 !important',
+        right: '0 !important',
+        bottom: '0 !important',
+        width: '100vw !important',
+        height: '100vh !important',
+        overflow: 'hidden !important',
+        zIndex: '-999 !important',
+      }}
+    >
+      {/* ТЕМНЫЙ ФОН */}
+      <Box
+        sx={{
+          position: 'absolute !important',
+          top: '0 !important',
+          left: '0 !important',
+          right: '0 !important',
+          bottom: '0 !important',
+          width: '100% !important',
+          height: '100% !important',
+          background: `
+            linear-gradient(135deg, 
+              #000000 0%,
+              #1a1a2e 20%,
+              #16213e 40%,
+              #0f172a 60%,
+              #020617 80%,
+              #000000 100%
+            ) !important
+          `,
+        }}
+      />
+
+      {/* ЦВЕТНЫЕ АКЦЕНТЫ ДЛЯ АНАЛИТИКИ */}
+      <Box
+        sx={{
+          position: 'absolute !important',
+          top: '0 !important',
+          left: '0 !important',
+          right: '0 !important',
+          bottom: '0 !important',
+          background: `
+            radial-gradient(ellipse at 10% 20%, rgba(59, 130, 246, 0.4) 0%, transparent 50%),
+            radial-gradient(ellipse at 90% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(34, 197, 94, 0.2) 0%, transparent 40%),
+            radial-gradient(ellipse at 80% 10%, rgba(251, 191, 36, 0.25) 0%, transparent 30%),
+            radial-gradient(ellipse at 20% 90%, rgba(239, 68, 68, 0.15) 0%, transparent 25%)
+          `,
+        }}
+      />
+
+      {/* ДВИЖУЩАЯСЯ АНАЛИТИЧЕСКАЯ СЕТКА */}
+      <motion.div
+        animate={{
+          x: [0, 30],
+          y: [0, 30]
+        }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: `
+            linear-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.15) 1px, transparent 1px),
+            linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '30px 30px, 30px 30px, 60px 60px, 60px 60px',
+          pointerEvents: 'none'
+        }}
+      />
+
+      {/* ПЛАВАЮЩИЕ ЧАСТИЦЫ ДАННЫХ */}
+      {[...Array(15)].map((_, i) => (
+        <motion.div
+          key={i}
+          animate={{
+            y: [0, -20, 0],
+            x: [0, Math.sin(i) * 10, 0],
+            opacity: [0.1, 0.3, 0.1]
+          }}
+          transition={{
+            duration: 4 + i * 0.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: i * 0.3
+          }}
+          style={{
+            position: 'absolute',
+            left: `${10 + i * 6}%`,
+            top: `${10 + (i % 3) * 30}%`,
+            width: '4px',
+            height: '4px',
+            background: `rgba(${59 + i * 10}, ${130 + i * 5}, 246, 0.6)`,
+            borderRadius: '50%',
+            pointerEvents: 'none'
+          }}
+        />
+      ))}
+    </Box>
+  );
+};
+
+// Современная цветовая палитра для темных графиков
+const DARK_CHART_COLORS = [
+  '#3b82f6', // Синий
+  '#10b981', // Зелёный
+  '#f59e0b', // Жёлтый
+  '#ef4444', // Красный
+  '#8b5cf6', // Фиолетовый
+  '#06b6d4'  // Голубой
 ];
 
 const Dashboard = () => {
@@ -129,10 +260,10 @@ const Dashboard = () => {
       closed: 'Закрыты'
     };
 
-    return stats.status.map(item => ({
+    return stats.status.map((item, index) => ({
       name: statusLabels[item.status] || item.status,
       value: parseInt(item.count),
-      fill: CHART_COLORS[stats.status.indexOf(item) % CHART_COLORS.length]
+      fill: DARK_CHART_COLORS[index % DARK_CHART_COLORS.length]
     }));
   };
 
@@ -146,33 +277,40 @@ const Dashboard = () => {
       critical: 'Критичный'
     };
 
-    return stats.priority.map(item => ({
+    return stats.priority.map((item, index) => ({
       name: priorityLabels[item.priority] || item.priority,
       value: parseInt(item.count),
-      fill: CHART_COLORS[stats.priority.indexOf(item) % CHART_COLORS.length]
+      fill: DARK_CHART_COLORS[index % DARK_CHART_COLORS.length]
     }));
   };
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <Box
-          sx={{
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            border: '1px solid rgba(0, 0, 0, 0.1)',
-            borderRadius: 2,
-            padding: 2,
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)'
-          }}
-        >
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        <GlassCard variant="dark" sx={{ p: 2, minWidth: 150 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: 'white', mb: 1 }}>
             {label}
           </Typography>
-          <Typography variant="body2" color="primary">
+          <Typography variant="body2" sx={{ color: '#3b82f6' }}>
             {`Заявки: ${payload[0].value}`}
           </Typography>
-        </Box>
+        </GlassCard>
+      );
+    }
+    return null;
+  };
+
+  const PieTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <GlassCard variant="dark" sx={{ p: 2, minWidth: 150 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: 'white', mb: 1 }}>
+            {payload[0].payload.name}
+          </Typography>
+          <Typography variant="body2" sx={{ color: payload[0].payload.fill }}>
+            {`Количество: ${payload[0].value}`}
+          </Typography>
+        </GlassCard>
       );
     }
     return null;
@@ -180,136 +318,297 @@ const Dashboard = () => {
 
   if (!isManager) {
     return (
-      <Container sx={{ mt: 4 }}>
-        <Alert severity="error">Недостаточно прав для просмотра статистики</Alert>
-      </Container>
+      <Box sx={{ position: 'relative', minHeight: '100vh' }}>
+        {darkBackgroundStyles}
+        <DashboardBackground />
+        <Container sx={{ py: 4, position: 'relative', zIndex: 10 }}>
+          <GlassCard variant="colored" color="red" sx={{ p: 4, textAlign: 'center' }}>
+            <AlertTriangle size={48} color="#ef4444" style={{ marginBottom: 16 }} />
+            <Typography variant="h5" sx={{ color: 'white', fontWeight: 700 }}>
+              Недостаточно прав доступа
+            </Typography>
+            <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', mt: 2 }}>
+              Для просмотра аналитики требуются права менеджера
+            </Typography>
+          </GlassCard>
+        </Container>
+      </Box>
     );
   }
 
   if (loading) {
     return (
-      <AnimatedPage>
-        <Container maxWidth="xl" sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              rotate: [0, 360, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <Activity size={60} color="#667eea" />
-          </motion.div>
-          <Typography variant="h5" sx={{ mt: 3, fontWeight: 600 }}>
-            Загрузка аналитики...
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-            Собираем данные для построения отчетов
-          </Typography>
+      <Box sx={{ position: 'relative', minHeight: '100vh' }}>
+        {darkBackgroundStyles}
+        <DashboardBackground />
+        <Container maxWidth="xl" sx={{ py: 4, position: 'relative', zIndex: 10 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            minHeight: '70vh' 
+          }}>
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                rotate: [0, 360],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <GlassCard variant="dark" sx={{ p: 4, borderRadius: '50%' }}>
+                <Activity size={60} color="#3b82f6" />
+              </GlassCard>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  mt: 4, 
+                  fontWeight: 700, 
+                  color: 'white',
+                  textAlign: 'center',
+                  textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                }}
+              >
+                Загрузка аналитики...
+              </Typography>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  mt: 2, 
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  textAlign: 'center'
+                }}
+              >
+                Собираем данные для построения отчетов
+              </Typography>
+            </motion.div>
+          </Box>
         </Container>
-      </AnimatedPage>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Container sx={{ mt: 4 }}>
-        <Alert severity="error">{error}</Alert>
-      </Container>
+      <Box sx={{ position: 'relative', minHeight: '100vh' }}>
+        {darkBackgroundStyles}
+        <DashboardBackground />
+        <Container sx={{ py: 4, position: 'relative', zIndex: 10 }}>
+          <GlassCard variant="colored" color="red" sx={{ p: 4, textAlign: 'center' }}>
+            <AlertTriangle size={48} color="#ef4444" style={{ marginBottom: 16 }} />
+            <Typography variant="h5" sx={{ color: 'white', fontWeight: 700 }}>
+              {error}
+            </Typography>
+          </GlassCard>
+        </Container>
+      </Box>
     );
   }
 
   return (
-    <AnimatedPage>
-      <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Box sx={{ position: 'relative', minHeight: '100vh' }}>
+      {darkBackgroundStyles}
+      <DashboardBackground />
+      
+      <Container maxWidth="xl" sx={{ py: 4, position: 'relative', zIndex: 10 }}>
         {/* Заголовок с современным дизайном */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <Box sx={{ mb: 6, textAlign: 'center' }}>
+          <GlassCard variant="dark" sx={{ mb: 6, p: 6, textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, mb: 3 }}>
+              <motion.div
+                animate={{
+                  rotate: [0, 360],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 4,
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #f59e0b 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 20px 60px rgba(59, 130, 246, 0.4)'
+                  }}
+                >
+                  <BarChart3 size={40} color="white" />
+                </Box>
+              </motion.div>
+            </Box>
+            
             <Typography 
               variant="h2" 
               sx={{ 
-                fontWeight: 800,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                fontWeight: 900,
+                color: '#ffffff !important',
+                textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(59, 130, 246, 0.5)',
+                mb: 2,
+                background: 'linear-gradient(135deg, #ffffff 0%, #3b82f6 50%, #8b5cf6 100%)',
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                mb: 2,
-                textShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                WebkitTextFillColor: 'transparent'
               }}
             >
               📊 Центр аналитики
             </Typography>
+            
             <Typography 
               variant="h6" 
               sx={{ 
-                color: 'text.secondary',
+                color: 'rgba(255, 255, 255, 0.8)',
                 maxWidth: '600px',
                 mx: 'auto',
-                lineHeight: 1.6
+                lineHeight: 1.6,
+                textShadow: '0 2px 8px rgba(0,0,0,0.5)'
               }}
             >
               Мониторинг производительности и анализ ключевых показателей системы
             </Typography>
-          </Box>
+          </GlassCard>
         </motion.div>
 
         {/* Карточки основных метрик */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Всего заявок"
-              value={stats?.overall?.totalTickets || 0}
-              icon={Ticket}
-              gradient="primary"
-              trend="up"
-              trendValue="+12%"
-              subtitle="За все время"
-              delay={0}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Решено успешно"
-              value={stats?.overall?.resolvedTickets || 0}
-              icon={CheckCircle}
-              gradient="success"
-              trend="up"
-              trendValue="+8%"
-              subtitle={`${stats?.overall?.resolutionRate || 0}% от общего числа`}
-              delay={0.1}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Активные заявки"
-              value={stats?.overall?.openTickets || 0}
-              icon={Clock}
-              gradient="warning"
-              trend="down"
-              trendValue="-5%"
-              subtitle="Требуют внимания"
-              delay={0.2}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Пользователей"
-              value={stats?.overall?.totalUsers || 0}
-              icon={Users}
-              gradient="error"
-              trend="up"
-              trendValue="+3"
-              subtitle="Зарегистрировано"
-              delay={0.3}
-            />
-          </Grid>
+        <Grid container spacing={4} sx={{ mb: 4 }}>
+          {[
+            {
+              title: "Всего заявок",
+              value: stats?.overall?.totalTickets || 0,
+              icon: Ticket,
+              color: '#3b82f6',
+              trend: "+12%",
+              subtitle: "За все время",
+              delay: 0
+            },
+            {
+              title: "Решено успешно",
+              value: stats?.overall?.resolvedTickets || 0,
+              icon: CheckCircle,
+              color: '#10b981',
+              trend: "+8%",
+              subtitle: `${stats?.overall?.resolutionRate || 0}% от общего числа`,
+              delay: 0.1
+            },
+            {
+              title: "Активные заявки",
+              value: stats?.overall?.openTickets || 0,
+              icon: Clock,
+              color: '#f59e0b',
+              trend: "-5%",
+              subtitle: "Требуют внимания",
+              delay: 0.2
+            },
+            {
+              title: "Пользователей",
+              value: stats?.overall?.totalUsers || 0,
+              icon: Users,
+              color: '#ef4444',
+              trend: "+3",
+              subtitle: "Зарегистрировано",
+              delay: 0.3
+            }
+          ].map((metric, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: metric.delay }}
+                whileHover={{ scale: 1.05, y: -10 }}
+              >
+                <GlassCard 
+                  variant="colored" 
+                  color={metric.color.includes('#3b82f6') ? 'blue' : 
+                        metric.color.includes('#10b981') ? 'green' :
+                        metric.color.includes('#f59e0b') ? 'yellow' : 'red'}
+                  sx={{ p: 4, height: '100%', textAlign: 'center' }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
+                    <Box
+                      sx={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: 3,
+                        background: `linear-gradient(135deg, ${metric.color}, ${metric.color}cc)`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: `0 8px 25px ${metric.color}40`,
+                        mb: 2
+                      }}
+                    >
+                      <metric.icon size={28} color="white" />
+                    </Box>
+                  </Box>
+                  
+                  <Typography 
+                    variant="h3" 
+                    sx={{ 
+                      fontWeight: 800, 
+                      color: metric.color,
+                      textShadow: `0 2px 8px ${metric.color}40`,
+                      mb: 1
+                    }}
+                  >
+                    {metric.value}
+                  </Typography>
+                  
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: 'white',
+                      fontWeight: 600,
+                      mb: 2
+                    }}
+                  >
+                    {metric.title}
+                  </Typography>
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                    <Chip
+                      label={metric.trend}
+                      size="small"
+                      sx={{
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        color: 'rgba(255, 255, 255, 0.9)',
+                        fontWeight: 600
+                      }}
+                    />
+                  </Box>
+                  
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      mt: 2 
+                    }}
+                  >
+                    {metric.subtitle}
+                  </Typography>
+                </GlassCard>
+              </motion.div>
+            </Grid>
+          ))}
         </Grid>
 
         {/* SLA Уведомления */}
@@ -319,35 +618,37 @@ const Dashboard = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Alert 
-              severity="warning" 
-              sx={{ 
-                mb: 4,
-                borderRadius: 3,
-                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%)',
-                border: '1px solid rgba(251, 191, 36, 0.2)',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <AlertTriangle size={24} />
+            <GlassCard variant="colored" color="yellow" sx={{ mb: 4, p: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity
+                  }}
+                >
+                  <AlertTriangle size={48} color="#f59e0b" />
+                </motion.div>
                 <Box>
-                  <Typography variant="h6" gutterBottom>
-                    ⚠️ Внимание: SLA уведомления
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: 'white', mb: 2 }}>
+                    ⚠️ SLA уведомления
                   </Typography>
                   {slaMetrics.overdueTickets > 0 && (
-                    <Typography variant="body2">
+                    <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.9)', mb: 1 }}>
                       🔴 {slaMetrics.overdueTickets} заявок просрочены по SLA
                     </Typography>
                   )}
                   {slaMetrics.nearDeadline > 0 && (
-                    <Typography variant="body2">
+                    <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
                       🟡 {slaMetrics.nearDeadline} заявок приближаются к дедлайну
                     </Typography>
                   )}
                 </Box>
               </Box>
-            </Alert>
+            </GlassCard>
           </motion.div>
         )}
 
@@ -355,102 +656,114 @@ const Dashboard = () => {
         <Grid container spacing={4} sx={{ mb: 4 }}>
           {/* График динамики заявок */}
           <Grid item xs={12} lg={8}>
-            <ChartCard
-              title="Динамика создания заявок"
-              subtitle="Статистика за последние 30 дней"
-              icon={TrendingUp}
-              trend="+15.3%"
-              height={450}
-              delay={0.5}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={prepareChartData()}>
-                  <defs>
-                    <linearGradient id="ticketsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="rgba(102, 126, 234, 0.3)" />
-                      <stop offset="100%" stopColor="rgba(102, 126, 234, 0.05)" />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                  <XAxis 
-                    dataKey="date" 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#64748b' }}
+              <GlassCard variant="dark" sx={{ p: 4, height: 500 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'between', mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <TrendingUp size={28} color="#3b82f6" />
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: 700, color: 'white' }}>
+                        Динамика создания заявок
+                      </Typography>
+                      <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                        Статистика за последние 30 дней
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Chip
+                    label="+15.3%"
+                    sx={{
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      color: 'white',
+                      fontWeight: 700
+                    }}
                   />
-                  <YAxis 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#64748b' }}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area 
-                    type="monotone" 
-                    dataKey="tickets" 
-                    stroke="rgba(102, 126, 234, 1)" 
-                    strokeWidth={3}
-                    fill="url(#ticketsGradient)"
-                    dot={{ fill: 'rgba(102, 126, 234, 1)', strokeWidth: 0, r: 6 }}
-                    activeDot={{ r: 8, fill: 'rgba(102, 126, 234, 1)' }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </ChartCard>
+                </Box>
+                
+                <Box sx={{ height: 400 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={prepareChartData()}>
+                      <defs>
+                        <linearGradient id="ticketsGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="rgba(59, 130, 246, 0.4)" />
+                          <stop offset="100%" stopColor="rgba(59, 130, 246, 0.05)" />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <XAxis 
+                        dataKey="date" 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: 'rgba(255,255,255,0.7)' }}
+                      />
+                      <YAxis 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: 'rgba(255,255,255,0.7)' }}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Area 
+                        type="monotone" 
+                        dataKey="tickets" 
+                        stroke="#3b82f6" 
+                        strokeWidth={3}
+                        fill="url(#ticketsGradient)"
+                        dot={{ fill: '#3b82f6', strokeWidth: 0, r: 6 }}
+                        activeDot={{ r: 8, fill: '#3b82f6', boxShadow: '0 0 20px #3b82f6' }}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </Box>
+              </GlassCard>
+            </motion.div>
           </Grid>
 
           {/* Круговая диаграмма статусов */}
           <Grid item xs={12} lg={4}>
-            <ChartCard
-              title="Распределение статусов"
-              subtitle="Текущее состояние заявок"
-              icon={PieChart}
-              height={450}
-              delay={0.6}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <Pie
-                    data={preparePieData()}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    innerRadius={40}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {preparePieData().map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <Box
-                            sx={{
-                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                              border: '1px solid rgba(0, 0, 0, 0.1)',
-                              borderRadius: 2,
-                              padding: 2,
-                              backdropFilter: 'blur(10px)',
-                              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)'
-                            }}
-                          >
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                              {payload[0].payload.name}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: payload[0].payload.fill }}>
-                              {`Количество: ${payload[0].value}`}
-                            </Typography>
-                          </Box>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            </ChartCard>
+              <GlassCard variant="dark" sx={{ p: 4, height: 500 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                  <PieChart size={28} color="#8b5cf6" />
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: 'white' }}>
+                      Распределение статусов
+                    </Typography>
+                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                      Текущее состояние заявок
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ height: 400 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart>
+                      <Pie
+                        data={preparePieData()}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={120}
+                        innerRadius={50}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {preparePieData().map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<PieTooltip />} />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </Box>
+              </GlassCard>
+            </motion.div>
           </Grid>
         </Grid>
 
@@ -458,136 +771,168 @@ const Dashboard = () => {
         <Grid container spacing={4}>
           {/* Рейтинг исполнителей */}
           <Grid item xs={12} md={6}>
-            <ChartCard
-              title="🏆 Топ исполнители"
-              subtitle="Лучшие специалисты месяца"
-              icon={Trophy}
-              height={400}
-              delay={0.7}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
             >
-              <Box sx={{ width: '100%', height: '100%', overflow: 'auto' }}>
-                <List sx={{ width: '100%' }}>
-                  {topPerformers.map((performer, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                    >
-                      <ListItem
-                        sx={{
-                          mb: 2,
-                          borderRadius: 3,
-                          background: index === 0 ? 
-                            'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.05))' :
-                            index === 1 ?
-                            'linear-gradient(135deg, rgba(168, 162, 158, 0.1), rgba(168, 162, 158, 0.05))' :
-                            index === 2 ?
-                            'linear-gradient(135deg, rgba(205, 127, 50, 0.1), rgba(205, 127, 50, 0.05))' :
-                            'linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(102, 126, 234, 0.02))',
-                          border: `1px solid ${
-                            index === 0 ? 'rgba(251, 191, 36, 0.2)' :
-                            index === 1 ? 'rgba(168, 162, 158, 0.2)' :
-                            index === 2 ? 'rgba(205, 127, 50, 0.2)' :
-                            'rgba(102, 126, 234, 0.1)'
-                          }`,
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                          }
-                        }}
+              <GlassCard variant="dark" sx={{ p: 4, height: 450 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                  <Trophy size={28} color="#f59e0b" />
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: 'white' }}>
+                      🏆 Топ исполнители
+                    </Typography>
+                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                      Лучшие специалисты месяца
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ height: 350, overflow: 'auto' }}>
+                  <List sx={{ width: '100%' }}>
+                    {topPerformers.map((performer, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
+                        whileHover={{ scale: 1.02, x: 10 }}
                       >
-                        <ListItemAvatar>
-                          <Avatar
-                            sx={{
-                              background: index === 0 ? 
-                                'linear-gradient(135deg, #f59e0b, #d97706)' :
-                                index === 1 ?
-                                'linear-gradient(135deg, #9ca3af, #6b7280)' :
-                                index === 2 ?
-                                'linear-gradient(135deg, #cd7f32, #92571f)' :
-                                'linear-gradient(135deg, #667eea, #764ba2)',
-                              color: 'white',
-                              fontWeight: 'bold',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                            }}
-                          >
-                            {index < 3 ? 
-                              (index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉') :
-                              `#${index + 1}`
+                        <ListItem
+                          sx={{
+                            mb: 2,
+                            borderRadius: 3,
+                            background: index === 0 ? 
+                              'linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1))' :
+                              index === 1 ?
+                              'linear-gradient(135deg, rgba(168, 162, 158, 0.2), rgba(168, 162, 158, 0.1))' :
+                              index === 2 ?
+                              'linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.1))' :
+                              'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05))',
+                            border: `2px solid ${
+                              index === 0 ? 'rgba(251, 191, 36, 0.4)' :
+                              index === 1 ? 'rgba(168, 162, 158, 0.4)' :
+                              index === 2 ? 'rgba(205, 127, 50, 0.4)' :
+                              'rgba(59, 130, 246, 0.2)'
+                            }`,
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              boxShadow: `0 8px 25px ${
+                                index === 0 ? 'rgba(251, 191, 36, 0.3)' :
+                                index === 1 ? 'rgba(168, 162, 158, 0.3)' :
+                                index === 2 ? 'rgba(205, 127, 50, 0.3)' :
+                                'rgba(59, 130, 246, 0.3)'
+                              }`,
                             }
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={
-                            <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                              {performer.assigneeName}
-                            </Typography>
-                          }
-                          secondary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                              <Chip
-                                icon={<CheckCircle size={16} />}
-                                label={`${performer.resolvedCount} решено`}
-                                size="small"
-                                sx={{
-                                  backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                                  color: '#059669',
-                                  border: '1px solid rgba(34, 197, 94, 0.2)',
-                                  fontWeight: 500
-                                }}
-                              />
-                            </Box>
-                          }
-                        />
-                      </ListItem>
-                    </motion.div>
-                  ))}
-                </List>
-              </Box>
-            </ChartCard>
+                          }}
+                        >
+                          <ListItemAvatar>
+                            <Avatar
+                              sx={{
+                                width: 60,
+                                height: 60,
+                                background: index === 0 ? 
+                                  'linear-gradient(135deg, #f59e0b, #d97706)' :
+                                  index === 1 ?
+                                  'linear-gradient(135deg, #9ca3af, #6b7280)' :
+                                  index === 2 ?
+                                  'linear-gradient(135deg, #cd7f32, #92571f)' :
+                                  'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '1.5rem',
+                                boxShadow: '0 8px 20px rgba(0,0,0,0.3)'
+                              }}
+                            >
+                              {index < 3 ? 
+                                (index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉') :
+                                `${index + 1}`
+                              }
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={
+                              <Typography variant="h6" sx={{ fontWeight: 700, color: 'white' }}>
+                                {performer.assigneeName}
+                              </Typography>
+                            }
+                            secondary={
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                                <Chip
+                                  icon={<CheckCircle size={16} />}
+                                  label={`${performer.resolvedCount} решено`}
+                                  size="small"
+                                  sx={{
+                                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                                    color: 'white',
+                                    fontWeight: 600
+                                  }}
+                                />
+                              </Box>
+                            }
+                          />
+                        </ListItem>
+                      </motion.div>
+                    ))}
+                  </List>
+                </Box>
+              </GlassCard>
+            </motion.div>
           </Grid>
 
           {/* График приоритетов */}
           <Grid item xs={12} md={6}>
-            <ChartCard
-              title="📈 Приоритеты заявок"
-              subtitle="Распределение по уровням важности"
-              icon={BarChart3}
-              height={400}
-              delay={0.8}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={preparePriorityData()}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#64748b' }}
-                  />
-                  <YAxis 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: '#64748b' }}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar 
-                    dataKey="value" 
-                    radius={[8, 8, 0, 0]}
-                    fill="url(#barGradient)"
-                  >
-                    <defs>
-                      <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="rgba(102, 126, 234, 1)" />
-                        <stop offset="100%" stopColor="rgba(102, 126, 234, 0.6)" />
-                      </linearGradient>
-                    </defs>
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartCard>
+              <GlassCard variant="dark" sx={{ p: 4, height: 450 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                  <BarChart3 size={28} color="#8b5cf6" />
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: 'white' }}>
+                      📈 Приоритеты заявок
+                    </Typography>
+                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                      Распределение по уровням важности
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ height: 350 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={preparePriorityData()}>
+                      <defs>
+                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#8b5cf6" />
+                          <stop offset="100%" stopColor="rgba(139, 92, 246, 0.6)" />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <XAxis 
+                        dataKey="name" 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: 'rgba(255,255,255,0.7)' }}
+                      />
+                      <YAxis 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: 'rgba(255,255,255,0.7)' }}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar 
+                        dataKey="value" 
+                        radius={[8, 8, 0, 0]}
+                        fill="url(#barGradient)"
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              </GlassCard>
+            </motion.div>
           </Grid>
         </Grid>
 
@@ -597,14 +942,16 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}
         >
-          <Box sx={{ mt: 4, textAlign: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
-              Данные обновляются в реальном времени • Последнее обновление: {new Date().toLocaleString('ru-RU')}
+          <GlassCard variant="dark" sx={{ mt: 4, p: 3, textAlign: 'center' }}>
+            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+              ⚡ Данные обновляются в реальном времени • 
+              📅 Последнее обновление: {new Date().toLocaleString('ru-RU')} • 
+              🔄 Автообновление каждые 5 минут
             </Typography>
-          </Box>
+          </GlassCard>
         </motion.div>
       </Container>
-    </AnimatedPage>
+    </Box>
   );
 };
 

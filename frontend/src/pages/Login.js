@@ -13,7 +13,8 @@ import {
   IconButton,
   InputAdornment,
   Divider,
-  CircularProgress
+  CircularProgress,
+  GlobalStyles
 } from '@mui/material';
 import {
   Eye,
@@ -27,169 +28,309 @@ import {
   BarChart3
 } from 'lucide-react';
 
-// Фон с красивыми изображениями
-const ImageBackground = () => {
+// Принудительные глобальные стили
+const forceBackgroundStyles = (
+  <GlobalStyles
+    styles={{
+      '#root': {
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        minHeight: '100vh !important',
+      },
+      body: {
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        minHeight: '100vh !important',
+      },
+      html: {
+        background: '#000000 !important',
+      }
+    }}
+  />
+);
+
+// Усиленный IT-фон с яркими элементами
+const ITBackground = () => {
   return (
-    <Box
-      sx={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        overflow: 'hidden',
-        zIndex: -1,
-      }}
-    >
-      {/* Основное изображение */}
+    <>
+      {forceBackgroundStyles}
       <Box
+        id="it-background"
         sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: `url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1974&q=80')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          filter: 'brightness(0.4) saturate(1.3)',
-          transform: 'scale(1.1)',
-          animation: 'slowZoom 20s ease-in-out infinite alternate',
+          position: 'fixed !important',
+          top: '0 !important',
+          left: '0 !important',
+          right: '0 !important',
+          bottom: '0 !important',
+          width: '100vw !important',
+          height: '100vh !important',
+          overflow: 'hidden !important',
+          zIndex: '-999 !important',
         }}
-      />
+      >
+        {/* ТЕМНЫЙ ФОН */}
+        <Box
+          sx={{
+            position: 'absolute !important',
+            top: '0 !important',
+            left: '0 !important',
+            right: '0 !important',
+            bottom: '0 !important',
+            width: '100% !important',
+            height: '100% !important',
+            background: `
+              linear-gradient(135deg, 
+                #000000 0%,
+                #1a1a2e 20%,
+                #16213e 40%,
+                #0f172a 60%,
+                #020617 80%,
+                #000000 100%
+              ) !important
+            `,
+          }}
+        />
 
-      {/* Дополнительные слои для глубины */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            radial-gradient(ellipse at top left, rgba(102, 126, 234, 0.4) 0%, transparent 50%),
-            radial-gradient(ellipse at top right, rgba(168, 85, 247, 0.3) 0%, transparent 50%),
-            radial-gradient(ellipse at bottom left, rgba(34, 197, 94, 0.25) 0%, transparent 50%),
-            radial-gradient(ellipse at bottom right, rgba(251, 191, 36, 0.3) 0%, transparent 50%),
-            linear-gradient(135deg, 
-              rgba(15, 23, 42, 0.8) 0%,
-              rgba(30, 41, 59, 0.6) 25%,
-              rgba(51, 65, 85, 0.8) 50%,
-              rgba(30, 41, 59, 0.6) 75%,
-              rgba(15, 23, 42, 0.8) 100%
-            )
-          `,
-        }}
-      />
+        {/* ЯРКИЕ ЦВЕТНЫЕ АКЦЕНТЫ */}
+        <Box
+          sx={{
+            position: 'absolute !important',
+            top: '0 !important',
+            left: '0 !important',
+            right: '0 !important',
+            bottom: '0 !important',
+            background: `
+              radial-gradient(ellipse at 15% 25%, rgba(59, 130, 246, 0.5) 0%, transparent 40%),
+              radial-gradient(ellipse at 85% 75%, rgba(139, 92, 246, 0.45) 0%, transparent 40%),
+              radial-gradient(ellipse at 50% 10%, rgba(34, 197, 94, 0.4) 0%, transparent 30%),
+              radial-gradient(ellipse at 20% 90%, rgba(251, 191, 36, 0.35) 0%, transparent 25%)
+            `,
+          }}
+        />
 
-      {/* Анимированные частицы света */}
-      <motion.div
-        animate={{
-          opacity: [0.3, 0.7, 0.3],
-          scale: [1, 1.3, 1],
-          rotate: [0, 180, 360]
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: 'absolute',
-          top: '20%',
-          right: '20%',
-          width: 300,
-          height: 300,
-          background: 'conic-gradient(from 0deg, rgba(102, 126, 234, 0.4), rgba(168, 85, 247, 0.3), rgba(102, 126, 234, 0.4))',
-          borderRadius: '50%',
-          filter: 'blur(60px)',
-          pointerEvents: 'none'
-        }}
-      />
+        {/* ДВИЖУЩАЯСЯ СЕТКА - БОЛЕЕ ЯРКАЯ */}
+        <Box
+          sx={{
+            position: 'absolute !important',
+            top: '0 !important',
+            left: '0 !important',
+            right: '0 !important',
+            bottom: '0 !important',
+            backgroundImage: `
+              linear-gradient(rgba(59, 130, 246, 0.4) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(59, 130, 246, 0.4) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
+          }}
+        />
 
-      <motion.div
-        animate={{
-          opacity: [0.2, 0.5, 0.2],
-          scale: [1, 0.8, 1.2, 1],
-          x: [0, 50, -30, 0],
-          y: [0, -30, 20, 0]
-        }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: 'absolute',
-          bottom: '25%',
-          left: '15%',
-          width: 250,
-          height: 250,
-          background: 'radial-gradient(circle, rgba(34, 197, 94, 0.4) 0%, rgba(16, 185, 129, 0.3) 50%, transparent 100%)',
-          borderRadius: '50%',
-          filter: 'blur(40px)',
-          pointerEvents: 'none'
-        }}
-      />
+        {/* ДОПОЛНИТЕЛЬНАЯ СЕТКА С АНИМАЦИЕЙ */}
+        <motion.div
+          animate={{
+            x: [0, 40],
+            y: [0, 40]
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `
+              linear-gradient(rgba(139, 92, 246, 0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(139, 92, 246, 0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px',
+            pointerEvents: 'none'
+          }}
+        />
 
-      <motion.div
-        animate={{
-          opacity: [0.1, 0.4, 0.1],
-          scale: [1, 1.5, 0.8, 1],
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '70%',
-          height: '60%',
-          background: `
-            conic-gradient(from 45deg,
-              transparent,
-              rgba(251, 191, 36, 0.2),
-              transparent,
-              rgba(236, 72, 153, 0.2),
-              transparent,
-              rgba(14, 165, 233, 0.2),
-              transparent
-            )
-          `,
-          borderRadius: '50%',
-          filter: 'blur(80px)',
-          pointerEvents: 'none'
-        }}
-      />
+        {/* БОЛЬШИЕ ЯРКИЕ СВЕТЯЩИЕСЯ ЭЛЕМЕНТЫ */}
+        <motion.div
+          animate={{
+            rotate: [0, 360],
+            scale: [0.8, 1.5, 0.8],
+            opacity: [0.4, 0.9, 0.4]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          style={{
+            position: 'absolute',
+            top: '5%',
+            right: '5%',
+            width: '500px',
+            height: '500px',
+            background: 'conic-gradient(from 0deg, rgba(59, 130, 246, 0.9), rgba(139, 92, 246, 0.7), rgba(34, 197, 94, 0.8), rgba(251, 191, 36, 0.6), rgba(59, 130, 246, 0.9))',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+            pointerEvents: 'none'
+          }}
+        />
 
-      {/* Дополнительные декоративные элементы */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: `
-            radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 2px, transparent 2px),
-            radial-gradient(circle at 75% 75%, rgba(255,255,255,0.08) 1px, transparent 1px),
-            linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.03) 50%, transparent 52%)
-          `,
-          backgroundSize: '150px 150px, 200px 200px, 80px 80px',
-          animation: 'patternShift 15s linear infinite',
-        }}
-      />
+        <motion.div
+          animate={{
+            rotate: [360, 0],
+            scale: [1, 0.5, 2, 1],
+            opacity: [0.5, 1, 0.5],
+            x: [0, 100, -100, 0],
+            y: [0, -50, 50, 0]
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: 'absolute',
+            bottom: '10%',
+            left: '0%',
+            width: '400px',
+            height: '400px',
+            background: 'radial-gradient(circle, rgba(34, 197, 94, 0.8) 0%, rgba(251, 191, 36, 0.6) 50%, rgba(139, 92, 246, 0.5) 100%)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            pointerEvents: 'none'
+          }}
+        />
 
-      {/* CSS анимации */}
-      <style jsx>{`
-        @keyframes slowZoom {
-          0% { transform: scale(1.1) rotate(0deg); }
-          50% { transform: scale(1.15) rotate(1deg); }
-          100% { transform: scale(1.1) rotate(-1deg); }
-        }
+        <motion.div
+          animate={{
+            scale: [1, 1.8, 1],
+            opacity: [0.3, 0.8, 0.3],
+            x: [0, -80, 80, 0],
+            y: [0, 60, -60, 0]
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '600px',
+            height: '300px',
+            background: 'linear-gradient(45deg, rgba(59, 130, 246, 0.7), rgba(139, 92, 246, 0.6), rgba(34, 197, 94, 0.5))',
+            borderRadius: '50%',
+            filter: 'blur(100px)',
+            pointerEvents: 'none'
+          }}
+        />
 
-        @keyframes patternShift {
-          0% { transform: translateX(0) translateY(0); }
-          25% { transform: translateX(-20px) translateY(-10px); }
-          50% { transform: translateX(-10px) translateY(-20px); }
-          75% { transform: translateX(-30px) translateY(-5px); }
-          100% { transform: translateX(0) translateY(0); }
-        }
-      `}</style>
-    </Box>
+        <motion.div
+          animate={{
+            rotate: [0, -360],
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.6, 0.2]
+          }}
+          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+          style={{
+            position: 'absolute',
+            top: '20%',
+            left: '15%',
+            width: '300px',
+            height: '300px',
+            background: 'conic-gradient(from 180deg, rgba(251, 191, 36, 0.7), rgba(239, 68, 68, 0.5), rgba(251, 191, 36, 0.7))',
+            borderRadius: '50%',
+            filter: 'blur(70px)',
+            pointerEvents: 'none'
+          }}
+        />
+
+        <motion.div
+          animate={{
+            scale: [1, 2, 1],
+            opacity: [0.15, 0.5, 0.15],
+            x: [0, 50, -50, 0],
+          }}
+          transition={{ duration: 40, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: 'absolute',
+            bottom: '30%',
+            right: '20%',
+            width: '350px',
+            height: '350px',
+            background: 'radial-gradient(ellipse, rgba(168, 85, 247, 0.6) 0%, rgba(59, 130, 246, 0.4) 70%, transparent 100%)',
+            borderRadius: '50%',
+            filter: 'blur(90px)',
+            pointerEvents: 'none'
+          }}
+        />
+
+        {/* АНИМИРОВАННЫЕ ДИАГОНАЛЬНЫЕ ЛИНИИ - БОЛЕЕ ЯРКИЕ */}
+        <svg
+          width="100%"
+          height="100%"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            pointerEvents: 'none',
+            zIndex: -1
+          }}
+        >
+          <defs>
+            <linearGradient id="brightLineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: 'rgba(59, 130, 246, 1)', stopOpacity: 1 }} />
+              <stop offset="50%" style={{ stopColor: 'rgba(139, 92, 246, 0.9)', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: 'rgba(34, 197, 94, 0.8)', stopOpacity: 1 }} />
+            </linearGradient>
+          </defs>
+          
+          <motion.line
+            x1="0%" y1="15%" x2="100%" y2="25%"
+            stroke="url(#brightLineGradient)"
+            strokeWidth="6"
+            strokeDasharray="20 40"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ 
+              pathLength: [0, 1, 0], 
+              opacity: [0, 1, 0],
+              strokeDashoffset: [0, -150]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+
+          <motion.line
+            x1="0%" y1="75%" x2="100%" y2="85%"
+            stroke="rgba(251, 191, 36, 1)"
+            strokeWidth="4"
+            strokeDasharray="12 30"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ 
+              pathLength: [0, 1, 0], 
+              opacity: [0, 0.9, 0],
+              strokeDashoffset: [0, -90]
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              delay: 2,
+              ease: "easeInOut"
+            }}
+          />
+
+          <motion.line
+            x1="0%" y1="45%" x2="100%" y2="55%"
+            stroke="rgba(139, 92, 246, 0.9)"
+            strokeWidth="3"
+            strokeDasharray="8 20"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ 
+              pathLength: [0, 1, 0], 
+              opacity: [0, 0.8, 0],
+              strokeDashoffset: [0, -60]
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              delay: 4,
+              ease: "easeInOut"
+            }}
+          />
+        </svg>
+      </Box>
+    </>
   );
 };
 
@@ -213,7 +354,7 @@ const Login = () => {
       await login({ email, password });
       navigate('/tickets');
     } catch (err) {
-      setError(err.response?.data?.message || 'Ошибка входа');
+      setError(err.message || err.response?.data?.message || 'Ошибка входа');
     } finally {
       setLoading(false);
     }
@@ -249,14 +390,21 @@ const Login = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
-      {/* КРАСИВЫЙ ФОНОВЫЙ ОБРАЗ */}
-      <ImageBackground />
+    <Box 
+      sx={{ 
+        minHeight: '100vh !important', 
+        position: 'relative !important', 
+        overflow: 'hidden !important',
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important'
+      }}
+    >
+      {/* ЯРКИЙ IT-ФОН */}
+      <ITBackground />
       
-      <Container maxWidth="lg" sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', py: 4 }}>
+      <Container maxWidth="lg" sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', py: 4, position: 'relative', zIndex: 10 }}>
         <Box sx={{ width: '100%', display: 'flex', gap: 4, alignItems: 'center' }}>
           
-          {/* Левая панель */}
+          {/* Левая панель - УЛУЧШЕННАЯ ВИДИМОСТЬ ТЕКСТА */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -270,40 +418,49 @@ const Login = () => {
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
-                  <Box
-                    sx={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: 4,
-                      background: `
-                        linear-gradient(135deg, 
-                          rgba(102, 126, 234, 0.9) 0%, 
-                          rgba(168, 85, 247, 0.8) 100%
-                        )
-                      `,
-                      backdropFilter: 'blur(20px)',
-                      border: '2px solid rgba(255,255,255,0.2)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 20px 50px rgba(102, 126, 234, 0.4)',
+                  <motion.div
+                    animate={{
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      ease: "linear"
                     }}
                   >
-                    <Sparkles size={36} color="white" />
-                  </Box>
+                    <Box
+                      sx={{
+                        width: 70,
+                        height: 70,
+                        borderRadius: 4,
+                        background: `
+                          linear-gradient(135deg, 
+                            rgba(59, 130, 246, 0.9) 0%, 
+                            rgba(139, 92, 246, 0.8) 100%
+                          )
+                        `,
+                        backdropFilter: 'blur(20px)',
+                        border: '2px solid rgba(255,255,255,0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 20px 50px rgba(59, 130, 246, 0.6)',
+                      }}
+                    >
+                      <Sparkles size={36} color="white" />
+                    </Box>
+                  </motion.div>
                   <Box>
                     <Typography 
                       variant="h2" 
                       sx={{ 
-                        fontWeight: 900,
-                        background: 'linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.8) 100%)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        textShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                        fontSize: '3.5rem',
-                        lineHeight: 1,
-                        mb: 0.5
+                        fontWeight: '900 !important',
+                        color: '#ffffff !important',
+                        textShadow: '0 4px 20px rgba(0,0,0,1), 0 0 40px rgba(59, 130, 246, 0.8) !important',
+                        fontSize: '3.5rem !important',
+                        lineHeight: '1 !important',
+                        mb: '0.5rem !important'
                       }}
                     >
                       ITSM
@@ -311,9 +468,9 @@ const Login = () => {
                     <Typography 
                       variant="h4" 
                       sx={{ 
-                        fontWeight: 700,
-                        color: 'rgba(255,255,255,0.9)',
-                        textShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                        fontWeight: '700 !important',
+                        color: '#ffffff !important',
+                        textShadow: '0 2px 10px rgba(0,0,0,1) !important',
                       }}
                     >
                       Professional
@@ -330,27 +487,27 @@ const Login = () => {
                 <Typography 
                   variant="h4" 
                   sx={{ 
-                    mb: 3,
-                    fontWeight: 800,
-                    color: 'rgba(255,255,255,0.95)',
-                    textShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                    lineHeight: 1.3
+                    mb: '3rem !important',
+                    fontWeight: '800 !important',
+                    color: '#ffffff !important',
+                    textShadow: '0 4px 20px rgba(0,0,0,1), 0 0 30px rgba(59, 130, 246, 0.8) !important',
+                    lineHeight: '1.3 !important'
                   }}
                 >
-                  Революционная платформа для управления IT-инфраструктурой
+                  🚀 Интеллектуальная платформа управления IT-сервисами
                 </Typography>
                 
                 <Typography 
                   variant="h6" 
                   sx={{ 
-                    mb: 4,
-                    color: 'rgba(255,255,255,0.85)',
-                    lineHeight: 1.6,
-                    textShadow: '0 2px 10px rgba(0,0,0,0.3)',
-                    fontWeight: 500
+                    mb: '4rem !important',
+                    color: '#ffffff !important',
+                    lineHeight: '1.6 !important',
+                    textShadow: '0 2px 10px rgba(0,0,0,1) !important',
+                    fontWeight: '500 !important'
                   }}
                 >
-                  Объедините команды, автоматизируйте процессы и достигните максимальной эффективности с помощью передовых технологий искусственного интеллекта
+                  💻 Автоматизируйте процессы, повышайте эффективность команды и обеспечивайте непрерывность бизнеса с помощью современных инструментов мониторинга и аналитики
                 </Typography>
               </motion.div>
 
@@ -376,27 +533,27 @@ const Login = () => {
                             borderRadius: 3,
                             background: `
                               linear-gradient(135deg, 
-                                rgba(255,255,255,0.15) 0%, 
-                                rgba(255,255,255,0.08) 100%
+                                rgba(255,255,255,0.2) 0%, 
+                                rgba(255,255,255,0.1) 100%
                               )
                             `,
                             backdropFilter: 'blur(40px)',
-                            border: '2px solid rgba(255,255,255,0.2)',
+                            border: '2px solid rgba(255,255,255,0.3)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             color: 'white',
-                            boxShadow: '0 15px 40px rgba(0,0,0,0.2)',
+                            boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                             '&:hover': {
                               background: `
                                 linear-gradient(135deg, 
-                                  rgba(255,255,255,0.25) 0%, 
-                                  rgba(255,255,255,0.15) 100%
+                                  rgba(255,255,255,0.3) 0%, 
+                                  rgba(255,255,255,0.2) 100%
                                 )
                               `,
                               transform: 'translateY(-8px) scale(1.05)',
-                              boxShadow: '0 25px 60px rgba(0,0,0,0.3)'
+                              boxShadow: '0 25px 60px rgba(0,0,0,0.4)'
                             }
                           }}
                         >
@@ -406,10 +563,10 @@ const Login = () => {
                           <Typography 
                             variant="h6" 
                             sx={{ 
-                              color: 'white', 
+                              color: '#ffffff', 
                               fontWeight: 800, 
                               mb: 1,
-                              textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                              textShadow: '0 2px 8px rgba(0,0,0,0.6)'
                             }}
                           >
                             {feature.title}
@@ -417,9 +574,9 @@ const Login = () => {
                           <Typography 
                             variant="body1" 
                             sx={{ 
-                              color: 'rgba(255,255,255,0.8)',
+                              color: 'rgba(255,255,255,0.85)',
                               lineHeight: 1.6,
-                              textShadow: '0 1px 4px rgba(0,0,0,0.2)'
+                              textShadow: '0 1px 4px rgba(0,0,0,0.4)'
                             }}
                           >
                             {feature.description}
@@ -445,27 +602,78 @@ const Login = () => {
                 p: 5, 
                 backdropFilter: 'blur(50px)', 
                 background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08))',
-                border: '2px solid rgba(255,255,255,0.15)',
-                boxShadow: '0 25px 60px rgba(0,0,0,0.3)'
+                border: '2px solid rgba(255,255,255,0.2)',
+                boxShadow: '0 25px 60px rgba(0,0,0,0.5)'
               }}
             >
               <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <Typography 
-                  variant="h4" 
-                  sx={{ 
-                    fontWeight: 900,
-                    background: 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    mb: 1
-                  }}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.5 }}
                 >
-                  Вход в систему
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: '1.1rem' }}>
-                  Добро пожаловать в будущее
-                </Typography>
+                  <motion.div
+                    animate={{
+                      textShadow: [
+                        '0 2px 4px rgba(59, 130, 246, 0.3)',
+                        '0 4px 8px rgba(139, 92, 246, 0.4)',
+                        '0 2px 4px rgba(59, 130, 246, 0.3)'
+                      ]
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <Typography 
+                      variant="h4" 
+                      sx={{ 
+                        fontWeight: '900 !important',
+                        color: '#ffffff !important',
+                        textShadow: '0 2px 4px rgba(59, 130, 246, 0.3), 0 0 20px rgba(255,255,255,0.1) !important',
+                        mb: 1,
+                        background: 'linear-gradient(135deg, #ffffff 0%, rgba(59, 130, 246, 0.9) 100%)',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
+                      }}
+                    >
+                      Вход в систему
+                    </Typography>
+                  </motion.div>
+                </motion.div>
+                
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.7 }}
+                >
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.02, 1],
+                      opacity: [0.8, 1, 0.8]
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        color: '#ffffff !important', 
+                        fontWeight: 500, 
+                        fontSize: '1.1rem',
+                        textShadow: '0 1px 3px rgba(0,0,0,0.5)'
+                      }}
+                    >
+                      🌟 Добро пожаловать в цифровое будущее
+                    </Typography>
+                  </motion.div>
+                </motion.div>
               </Box>
 
               <AnimatePresence>
@@ -497,9 +705,12 @@ const Login = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Mail size={20} color={focusedField === 'email' ? '#667eea' : '#64748b'} />
+                        <Mail size={20} color={focusedField === 'email' ? '#3b82f6' : '#ffffff'} />
                       </InputAdornment>
                     ),
+                  }}
+                  InputLabelProps={{
+                    style: { color: '#ffffff' }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -509,16 +720,26 @@ const Login = () => {
                       border: '1px solid rgba(255,255,255,0.2)',
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       fontSize: '1.1rem',
+                      color: '#ffffff !important',
+                      '& input': {
+                        color: '#ffffff !important',
+                      },
                       '&:hover': {
                         transform: 'translateY(-3px)',
                         backgroundColor: 'rgba(255,255,255,0.15)',
-                        boxShadow: '0 12px 35px rgba(102, 126, 234, 0.2)',
+                        boxShadow: '0 12px 35px rgba(59, 130, 246, 0.2)',
                       },
                       '&.Mui-focused': {
                         transform: 'translateY(-4px)',
-                        boxShadow: '0 20px 50px rgba(102, 126, 234, 0.3)',
+                        boxShadow: '0 20px 50px rgba(59, 130, 246, 0.3)',
                         backgroundColor: 'rgba(255,255,255,0.2)',
-                        borderColor: '#667eea',
+                        borderColor: '#3b82f6',
+                      }
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#ffffff !important',
+                      '&.Mui-focused': {
+                        color: '#3b82f6 !important'
                       }
                     }
                   }}
@@ -537,7 +758,7 @@ const Login = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Lock size={20} color={focusedField === 'password' ? '#667eea' : '#64748b'} />
+                        <Lock size={20} color={focusedField === 'password' ? '#3b82f6' : '#ffffff'} />
                       </InputAdornment>
                     ),
                     endAdornment: (
@@ -546,9 +767,9 @@ const Login = () => {
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
                           sx={{ 
-                            color: '#64748b',
+                            color: '#ffffff',
                             '&:hover': { 
-                              color: '#667eea',
+                              color: '#3b82f6',
                               transform: 'scale(1.2)' 
                             } 
                           }}
@@ -558,6 +779,9 @@ const Login = () => {
                       </InputAdornment>
                     ),
                   }}
+                  InputLabelProps={{
+                    style: { color: '#ffffff' }
+                  }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 3,
@@ -566,16 +790,26 @@ const Login = () => {
                       border: '1px solid rgba(255,255,255,0.2)',
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       fontSize: '1.1rem',
+                      color: '#ffffff !important',
+                      '& input': {
+                        color: '#ffffff !important',
+                      },
                       '&:hover': {
                         transform: 'translateY(-3px)',
                         backgroundColor: 'rgba(255,255,255,0.15)',
-                        boxShadow: '0 12px 35px rgba(102, 126, 234, 0.2)',
+                        boxShadow: '0 12px 35px rgba(59, 130, 246, 0.2)',
                       },
                       '&.Mui-focused': {
                         transform: 'translateY(-4px)',
-                        boxShadow: '0 20px 50px rgba(102, 126, 234, 0.3)',
+                        boxShadow: '0 20px 50px rgba(59, 130, 246, 0.3)',
                         backgroundColor: 'rgba(255,255,255,0.2)',
-                        borderColor: '#667eea',
+                        borderColor: '#3b82f6',
+                      }
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#ffffff !important',
+                      '&.Mui-focused': {
+                        color: '#3b82f6 !important'
                       }
                     }
                   }}
@@ -594,13 +828,13 @@ const Login = () => {
                     fontSize: '1.2rem',
                     fontWeight: 800,
                     borderRadius: 3,
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    boxShadow: '0 20px 50px rgba(102, 126, 234, 0.5)',
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                    boxShadow: '0 20px 50px rgba(59, 130, 246, 0.5)',
                     textTransform: 'none',
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+                      background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
                       transform: 'translateY(-4px)',
-                      boxShadow: '0 30px 70px rgba(102, 126, 234, 0.7)',
+                      boxShadow: '0 30px 70px rgba(59, 130, 246, 0.7)',
                     },
                     '&:active': {
                       transform: 'translateY(-2px)',

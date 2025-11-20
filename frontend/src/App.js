@@ -104,17 +104,17 @@ function App() {
                 />
 
                 {/* Дашборд статистики (только для менеджеров) */}
-<Route
-  path="/dashboard"
-  element={
-    <ProtectedRoute roles={['manager']}>
-      <>
-        <Navbar />
-        <Dashboard />
-      </>
-    </ProtectedRoute>
-  }
-/>
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute roles={['manager']}>
+                      <>
+                        <Navbar />
+                        <Dashboard />
+                      </>
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Редирект с главной на заявки */}
                 <Route path="/" element={<Navigate to="/tickets" replace />} />
