@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+
+# Database files
+*.sqlite
+*.db
+database_backup.sql
+
+# Logs
+*.log
+
+# Build outputs
+build/
+dist/
+
+# Cache and temp
+.cache/
+.npm/
+tmp/
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Package locks 
+# package-lock.json
