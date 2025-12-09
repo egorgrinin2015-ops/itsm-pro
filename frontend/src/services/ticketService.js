@@ -29,6 +29,18 @@ const ticketService = {
   deleteTicket: async (id) => {
     const response = await api.delete(`/tickets/${id}`);
     return response.data;
+  },
+
+  // НОВОЕ: Изменение статуса заявки
+  updateTicketStatus: async (ticketId, status) => {
+    const response = await api.put(`/tickets/${ticketId}/status`, { status });
+    return response.data;
+  },
+
+  // НОВОЕ: Назначение ответственного исполнителя
+  assignTicket: async (ticketId, engineerId) => {
+    const response = await api.put(`/tickets/${ticketId}/assign`, { engineerId });
+    return response.data;
   }
 };
 

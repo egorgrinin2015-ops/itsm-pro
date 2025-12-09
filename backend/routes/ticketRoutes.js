@@ -21,4 +21,10 @@ router.put('/:id', ticketController.updateTicket);
 // Удаление заявки (только менеджеры)
 router.delete('/:id', ticketController.deleteTicket);
 
+// НОВОЕ: Изменение статуса заявки (только менеджеры)
+router.put('/:id/status', ticketController.updateTicketStatus);
+
+// НОВОЕ: Назначение ответственного исполнителя (только менеджеры)
+router.put('/:id/assign', ticketController.assignTicket);
+
 module.exports = router;

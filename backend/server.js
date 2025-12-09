@@ -19,6 +19,7 @@ const subtaskRoutes = require('./routes/subtaskRoutes');
 const statsRoutes = require('./routes/statsRoutes');
 const kbRoutes = require('./routes/kbRoutes');
 const slaRoutes = require('./routes/slaRoutes');
+const userRoutes = require('./routes/userRoutes'); // ← ДОБАВЛЕНО!
 
 console.log('📦 Все маршруты загружены');
 
@@ -31,6 +32,7 @@ app.use('/api/subtasks', subtaskRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/kb', kbRoutes);
 app.use('/api/sla', slaRoutes);
+app.use('/api/users', userRoutes); // ← ТЕПЕРЬ РАБОТАЕТ!
 
 console.log('✅ Все маршруты подключены');
 
@@ -76,6 +78,7 @@ const startServer = async () => {
       console.log('   • /api/stats (статистика)');
       console.log('   • /api/kb (база знаний)');
       console.log('   • /api/sla (🎯 SLA!)');
+      console.log('   • /api/users (👷 пользователи!)'); // ← ДОБАВЛЕНО!
       console.log('\n🚀 Backend готов к работе!\n');
     });
   } else {

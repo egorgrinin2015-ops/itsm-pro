@@ -24,7 +24,9 @@ import {
   Skeleton,
   Fab,
   Zoom,
-  GlobalStyles
+  GlobalStyles,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import {
   Plus,
@@ -36,6 +38,7 @@ import {
   Target,
   Sparkles
 } from 'lucide-react';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 
 // Глобальные стили с Space Indigo темой
 const darkBackgroundStyles = (
@@ -136,6 +139,9 @@ const TicketList = () => {
   const { user, isEngineer } = useAuth();
   const navigate = useNavigate();
   
+  // Проверка роли инженера
+  const isEngineerRole = user && ['engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'].includes(user.role);
+  
   // Функция для безопасного форматирования даты
   const formatDate = (dateString) => {
     if (!dateString) return 'Нет даты';
@@ -169,6 +175,7 @@ const TicketList = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [myTicketsOnly, setMyTicketsOnly] = useState(false); // ← НОВОЕ СОСТОЯНИЕ
   const [filters, setFilters] = useState({
     search: '',
     status: [],
@@ -179,7 +186,7 @@ const TicketList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [filters, currentPage]);
+  }, [filters, currentPage, myTicketsOnly]); // ← ДОБАВЛЕНО В ЗАВИСИМОСТИ
 
   useEffect(() => {
     fetchCategories();
@@ -208,6 +215,7 @@ const TicketList = () => {
         status: filters.status.join(','),
         priority: filters.priority.join(','),
         categoryId: filters.categoryId.join(','),
+        myTickets: myTicketsOnly // ← ДОБАВЛЕН ПАРАМЕТР
       };
 
       Object.keys(params).forEach(key => {
@@ -396,35 +404,92 @@ const TicketList = () => {
                 </ToggleButtonGroup>
 
                 <motion.div
-  whileHover={{ scale: 1.05, y: -2 }}
-  whileTap={{ scale: 0.95 }}
->
-  <Button
-    variant="contained"
-    startIcon={<Plus />}
-    onClick={() => navigate('/tickets/create')}
-    sx={{
-      background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-      borderRadius: 3,
-      px: 4,
-      py: 1.5,
-      fontWeight: 700,
-      fontSize: '1rem',
-      boxShadow: '0 8px 25px rgba(6, 182, 212, 0.4)',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      '&:hover': {
-        background: 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)',
-        boxShadow: '0 15px 40px rgba(6, 182, 212, 0.6)',
-      }
-    }}
-  >
-    Создать заявку
-  </Button>
-</motion.div>
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    variant="contained"
+                    startIcon={<Plus />}
+                    onClick={() => navigate('/tickets/create')}
+                    sx={{
+                      background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                      borderRadius: 3,
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: 700,
+                      fontSize: '1rem',
+                      boxShadow: '0 8px 25px rgba(6, 182, 212, 0.4)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)',
+                        boxShadow: '0 15px 40px rgba(6, 182, 212, 0.6)',
+                      }
+                    }}
+                  >
+                    Создать заявку
+                  </Button>
+                </motion.div>
               </Box>
             </Box>
           </GlassCard>
         </motion.div>
+
+        {/* ПЕРЕКЛЮЧАТЕЛЬ "МОИ ЗАЯВКИ" - ТОЛЬКО ДЛЯ ИНЖЕНЕРОВ */}
+        {isEngineerRole && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            <GlassCard variant="dark" sx={{ mb: 3, p: 2 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={myTicketsOnly}
+                    onChange={(e) => {
+                      setMyTicketsOnly(e.target.checked);
+                      setCurrentPage(1);
+                    }}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: theme.primary.main,
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: theme.primary.main,
+                      },
+                    }}
+                  />
+                }
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <AssignmentIndIcon sx={{ color: theme.primary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography 
+                        variant="body1" 
+                        sx={{ 
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '1.1rem'
+                        }}
+                      >
+                        Только мои заявки
+                      </Typography>
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          color: theme.text.secondary,
+                          fontSize: '0.85rem'
+                        }}
+                      >
+                        Показать заявки, назначенные на меня
+                      </Typography>
+                    </Box>
+                  </Box>
+                }
+              />
+            </GlassCard>
+          </motion.div>
+        )}
 
         {/* Быстрая статистика */}
         <motion.div
@@ -625,7 +690,7 @@ const TicketList = () => {
                     textShadow: '0 2px 8px rgba(0,0,0,0.5)'
                   }}
                 >
-                  Заявки не найдены
+                  {myTicketsOnly ? 'У вас нет назначенных заявок' : 'Заявки не найдены'}
                 </Typography>
                 
                 <Typography 
@@ -635,34 +700,39 @@ const TicketList = () => {
                     fontSize: '1.1rem'
                   }}
                 >
-                  Попробуйте изменить параметры поиска или создайте новую заявку
+                  {myTicketsOnly 
+                    ? 'Пока на вас не назначены заявки. Попробуйте отключить фильтр "Только мои заявки".'
+                    : 'Попробуйте изменить параметры поиска или создайте новую заявку'
+                  }
                 </Typography>
                 
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    variant="contained"
-                    startIcon={<Plus />}
-                    onClick={() => navigate('/tickets/create')}
-                    sx={{
-                      background: theme.gradients.primary,
-                      borderRadius: 3,
-                      px: 4,
-                      py: 2,
-                      fontWeight: 700,
-                      fontSize: '1.1rem',
-                      boxShadow: `0 8px 25px ${theme.primary.main}66`,
-                      '&:hover': {
-                        background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
-                        boxShadow: `0 15px 40px ${theme.primary.main}99`,
-                      }
-                    }}
+                {!myTicketsOnly && (
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    Создать заявку
-                  </Button>
-                </motion.div>
+                    <Button
+                      variant="contained"
+                      startIcon={<Plus />}
+                      onClick={() => navigate('/tickets/create')}
+                      sx={{
+                        background: theme.gradients.primary,
+                        borderRadius: 3,
+                        px: 4,
+                        py: 2,
+                        fontWeight: 700,
+                        fontSize: '1.1rem',
+                        boxShadow: `0 8px 25px ${theme.primary.main}66`,
+                        '&:hover': {
+                          background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
+                          boxShadow: `0 15px 40px ${theme.primary.main}99`,
+                        }
+                      }}
+                    >
+                      Создать заявку
+                    </Button>
+                  </motion.div>
+                )}
               </GlassCard>
             </motion.div>
           ) : (

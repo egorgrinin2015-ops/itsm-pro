@@ -123,6 +123,19 @@ exports.getTickets = async (req, res) => {
       }
     }
 
+    // АВТОФИЛЬТР ДЛЯ ИНЖЕНЕРОВ - показывать только свои заявки
+    if (req.query.myTickets === 'true' && req.user) {
+      const userRole = req.user.role;
+      const isEngineer = ['engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'].includes(userRole);
+      
+      if (isEngineer) {
+        console.log('👷 Фильтр "Мои заявки" для инженера:', req.user.id);
+        paramCounter++;
+        query += ` AND t."assignedTo" = :myUserId${paramCounter}`;
+        replacements[`myUserId${paramCounter}`] = req.user.id;
+      }
+    }
+
     // ПАГИНАЦИЯ
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
@@ -185,6 +198,11 @@ exports.getTicketById = async (req, res) => {
         c.name as "categoryName",
         c."slaTime" as "slaMinutes",
         eng."fullName" as "engineerName",
+        jsonb_build_object(
+          'id', eng.id,
+          'fullName', eng."fullName",
+          'email', eng.email
+        ) as "assignedTo",
         CASE 
           WHEN t."resolvedAt" IS NOT NULL THEN
             CASE 
@@ -408,10 +426,161 @@ exports.deleteTicket = async (req, res) => {
   }
 };
 
+// НОВОЕ: Изменение статуса заявки (только менеджеры)
+exports.updateTicketStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    console.log('🔄 Изменение статуса заявки:', { id, status });
+
+    // Проверка прав (менеджеры, админы и инженеры)
+    const allowedRoles = ['manager', 'admin', 'engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'];
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: 'Недостаточно прав для изменения статуса' 
+      });
+    }
+
+    // Проверка валидности статуса
+    const validStatuses = ['new', 'in_progress', 'on_hold', 'resolved', 'closed'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ 
+        message: 'Недопустимый статус. Допустимые: ' + validStatuses.join(', ')
+      });
+    }
+
+    // Проверка существования заявки
+    const existing = await sequelize.query(
+      'SELECT * FROM tickets WHERE id = :id',
+      { replacements: { id }, type: QueryTypes.SELECT }
+    );
+    
+    if (existing.length === 0) {
+      return res.status(404).json({ message: 'Заявка не найдена' });
+    }
+
+    // Обновление статуса
+    let updateQuery = `UPDATE tickets SET status = :status, "updatedAt" = NOW()`;
+    const replacements = { id, status };
+
+    // Если статус "решена" или "закрыта" - устанавливаем resolvedAt
+    if ((status === 'resolved' || status === 'closed') && !existing[0].resolvedAt) {
+      updateQuery += `, "resolvedAt" = NOW()`;
+    }
+
+    updateQuery += ` WHERE id = :id RETURNING *`;
+
+    const result = await sequelize.query(updateQuery, {
+      replacements,
+      type: QueryTypes.UPDATE
+    });
+
+    console.log('✅ Статус заявки изменён:', result[0][0]);
+
+    res.json({
+      message: 'Статус успешно изменён',
+      ticket: result[0][0]
+    });
+  } catch (error) {
+    console.error('❌ Ошибка изменения статуса:', error);
+    res.status(500).json({ 
+      message: 'Ошибка изменения статуса',
+      error: error.message 
+    });
+  }
+};
+
+// НОВОЕ: Назначение ответственного исполнителя (только менеджеры)
+exports.assignTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { engineerId } = req.body;
+
+    console.log('👤 Назначение ответственного:', { ticketId: id, engineerId });
+
+    // Проверка прав (менеджеры, админы и инженеры)
+    const allowedRoles = ['manager', 'admin', 'engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'];
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: 'Недостаточно прав для назначения ответственного' 
+      });
+    }
+
+    // Проверка существования заявки
+    const existing = await sequelize.query(
+      'SELECT * FROM tickets WHERE id = :id',
+      { replacements: { id }, type: QueryTypes.SELECT }
+    );
+    
+    if (existing.length === 0) {
+      return res.status(404).json({ message: 'Заявка не найдена' });
+    }
+
+    // Проверка существования инженера
+    const engineer = await sequelize.query(
+      'SELECT id, "fullName", email FROM users WHERE id = :engineerId',
+      { replacements: { engineerId }, type: QueryTypes.SELECT }
+    );
+    
+    if (engineer.length === 0) {
+      return res.status(404).json({ message: 'Инженер не найден' });
+    }
+
+    // Назначение ответственного
+    await sequelize.query(
+      'UPDATE tickets SET "assignedTo" = :engineerId, "updatedAt" = NOW() WHERE id = :id',
+      { 
+        replacements: { id, engineerId },
+        type: QueryTypes.UPDATE
+      }
+    );
+
+    // Получаем обновлённую заявку с данными исполнителя
+    const updatedTicket = await sequelize.query(
+      `SELECT 
+        t.*,
+        u."fullName" as "creatorName",
+        c.name as "categoryName",
+        eng."fullName" as "engineerName",
+        eng.email as "engineerEmail",
+        jsonb_build_object(
+          'id', eng.id,
+          'fullName', eng."fullName",
+          'email', eng.email
+        ) as "assignedTo"
+      FROM tickets t
+      LEFT JOIN users u ON t."userId" = u.id
+      LEFT JOIN service_categories c ON t."categoryId" = c.id
+      LEFT JOIN users eng ON t."assignedTo" = eng.id
+      WHERE t.id = :id`,
+      { 
+        replacements: { id },
+        type: QueryTypes.SELECT
+      }
+    );
+
+    console.log('✅ Ответственный назначен:', updatedTicket[0]);
+
+    res.json({
+      message: 'Ответственный успешно назначен',
+      ticket: updatedTicket[0]
+    });
+  } catch (error) {
+    console.error('❌ Ошибка назначения ответственного:', error);
+    res.status(500).json({ 
+      message: 'Ошибка назначения ответственного',
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   getTickets: exports.getTickets,
   getTicketById: exports.getTicketById,
   createTicket: exports.createTicket,
   updateTicket: exports.updateTicket,
-  deleteTicket: exports.deleteTicket
+  deleteTicket: exports.deleteTicket,
+  updateTicketStatus: exports.updateTicketStatus,
+  assignTicket: exports.assignTicket
 };
