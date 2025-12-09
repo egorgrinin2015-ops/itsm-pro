@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import ticketService from '../services/ticketService';
 import commentService from '../services/commentService';
 import GlassCard from '../components/GlassCard';
+import theme from '../theme/theme';
 import {
   Container,
   Typography,
@@ -36,20 +37,20 @@ import {
   Chat
 } from '@mui/icons-material';
 
-// Принудительные глобальные стили для темного фона
+// Глобальные стили с Space Indigo темой
 const darkBackgroundStyles = (
   <GlobalStyles
     styles={{
       body: {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       '#root': {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       html: {
-        background: '#000000 !important',
+        background: `${theme.background.primary} !important`,
       }
     }}
   />
@@ -71,7 +72,7 @@ const TicketDetailBackground = () => {
         zIndex: '-999 !important',
       }}
     >
-      {/* ТЕМНЫЙ ФОН */}
+      {/* ОСНОВНОЙ ФОН */}
       <Box
         sx={{
           position: 'absolute !important',
@@ -81,16 +82,7 @@ const TicketDetailBackground = () => {
           bottom: '0 !important',
           width: '100% !important',
           height: '100% !important',
-          background: `
-            linear-gradient(135deg, 
-              #000000 0%,
-              #1a1a2e 20%,
-              #16213e 40%,
-              #0f172a 60%,
-              #020617 80%,
-              #000000 100%
-            ) !important
-          `,
+          background: theme.gradients.background,
         }}
       />
 
@@ -103,9 +95,9 @@ const TicketDetailBackground = () => {
           right: '0 !important',
           bottom: '0 !important',
           background: `
-            radial-gradient(ellipse at 15% 20%, rgba(34, 197, 94, 0.3) 0%, transparent 50%),
-            radial-gradient(ellipse at 85% 80%, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.2) 0%, transparent 40%)
+            radial-gradient(ellipse at 15% 20%, ${theme.functional.success.main}4D 0%, transparent 50%),
+            radial-gradient(ellipse at 85% 80%, ${theme.functional.info.main}40 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, ${theme.primary.main}33 0%, transparent 40%)
           `,
         }}
       />
@@ -128,8 +120,8 @@ const TicketDetailBackground = () => {
           right: 0,
           bottom: 0,
           backgroundImage: `
-            linear-gradient(rgba(34, 197, 94, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34, 197, 94, 0.1) 1px, transparent 1px)
+            linear-gradient(${theme.border.main} 1px, transparent 1px),
+            linear-gradient(90deg, ${theme.border.main} 1px, transparent 1px)
           `,
           backgroundSize: '20px 20px',
           pointerEvents: 'none'
@@ -156,7 +148,7 @@ const TicketDetail = () => {
       try {
         setLoading(true);
         const data = await ticketService.getTicketById(id);
-        setTicket(data.ticket);
+        setTicket(data);
         setError('');
       } catch (err) {
         setError('Ошибка загрузки заявки');
@@ -207,23 +199,23 @@ const TicketDetail = () => {
 
   const getStatusConfig = (status) => {
     const configs = {
-      new: { label: 'Новая', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
-      in_progress: { label: 'В работе', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
-      waiting: { label: 'Ожидание', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
-      resolved: { label: 'Решена', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
-      closed: { label: 'Закрыта', color: '#6b7280', bg: 'rgba(107, 114, 128, 0.1)' }
+      new: { label: 'Новая', color: theme.functional.info.main, bg: theme.functional.info.bg },
+      in_progress: { label: 'В работе', color: theme.functional.warning.main, bg: theme.functional.warning.bg },
+      waiting: { label: 'Ожидание', color: theme.primary.main, bg: `${theme.primary.main}1A` },
+      resolved: { label: 'Решена', color: theme.functional.success.main, bg: theme.functional.success.bg },
+      closed: { label: 'Закрыта', color: theme.text.secondary, bg: `${theme.text.secondary}1A` }
     };
-    return configs[status] || { label: status, color: '#6b7280', bg: 'rgba(107, 114, 128, 0.1)' };
+    return configs[status] || { label: status, color: theme.text.secondary, bg: `${theme.text.secondary}1A` };
   };
 
   const getPriorityConfig = (priority) => {
     const configs = {
-      low: { label: 'Низкий', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', icon: '🟢' },
-      medium: { label: 'Средний', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)', icon: '🟡' },
-      high: { label: 'Высокий', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)', icon: '🟠' },
-      critical: { label: 'Критичный', color: '#dc2626', bg: 'rgba(220, 38, 38, 0.1)', icon: '🔴' }
+      low: { label: 'Низкий', color: theme.functional.success.main, bg: theme.functional.success.bg, icon: '🟢' },
+      medium: { label: 'Средний', color: theme.functional.warning.main, bg: theme.functional.warning.bg, icon: '🟡' },
+      high: { label: 'Высокий', color: theme.functional.error.main, bg: theme.functional.error.bg, icon: '🟠' },
+      critical: { label: 'Критичный', color: theme.functional.error.main, bg: theme.functional.error.bg, icon: '🔴' }
     };
-    return configs[priority] || { label: priority, color: '#6b7280', bg: 'rgba(107, 114, 128, 0.1)', icon: '⚪' };
+    return configs[priority] || { label: priority, color: theme.text.secondary, bg: `${theme.text.secondary}1A`, icon: '⚪' };
   };
 
   const formatDate = (dateString) => {
@@ -258,12 +250,12 @@ const TicketDetail = () => {
                 repeat: Infinity
               }}
             >
-              <CircularProgress size={60} sx={{ color: '#10b981', mb: 3 }} />
+              <CircularProgress size={60} sx={{ color: theme.functional.success.main, mb: 3 }} />
             </motion.div>
-            <Typography variant="h5" sx={{ color: 'white', fontWeight: 700 }}>
+            <Typography variant="h5" sx={{ color: theme.text.primary, fontWeight: 700 }}>
               Загрузка заявки...
             </Typography>
-            <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 1 }}>
+            <Typography sx={{ color: theme.text.secondary, mt: 1 }}>
               Получаем детальную информацию
             </Typography>
           </GlassCard>
@@ -279,7 +271,7 @@ const TicketDetail = () => {
         <TicketDetailBackground />
         <Container maxWidth="lg" sx={{ py: 4, position: 'relative', zIndex: 10 }}>
           <GlassCard variant="colored" color="red" sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="h5" sx={{ color: 'white', fontWeight: 700, mb: 3 }}>
+            <Typography variant="h5" sx={{ color: theme.text.primary, fontWeight: 700, mb: 3 }}>
               ❌ {error || 'Заявка не найдена'}
             </Typography>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -288,7 +280,7 @@ const TicketDetail = () => {
                 variant="contained"
                 startIcon={<ArrowBack />}
                 sx={{
-                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  background: `linear-gradient(135deg, ${theme.functional.error.main} 0%, #dc2626 100%)`,
                   fontWeight: 700,
                   borderRadius: 3
                 }}
@@ -336,14 +328,14 @@ const TicketDetail = () => {
                       width: 60,
                       height: 60,
                       borderRadius: 3,
-                      background: `linear-gradient(135deg, ${statusConfig.color}, ${statusConfig.color}cc)`,
+                      background: `linear-gradient(135deg, ${statusConfig.color}, ${statusConfig.color}CC)`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: `0 15px 35px ${statusConfig.color}40`
+                      boxShadow: `0 15px 35px ${statusConfig.color}66`
                     }}
                   >
-                    <Info size={28} color="white" />
+                    <Info size={28} color={theme.text.primary} />
                   </Box>
                 </motion.div>
                 
@@ -352,26 +344,26 @@ const TicketDetail = () => {
                     variant="h4" 
                     sx={{ 
                       fontWeight: 800,
-                      color: 'white',
+                      color: theme.text.primary,
                       textShadow: '0 2px 8px rgba(0,0,0,0.5)'
                     }}
                   >
-                    🎫 Заявка #{ticket.ticketNumber}
+                    🎫 Заявка #{ticket.id}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
                     <Chip
                       label={statusConfig.label}
                       sx={{
-                        background: `linear-gradient(135deg, ${statusConfig.color}, ${statusConfig.color}cc)`,
-                        color: 'white',
+                        background: `linear-gradient(135deg, ${statusConfig.color}, ${statusConfig.color}CC)`,
+                        color: theme.text.primary,
                         fontWeight: 600
                       }}
                     />
                     <Chip
                       label={`${priorityConfig.icon} ${priorityConfig.label}`}
                       sx={{
-                        background: `linear-gradient(135deg, ${priorityConfig.color}, ${priorityConfig.color}cc)`,
-                        color: 'white',
+                        background: `linear-gradient(135deg, ${priorityConfig.color}, ${priorityConfig.color}CC)`,
+                        color: theme.text.primary,
                         fontWeight: 600
                       }}
                     />
@@ -385,12 +377,12 @@ const TicketDetail = () => {
                   onClick={() => navigate('/tickets')}
                   variant="outlined"
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    color: theme.text.secondary,
+                    borderColor: theme.border.main,
                     fontWeight: 600,
                     '&:hover': {
-                      borderColor: 'rgba(255, 255, 255, 0.6)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      borderColor: theme.border.light,
+                      backgroundColor: theme.background.elevated,
                     }
                   }}
                 >
@@ -417,7 +409,7 @@ const TicketDetail = () => {
                 <Typography 
                   variant="h5" 
                   sx={{ 
-                    color: 'white', 
+                    color: theme.text.primary, 
                     fontWeight: 700, 
                     mb: 3,
                     textShadow: '0 2px 8px rgba(0,0,0,0.5)'
@@ -428,13 +420,13 @@ const TicketDetail = () => {
 
                 <Divider sx={{ 
                   my: 3, 
-                  background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.3), rgba(255,255,255,0))'
+                  background: `linear-gradient(90deg, transparent, ${theme.border.main}, transparent)`
                 }} />
 
                 <Typography 
                   variant="body1" 
                   sx={{ 
-                    color: 'rgba(255, 255, 255, 0.9)',
+                    color: theme.text.primary,
                     whiteSpace: 'pre-wrap',
                     lineHeight: 1.8,
                     fontSize: '1.1rem'
@@ -453,11 +445,11 @@ const TicketDetail = () => {
             >
               <GlassCard variant="dark" sx={{ p: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                  <Chat size={24} color="#10b981" />
+                  <Chat size={24} color={theme.functional.success.main} />
                   <Typography 
                     variant="h6" 
                     sx={{ 
-                      color: 'white', 
+                      color: theme.text.primary, 
                       fontWeight: 700,
                       textShadow: '0 2px 8px rgba(0,0,0,0.5)'
                     }}
@@ -477,12 +469,12 @@ const TicketDetail = () => {
                         <Box sx={{ 
                           textAlign: 'center', 
                           py: 6,
-                          color: 'rgba(255, 255, 255, 0.7)'
+                          color: theme.text.secondary
                         }}>
-                          <Typography variant="h6" sx={{ mb: 1, opacity: 0.8 }}>
+                          <Typography variant="h6" sx={{ mb: 1 }}>
                             💭 Комментариев пока нет
                           </Typography>
-                          <Typography variant="body2" sx={{ opacity: 0.6 }}>
+                          <Typography variant="body2" sx={{ color: theme.text.disabled }}>
                             Будьте первым, кто оставит комментарий
                           </Typography>
                         </Box>
@@ -502,14 +494,14 @@ const TicketDetail = () => {
                               mb: 2,
                               p: 3,
                               borderRadius: 3,
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              background: theme.background.elevated,
+                              border: `1px solid ${theme.border.main}`,
                               backdropFilter: 'blur(10px)',
                               transition: 'all 0.3s ease',
                               '&:hover': {
-                                background: 'rgba(255, 255, 255, 0.08)',
+                                background: theme.background.secondary,
                                 transform: 'translateY(-2px)',
-                                boxShadow: '0 8px 25px rgba(0,0,0,0.2)'
+                                boxShadow: theme.glass.dark.shadow
                               }
                             }}
                           >
@@ -518,7 +510,7 @@ const TicketDetail = () => {
                                 sx={{
                                   width: 40,
                                   height: 40,
-                                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                  background: theme.gradients.primary,
                                   mr: 2,
                                   fontWeight: 700
                                 }}
@@ -530,7 +522,7 @@ const TicketDetail = () => {
                                   variant="subtitle1" 
                                   sx={{ 
                                     fontWeight: 700, 
-                                    color: 'white',
+                                    color: theme.text.primary,
                                     textShadow: '0 1px 3px rgba(0,0,0,0.5)'
                                   }}
                                 >
@@ -539,7 +531,7 @@ const TicketDetail = () => {
                                 <Typography 
                                   variant="caption" 
                                   sx={{ 
-                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    color: theme.text.disabled,
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: 0.5
@@ -554,7 +546,7 @@ const TicketDetail = () => {
                               variant="body1" 
                               sx={{ 
                                 whiteSpace: 'pre-wrap',
-                                color: 'rgba(255, 255, 255, 0.9)',
+                                color: theme.text.primary,
                                 lineHeight: 1.6,
                                 ml: 7
                               }}
@@ -570,7 +562,7 @@ const TicketDetail = () => {
 
                 <Divider sx={{ 
                   my: 3, 
-                  background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.3), rgba(255,255,255,0))'
+                  background: `linear-gradient(90deg, transparent, ${theme.border.main}, transparent)`
                 }} />
 
                 {/* Форма добавления комментария */}
@@ -586,25 +578,26 @@ const TicketDetail = () => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1 }}>
-                          <Comment sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
+                          <Comment sx={{ color: theme.text.secondary }} />
                         </InputAdornment>
                       ),
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        color: 'white',
+                        color: theme.text.primary,
+                        backgroundColor: theme.background.elevated,
                         '& fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.3)',
+                          borderColor: theme.border.main,
                         },
                         '&:hover fieldset': {
-                          borderColor: 'rgba(16, 185, 129, 0.8)',
+                          borderColor: theme.functional.success.main,
                         },
                         '&.Mui-focused fieldset': {
-                          borderColor: '#10b981',
+                          borderColor: theme.functional.success.main,
                         },
                       },
                       '& .MuiInputBase-input::placeholder': {
-                        color: 'rgba(255, 255, 255, 0.5)',
+                        color: theme.text.disabled,
                       },
                     }}
                   />
@@ -617,19 +610,19 @@ const TicketDetail = () => {
                         startIcon={commentLoading ? <CircularProgress size={20} color="inherit" /> : <Send />}
                         disabled={!newComment.trim() || commentLoading}
                         sx={{
-                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          background: `linear-gradient(135deg, ${theme.functional.success.main} 0%, #059669 100%)`,
                           fontWeight: 700,
                           borderRadius: 3,
                           px: 4,
                           py: 1.5,
-                          boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)',
+                          boxShadow: `0 8px 25px ${theme.functional.success.main}66`,
                           '&:hover': {
                             background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                            boxShadow: '0 15px 40px rgba(16, 185, 129, 0.6)',
+                            boxShadow: `0 15px 40px ${theme.functional.success.main}99`,
                           },
                           '&:disabled': {
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            color: 'rgba(255, 255, 255, 0.3)',
+                            background: theme.background.secondary,
+                            color: theme.text.disabled,
                           }
                         }}
                       >
@@ -653,7 +646,7 @@ const TicketDetail = () => {
                 <Typography 
                   variant="h6" 
                   sx={{ 
-                    color: 'white', 
+                    color: theme.text.primary, 
                     fontWeight: 700, 
                     mb: 3,
                     textShadow: '0 2px 8px rgba(0,0,0,0.5)'
@@ -667,10 +660,10 @@ const TicketDetail = () => {
                   {/* Пользователь */}
                   <Box sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <Person size={18} color="#3b82f6" />
+                      <Person size={18} color={theme.functional.info.main} />
                       <Typography 
                         variant="subtitle2" 
-                        sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600 }}
+                        sx={{ color: theme.text.secondary, fontWeight: 600 }}
                       >
                         Пользователь:
                       </Typography>
@@ -678,24 +671,24 @@ const TicketDetail = () => {
                     <Typography 
                       variant="body1" 
                       sx={{ 
-                        color: 'white',
+                        color: theme.text.primary,
                         fontWeight: 600,
                         ml: 3
                       }}
                     >
-                      {ticket.user?.fullName || 'Неизвестно'}
+                      {ticket.creatorName || 'Неизвестно'}
                     </Typography>
                   </Box>
 
-                  <Divider sx={{ my: 2, background: 'rgba(255, 255, 255, 0.1)' }} />
+                  <Divider sx={{ my: 2, background: theme.border.main }} />
 
                   {/* Категория */}
                   <Box sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <Category size={18} color="#8b5cf6" />
+                      <Category size={18} color={theme.primary.main} />
                       <Typography 
                         variant="subtitle2" 
-                        sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600 }}
+                        sx={{ color: theme.text.secondary, fontWeight: 600 }}
                       >
                         Категория:
                       </Typography>
@@ -703,24 +696,24 @@ const TicketDetail = () => {
                     <Typography 
                       variant="body1" 
                       sx={{ 
-                        color: 'white',
+                        color: theme.text.primary,
                         fontWeight: 600,
                         ml: 3
                       }}
                     >
-                      {ticket.category?.name || 'Не указана'}
+                      {ticket.categoryName || 'Не указана'}
                     </Typography>
                   </Box>
 
-                  <Divider sx={{ my: 2, background: 'rgba(255, 255, 255, 0.1)' }} />
+                  <Divider sx={{ my: 2, background: theme.border.main }} />
 
                   {/* Создана */}
                   <Box sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <Schedule size={18} color="#10b981" />
+                      <Schedule size={18} color={theme.functional.success.main} />
                       <Typography 
                         variant="subtitle2" 
-                        sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600 }}
+                        sx={{ color: theme.text.secondary, fontWeight: 600 }}
                       >
                         Создана:
                       </Typography>
@@ -728,7 +721,7 @@ const TicketDetail = () => {
                     <Typography 
                       variant="body1" 
                       sx={{ 
-                        color: 'white',
+                        color: theme.text.primary,
                         fontWeight: 600,
                         ml: 3
                       }}
@@ -740,13 +733,13 @@ const TicketDetail = () => {
                   {/* Решена (если есть) */}
                   {ticket.resolvedAt && (
                     <>
-                      <Divider sx={{ my: 2, background: 'rgba(255, 255, 255, 0.1)' }} />
+                      <Divider sx={{ my: 2, background: theme.border.main }} />
                       <Box sx={{ mb: 3 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <Check size={18} color="#10b981" />
+                          <Check size={18} color={theme.functional.success.main} />
                           <Typography 
                             variant="subtitle2" 
-                            sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600 }}
+                            sx={{ color: theme.text.secondary, fontWeight: 600 }}
                           >
                             Решена:
                           </Typography>
@@ -754,7 +747,7 @@ const TicketDetail = () => {
                         <Typography 
                           variant="body1" 
                           sx={{ 
-                            color: 'white',
+                            color: theme.text.primary,
                             fontWeight: 600,
                             ml: 3
                           }}
@@ -791,8 +784,8 @@ const TicketDetail = () => {
                   severity="error"
                   sx={{ 
                     background: 'transparent',
-                    color: 'white',
-                    '& .MuiAlert-icon': { color: '#ef4444' }
+                    color: theme.text.primary,
+                    '& .MuiAlert-icon': { color: theme.functional.error.main }
                   }}
                 >
                   {error}

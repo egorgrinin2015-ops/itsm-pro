@@ -8,6 +8,8 @@ import AnimatedPage from '../components/AnimatedPage';
 import TicketCard from '../components/TicketCard';
 import SearchFilters from '../components/SearchFilters';
 import GlassCard from '../components/GlassCard';
+import SlaBadge from '../components/SlaBadge';
+import theme from '../theme/theme';
 import {
   Container,
   Box,
@@ -35,26 +37,26 @@ import {
   Sparkles
 } from 'lucide-react';
 
-// Принудительные глобальные стили для темного фона
+// Глобальные стили с Space Indigo темой
 const darkBackgroundStyles = (
   <GlobalStyles
     styles={{
       body: {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       '#root': {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       html: {
-        background: '#000000 !important',
+        background: `${theme.background.primary} !important`,
       }
     }}
   />
 );
 
-// Усиленный IT-фон
+// IT-фон с новой палитрой
 const ITBackground = () => {
   return (
     <Box
@@ -70,7 +72,7 @@ const ITBackground = () => {
         zIndex: '-999 !important',
       }}
     >
-      {/* ТЕМНЫЙ ФОН */}
+      {/* ОСНОВНОЙ ФОН */}
       <Box
         sx={{
           position: 'absolute !important',
@@ -80,16 +82,7 @@ const ITBackground = () => {
           bottom: '0 !important',
           width: '100% !important',
           height: '100% !important',
-          background: `
-            linear-gradient(135deg, 
-              #000000 0%,
-              #1a1a2e 20%,
-              #16213e 40%,
-              #0f172a 60%,
-              #020617 80%,
-              #000000 100%
-            ) !important
-          `,
+          background: theme.gradients.background,
         }}
       />
 
@@ -102,10 +95,10 @@ const ITBackground = () => {
           right: '0 !important',
           bottom: '0 !important',
           background: `
-            radial-gradient(ellipse at 15% 25%, rgba(59, 130, 246, 0.3) 0%, transparent 40%),
-            radial-gradient(ellipse at 85% 75%, rgba(139, 92, 246, 0.25) 0%, transparent 40%),
-            radial-gradient(ellipse at 50% 10%, rgba(34, 197, 94, 0.2) 0%, transparent 30%),
-            radial-gradient(ellipse at 20% 90%, rgba(251, 191, 36, 0.15) 0%, transparent 25%)
+            radial-gradient(ellipse at 15% 25%, ${theme.primary.main}4D 0%, transparent 40%),
+            radial-gradient(ellipse at 85% 75%, ${theme.primary.light}40 0%, transparent 40%),
+            radial-gradient(ellipse at 50% 10%, ${theme.functional.success.main}33 0%, transparent 30%),
+            radial-gradient(ellipse at 20% 90%, ${theme.functional.warning.main}26 0%, transparent 25%)
           `,
         }}
       />
@@ -128,8 +121,8 @@ const ITBackground = () => {
           right: 0,
           bottom: 0,
           backgroundImage: `
-            linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
+            linear-gradient(${theme.border.main} 1px, transparent 1px),
+            linear-gradient(90deg, ${theme.border.main} 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px',
           pointerEvents: 'none'
@@ -143,11 +136,37 @@ const TicketList = () => {
   const { user, isEngineer } = useAuth();
   const navigate = useNavigate();
   
+  // Функция для безопасного форматирования даты
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Нет даты';
+    
+    try {
+      const date = new Date(dateString);
+      
+      if (isNaN(date.getTime())) {
+        return dateString;
+      }
+      
+      return date.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      console.error('Error formatting date:', e);
+      return dateString;
+    }
+  };
+  
   const [tickets, setTickets] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [viewMode, setViewMode] = useState('grid');
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('ticketsViewMode') || 'grid';
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
@@ -165,6 +184,10 @@ const TicketList = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('ticketsViewMode', viewMode);
+  }, [viewMode]);
 
   const fetchCategories = async () => {
     try {
@@ -215,6 +238,12 @@ const TicketList = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleViewModeChange = (event, newMode) => {
+    if (newMode !== null) {
+      setViewMode(newMode);
+    }
+  };
+
   const getQuickStats = () => {
     const total = tickets.length;
     const newTickets = tickets.filter(t => t.status === 'new').length;
@@ -226,7 +255,7 @@ const TicketList = () => {
 
   const quickStats = getQuickStats();
 
-  // Компонент скелетона для загрузки
+  // Компонент скелетона
   const TicketSkeleton = ({ delay = 0 }) => (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -240,7 +269,7 @@ const TicketList = () => {
             width="70%"
             height={32}
             sx={{ 
-              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              bgcolor: theme.background.elevated,
               mb: 2 
             }}
           />
@@ -249,7 +278,7 @@ const TicketList = () => {
             width="40%"
             height={24}
             sx={{ 
-              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              bgcolor: theme.background.elevated,
               mb: 3
             }}
           />
@@ -257,7 +286,7 @@ const TicketList = () => {
             variant="rectangular"
             height={100}
             sx={{ 
-              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              bgcolor: theme.background.elevated,
               borderRadius: 2
             }}
           />
@@ -279,8 +308,9 @@ const TicketList = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <GlassCard variant="dark" sx={{ mb: 4, p: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                {/* ЛОГОТИП - ГОЛУБОЙ */}
                 <motion.div
                   animate={{
                     rotate: [0, 360],
@@ -294,43 +324,38 @@ const TicketList = () => {
                 >
                   <Box
                     sx={{
-                      width: 60,
-                      height: 60,
+                      width: 70,
+                      height: 70,
                       borderRadius: 3,
-                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(139, 92, 246, 0.8) 100%)',
+                      background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 15px 35px rgba(59, 130, 246, 0.4)'
+                      boxShadow: '0 20px 60px rgba(6, 182, 212, 0.4)'
                     }}
                   >
-                    <Sparkles size={28} color="white" />
+                    <Sparkles size={32} color="white" />
                   </Box>
                 </motion.div>
                 
+                {/* ТЕКСТ - КАК В БАЗЕ ЗНАНИЙ */}
                 <Box>
-                  <Typography 
-                    variant="h3" 
-                    sx={{ 
+                  <Typography
+                    variant="h3"
+                    sx={{
                       fontWeight: 900,
-                      color: '#ffffff !important',
-                      textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(59, 130, 246, 0.5)',
+                      color: '#ffffff',
+                      textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(6, 182, 212, 0.5)',
                       mb: 1,
-                      background: 'linear-gradient(135deg, #ffffff 0%, rgba(59, 130, 246, 0.9) 100%)',
+                      background: 'linear-gradient(135deg, #ffffff 0%, #06b6d4 100%)',
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent'
                     }}
                   >
-                    🎫 Система заявок
+                    Система заявок
                   </Typography>
-                  <Typography 
-                    variant="h6" 
-                    sx={{ 
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      textShadow: '0 2px 8px rgba(0,0,0,0.5)'
-                    }}
-                  >
+                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '1.1rem' }}>
                     Управление и отслеживание обращений пользователей
                   </Typography>
                 </Box>
@@ -341,19 +366,23 @@ const TicketList = () => {
                 <ToggleButtonGroup
                   value={viewMode}
                   exclusive
-                  onChange={(e, newMode) => newMode && setViewMode(newMode)}
+                  onChange={handleViewModeChange}
                   size="small"
                   sx={{
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: theme.background.elevated,
                     borderRadius: 3,
                     backdropFilter: 'blur(10px)',
                     '& .MuiToggleButton-root': {
                       border: 'none',
-                      color: 'rgba(255, 255, 255, 0.7)',
+                      color: theme.text.secondary,
+                      px: 2,
                       '&.Mui-selected': {
-                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                        color: 'white',
-                        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
+                        backgroundColor: theme.primary.main,
+                        color: theme.text.primary,
+                        boxShadow: `0 4px 15px ${theme.primary.main}66`,
+                      },
+                      '&:hover': {
+                        backgroundColor: `${theme.primary.main}4D`,
                       }
                     }
                   }}
@@ -367,30 +396,31 @@ const TicketList = () => {
                 </ToggleButtonGroup>
 
                 <motion.div
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    variant="contained"
-                    startIcon={<Plus />}
-                    onClick={() => navigate('/tickets/create')}
-                    sx={{
-                      background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                      borderRadius: 3,
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 700,
-                      boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                        boxShadow: '0 15px 40px rgba(59, 130, 246, 0.6)',
-                      }
-                    }}
-                  >
-                    Создать заявку
-                  </Button>
-                </motion.div>
+  whileHover={{ scale: 1.05, y: -2 }}
+  whileTap={{ scale: 0.95 }}
+>
+  <Button
+    variant="contained"
+    startIcon={<Plus />}
+    onClick={() => navigate('/tickets/create')}
+    sx={{
+      background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+      borderRadius: 3,
+      px: 4,
+      py: 1.5,
+      fontWeight: 700,
+      fontSize: '1rem',
+      boxShadow: '0 8px 25px rgba(6, 182, 212, 0.4)',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      '&:hover': {
+        background: 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)',
+        boxShadow: '0 15px 40px rgba(6, 182, 212, 0.6)',
+      }
+    }}
+  >
+    Создать заявку
+  </Button>
+</motion.div>
               </Box>
             </Box>
           </GlassCard>
@@ -402,78 +432,111 @@ const TicketList = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            {[
-              { 
-                title: 'Всего заявок', 
-                value: quickStats.total, 
-                color: '#3b82f6', 
-                icon: Target,
-                delay: 0 
-              },
-              { 
-                title: 'Новые', 
-                value: quickStats.newTickets, 
-                color: '#10b981', 
-                icon: Clock,
-                delay: 0.1 
-              },
-              { 
-                title: 'В работе', 
-                value: quickStats.inProgress, 
-                color: '#f59e0b', 
-                icon: TrendingUp,
-                delay: 0.2 
-              },
-              { 
-                title: 'Приоритетные', 
-                value: quickStats.highPriority, 
-                color: '#ef4444', 
-                icon: Users,
-                delay: 0.3 
-              }
-            ].map((stat, index) => (
-              <Grid item xs={6} sm={3} key={index}>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: stat.delay }}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                >
-                  <GlassCard 
-                    variant="colored" 
-                    color={stat.color.includes('#3b82f6') ? 'blue' : 
-                          stat.color.includes('#10b981') ? 'green' :
-                          stat.color.includes('#f59e0b') ? 'yellow' : 'red'}
-                    sx={{ p: 3, textAlign: 'center' }}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+            <Grid container spacing={3} sx={{ maxWidth: '1000px' }}>
+              {[
+                { 
+                  title: 'Всего заявок', 
+                  value: quickStats.total, 
+                  color: theme.functional.info.main, 
+                  icon: Target,
+                  delay: 0 
+                },
+                { 
+                  title: 'Новые', 
+                  value: quickStats.newTickets, 
+                  color: theme.functional.success.main, 
+                  icon: Clock,
+                  delay: 0.1 
+                },
+                { 
+                  title: 'В работе', 
+                  value: quickStats.inProgress, 
+                  color: theme.functional.warning.main, 
+                  icon: TrendingUp,
+                  delay: 0.2 
+                },
+                { 
+                  title: 'Приоритет', 
+                  value: quickStats.highPriority, 
+                  color: theme.functional.error.main, 
+                  icon: Users,
+                  delay: 0.3 
+                }
+              ].map((stat, index) => (
+                <Grid size={{ xs: 6, sm: 3 }} key={index}>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: stat.delay }}
+                    whileHover={{ scale: 1.05, y: -5 }}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
-                      <stat.icon size={24} color={stat.color} />
+                    <Box
+                      sx={{
+                        p: 2.5,
+                        textAlign: 'center',
+                        borderRadius: 3,
+                        background: theme.background.secondary,
+                        backdropFilter: 'blur(20px)',
+                        border: `1px solid ${stat.color}40`,
+                        boxShadow: `${theme.glass.dark.shadow}, 0 0 20px ${stat.color}33, inset 0 1px 0 ${theme.border.light}`,
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: '140px',
+                        '&:hover': {
+                          boxShadow: `0 12px 40px rgba(0, 0, 0, 0.5), 0 0 30px ${stat.color}4D, inset 0 1px 0 ${theme.border.main}`,
+                          border: `1px solid ${stat.color}99`,
+                        }
+                      }}
+                    >
+                      {/* Иконка */}
+                      <Box 
+                        sx={{ 
+                          mb: 1.5,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <stat.icon size={28} color={stat.color} />
+                      </Box>
+                      
+                      {/* Число */}
                       <Typography 
-                        variant="h4" 
+                        variant="h3" 
                         sx={{ 
                           fontWeight: 800, 
-                          color: stat.color,
-                          textShadow: `0 2px 8px ${stat.color}40`
+                          color: theme.text.primary,
+                          textShadow: `0 2px 8px ${stat.color}99, 0 0 20px ${stat.color}66`,
+                          mb: 1,
+                          lineHeight: 1
                         }}
                       >
                         {stat.value}
                       </Typography>
+                      
+                      {/* Заголовок */}
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: theme.text.secondary,
+                          fontWeight: 600,
+                          textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                          fontSize: '0.875rem',
+                          lineHeight: 1.2
+                        }}
+                      >
+                        {stat.title}
+                      </Typography>
                     </Box>
-                    <Typography 
-                      variant="body1" 
-                      sx={{ 
-                        color: 'rgba(255, 255, 255, 0.8)',
-                        fontWeight: 600 
-                      }}
-                    >
-                      {stat.title}
-                    </Typography>
-                  </GlassCard>
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         </motion.div>
 
         {/* Фильтры */}
@@ -482,13 +545,11 @@ const TicketList = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <GlassCard variant="dark" sx={{ mb: 4 }}>
-            <SearchFilters
-              onFiltersChange={handleFiltersChange}
-              categories={categories}
-              initialFilters={filters}
-            />
-          </GlassCard>
+          <SearchFilters
+            onFiltersChange={handleFiltersChange}
+            categories={categories}
+            initialFilters={filters}
+          />
         </motion.div>
 
         {/* Ошибки */}
@@ -503,9 +564,9 @@ const TicketList = () => {
                 severity="error" 
                 sx={{ 
                   background: 'transparent',
-                  color: 'white',
+                  color: theme.text.primary,
                   '& .MuiAlert-icon': {
-                    color: '#ef4444'
+                    color: theme.functional.error.main
                   }
                 }}
               >
@@ -520,7 +581,7 @@ const TicketList = () => {
           {loading ? (
             <Grid container spacing={3}>
               {[...Array(12)].map((_, index) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
                   <TicketSkeleton delay={index * 0.05} />
                 </Grid>
               ))}
@@ -559,7 +620,7 @@ const TicketList = () => {
                   variant="h5" 
                   sx={{ 
                     mb: 2, 
-                    color: '#ffffff',
+                    color: theme.text.primary,
                     fontWeight: 700,
                     textShadow: '0 2px 8px rgba(0,0,0,0.5)'
                   }}
@@ -570,7 +631,7 @@ const TicketList = () => {
                 <Typography 
                   sx={{ 
                     mb: 4, 
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: theme.text.secondary,
                     fontSize: '1.1rem'
                   }}
                 >
@@ -586,16 +647,16 @@ const TicketList = () => {
                     startIcon={<Plus />}
                     onClick={() => navigate('/tickets/create')}
                     sx={{
-                      background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                      background: theme.gradients.primary,
                       borderRadius: 3,
                       px: 4,
                       py: 2,
                       fontWeight: 700,
                       fontSize: '1.1rem',
-                      boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)',
+                      boxShadow: `0 8px 25px ${theme.primary.main}66`,
                       '&:hover': {
-                        background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                        boxShadow: '0 15px 40px rgba(59, 130, 246, 0.6)',
+                        background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
+                        boxShadow: `0 15px 40px ${theme.primary.main}99`,
                       }
                     }}
                   >
@@ -613,34 +674,240 @@ const TicketList = () => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4 }}
               >
-                <Grid container spacing={3}>
-                  {tickets.map((ticket, index) => (
-                    <Grid 
-                      item 
-                      xs={12} 
-                      sm={viewMode === 'grid' ? 6 : 12} 
-                      md={viewMode === 'grid' ? 4 : 12}
-                      lg={viewMode === 'grid' ? 3 : 12}
-                      key={ticket.id}
-                    >
+                {viewMode === 'grid' ? (
+                  // РЕЖИМ СЕТКИ
+                  <Grid container spacing={3}>
+                    {tickets.map((ticket, index) => (
+                      <Grid 
+                        size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+                        key={ticket.id}
+                      >
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          transition={{ 
+                            duration: 0.5, 
+                            delay: index * 0.05,
+                            type: "spring",
+                            stiffness: 100 
+                          }}
+                        >
+                          <TicketCard 
+                            ticket={ticket} 
+                            delay={index * 0.05}
+                          />
+                        </motion.div>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  // РЕЖИМ СПИСКА
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {tickets.map((ticket, index) => (
                       <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        key={ticket.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
                         transition={{ 
-                          duration: 0.5, 
-                          delay: index * 0.05,
-                          type: "spring",
-                          stiffness: 100 
+                          duration: 0.4, 
+                          delay: index * 0.03
                         }}
                       >
-                        <TicketCard 
-                          ticket={ticket} 
-                          delay={index * 0.05}
-                        />
+                        <GlassCard 
+                          variant="dark"
+                          sx={{ 
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              transform: 'translateX(8px)',
+                              boxShadow: `0 8px 30px ${theme.primary.main}4D`,
+                              border: `1px solid ${theme.primary.main}80`,
+                            }
+                          }}
+                          onClick={() => navigate(`/tickets/${ticket.id}`)}
+                        >
+                          <Box sx={{ 
+                            p: 2.5, 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 3,
+                            flexWrap: 'wrap'
+                          }}>
+                            {/* ID заявки */}
+                            <Box
+                              sx={{
+                                minWidth: 80,
+                                px: 2,
+                                py: 1,
+                                borderRadius: 2,
+                                background: theme.functional.info.bg,
+                                border: `1px solid ${theme.functional.info.border}`,
+                                textAlign: 'center'
+                              }}
+                            >
+                              <Typography 
+                                variant="h6" 
+                                sx={{ 
+                                  fontWeight: 800,
+                                  color: theme.functional.info.main,
+                                  fontSize: '0.9rem'
+                                }}
+                              >
+                                #{ticket.id}
+                              </Typography>
+                            </Box>
+
+                            {/* Заголовок и описание */}
+                            <Box sx={{ flex: 1, minWidth: 250 }}>
+                              <Typography 
+                                variant="h6" 
+                                sx={{ 
+                                  fontWeight: 700, 
+                                  color: theme.text.primary,
+                                  mb: 0.5,
+                                  fontSize: '1rem'
+                                }}
+                              >
+                                {ticket.title}
+                              </Typography>
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  color: theme.text.secondary,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  maxWidth: '500px'
+                                }}
+                              >
+                                {ticket.description}
+                              </Typography>
+                            </Box>
+
+                            {/* SLA BADGE */}
+                            <SlaBadge 
+                              slaStatus={ticket.slaStatus} 
+                              slaDeadline={ticket.slaDeadline}
+                            />
+
+                            {/* Статус */}
+                            <Box
+                              sx={{
+                                px: 2,
+                                py: 0.75,
+                                borderRadius: 2,
+                                background: ticket.status === 'new' ? theme.functional.info.bg :
+                                          ticket.status === 'in_progress' ? theme.functional.warning.bg :
+                                          ticket.status === 'resolved' ? theme.functional.success.bg :
+                                          ticket.status === 'closed' ? `${theme.text.secondary}33` :
+                                          `${theme.primary.main}33`,
+                                border: `1px solid ${
+                                  ticket.status === 'new' ? theme.functional.info.border :
+                                  ticket.status === 'in_progress' ? theme.functional.warning.border :
+                                  ticket.status === 'resolved' ? theme.functional.success.border :
+                                  ticket.status === 'closed' ? theme.text.secondary :
+                                  theme.primary.main
+                                }66`
+                              }}
+                            >
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  fontWeight: 700,
+                                  color: ticket.status === 'new' ? theme.functional.info.main :
+                                        ticket.status === 'in_progress' ? theme.functional.warning.main :
+                                        ticket.status === 'resolved' ? theme.functional.success.main :
+                                        ticket.status === 'closed' ? theme.text.secondary :
+                                        theme.primary.main,
+                                  fontSize: '0.85rem'
+                                }}
+                              >
+                                {ticket.status === 'new' ? 'Новая' :
+                                 ticket.status === 'in_progress' ? 'В работе' :
+                                 ticket.status === 'resolved' ? 'Решена' :
+                                 ticket.status === 'closed' ? 'Закрыта' :
+                                 ticket.status === 'waiting' ? 'Ожидание' : ticket.status}
+                              </Typography>
+                            </Box>
+
+                            {/* Приоритет */}
+                            <Box
+                              sx={{
+                                px: 2,
+                                py: 0.75,
+                                borderRadius: 2,
+                                background: ticket.priority === 'critical' ? theme.functional.error.bg :
+                                          ticket.priority === 'high' ? theme.functional.warning.bg :
+                                          ticket.priority === 'medium' ? theme.functional.info.bg :
+                                          theme.functional.success.bg,
+                                border: `1px solid ${
+                                  ticket.priority === 'critical' ? theme.functional.error.border :
+                                  ticket.priority === 'high' ? theme.functional.warning.border :
+                                  ticket.priority === 'medium' ? theme.functional.info.border :
+                                  theme.functional.success.border
+                                }66`
+                              }}
+                            >
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  fontWeight: 700,
+                                  color: ticket.priority === 'critical' ? theme.functional.error.main :
+                                        ticket.priority === 'high' ? theme.functional.warning.main :
+                                        ticket.priority === 'medium' ? theme.functional.info.main :
+                                        theme.functional.success.main,
+                                  fontSize: '0.85rem'
+                                }}
+                              >
+                                {ticket.priority === 'critical' ? '🔴 Критичный' :
+                                 ticket.priority === 'high' ? '🟡 Высокий' :
+                                 ticket.priority === 'medium' ? '🔵 Средний' :
+                                 '🟢 Низкий'}
+                              </Typography>
+                            </Box>
+
+                            {/* Категория */}
+                            {ticket.categoryName && (
+                              <Box
+                                sx={{
+                                  px: 2,
+                                  py: 0.75,
+                                  borderRadius: 2,
+                                  background: `${theme.primary.main}33`,
+                                  border: `1px solid ${theme.primary.main}66`
+                                }}
+                              >
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    fontWeight: 600,
+                                    color: theme.primary.main,
+                                    fontSize: '0.85rem'
+                                  }}
+                                >
+                                  📂 {ticket.categoryName}
+                                </Typography>
+                              </Box>
+                            )}
+
+                            {/* Дата */}
+                            <Box sx={{ minWidth: 150 }}>
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  color: theme.text.disabled,
+                                  fontSize: '0.75rem'
+                                }}
+                              >
+                                {formatDate(ticket.createdAt || ticket.created_at)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </GlassCard>
                       </motion.div>
-                    </Grid>
-                  ))}
-                </Grid>
+                    ))}
+                  </Box>
+                )}
               </motion.div>
             </AnimatePresence>
           )}
@@ -662,20 +929,20 @@ const TicketList = () => {
                   size="large"
                   sx={{
                     '& .MuiPaginationItem-root': {
-                      color: 'rgba(255, 255, 255, 0.8)',
+                      color: theme.text.secondary,
                       borderRadius: 2,
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      border: `1px solid ${theme.border.main}`,
                       '&:hover': {
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        borderColor: 'rgba(59, 130, 246, 0.5)',
+                        backgroundColor: `${theme.functional.info.main}33`,
+                        borderColor: theme.functional.info.main,
                       },
                       '&.Mui-selected': {
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                        color: 'white',
+                        background: theme.gradients.primary,
+                        color: theme.text.primary,
                         borderColor: 'transparent',
-                        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
+                        boxShadow: `0 4px 15px ${theme.primary.main}66`,
                         '&:hover': {
-                          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                          background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
                         }
                       }
                     }
@@ -697,17 +964,17 @@ const TicketList = () => {
                 position: 'fixed',
                 bottom: 32,
                 right: 32,
-                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
+                background: theme.gradients.primary,
+                boxShadow: `0 8px 25px ${theme.primary.main}66`,
+                border: `1px solid ${theme.border.main}`,
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                  boxShadow: '0 15px 40px rgba(59, 130, 246, 0.6)',
+                  background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
+                  boxShadow: `0 15px 40px ${theme.primary.main}99`,
                 }
               }}
               onClick={() => navigate('/tickets/create')}
             >
-              <Plus size={28} color="white" />
+              <Plus size={28} color={theme.text.primary} />
             </Fab>
           </motion.div>
         </Zoom>

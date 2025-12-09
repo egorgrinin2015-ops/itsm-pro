@@ -9,14 +9,17 @@ import TicketList from './pages/TicketList';
 import CreateTicket from './pages/CreateTicket';
 import TicketDetail from './pages/TicketDetail';
 import Categories from './pages/Categories';
+import Dashboard from './pages/Dashboard';
+import KnowledgeBase from './pages/KnowledgeBase';
+import KnowledgeBaseArticle from './pages/KnowledgeBaseArticle';
+import KnowledgeBaseEditor from './pages/KnowledgeBaseEditor';
 import { CssBaseline, ThemeProvider, Box } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
-import theme, { gradients } from './theme/theme';
-import Dashboard from './pages/Dashboard';
+import { muiTheme, gradients } from './theme/theme';
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={muiTheme}>
       <CssBaseline />
       {/* Красивый градиентный фон для всего приложения */}
       <Box
@@ -111,6 +114,58 @@ function App() {
                       <>
                         <Navbar />
                         <Dashboard />
+                      </>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* База знаний */}
+                <Route
+                  path="/kb"
+                  element={
+                    <ProtectedRoute>
+                      <>
+                        <Navbar />
+                        <KnowledgeBase />
+                      </>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Просмотр статьи базы знаний */}
+                <Route
+                  path="/kb/:id"
+                  element={
+                    <ProtectedRoute>
+                      <>
+                        <Navbar />
+                        <KnowledgeBaseArticle />
+                      </>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Создание статьи (только менеджеры) */}
+                <Route
+                  path="/kb/create"
+                  element={
+                    <ProtectedRoute roles={['manager']}>
+                      <>
+                        <Navbar />
+                        <KnowledgeBaseEditor />
+                      </>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Редактирование статьи (только менеджеры) */}
+                <Route
+                  path="/kb/edit/:id"
+                  element={
+                    <ProtectedRoute roles={['manager']}>
+                      <>
+                        <Navbar />
+                        <KnowledgeBaseEditor />
                       </>
                     </ProtectedRoute>
                   }

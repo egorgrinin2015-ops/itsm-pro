@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import categoryService from '../services/categoryService';
 import GlassCard from '../components/GlassCard';
+import theme from '../theme/theme';
 import {
   Container,
   Typography,
@@ -40,20 +41,20 @@ import {
   Dashboard
 } from '@mui/icons-material';
 
-// Принудительные глобальные стили для темного фона
+// Глобальные стили с Space Indigo темой
 const darkBackgroundStyles = (
   <GlobalStyles
     styles={{
       body: {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       '#root': {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       html: {
-        background: '#000000 !important',
+        background: `${theme.background.primary} !important`,
       }
     }}
   />
@@ -75,7 +76,7 @@ const AdminBackground = () => {
         zIndex: '-999 !important',
       }}
     >
-      {/* ТЕМНЫЙ ФОН */}
+      {/* ОСНОВНОЙ ФОН */}
       <Box
         sx={{
           position: 'absolute !important',
@@ -85,16 +86,7 @@ const AdminBackground = () => {
           bottom: '0 !important',
           width: '100% !important',
           height: '100% !important',
-          background: `
-            linear-gradient(135deg, 
-              #000000 0%,
-              #1a1a2e 20%,
-              #16213e 40%,
-              #0f172a 60%,
-              #020617 80%,
-              #000000 100%
-            ) !important
-          `,
+          background: theme.gradients.background,
         }}
       />
 
@@ -107,10 +99,10 @@ const AdminBackground = () => {
           right: '0 !important',
           bottom: '0 !important',
           background: `
-            radial-gradient(ellipse at 25% 25%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
-            radial-gradient(ellipse at 75% 75%, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 10%, rgba(34, 197, 94, 0.2) 0%, transparent 40%),
-            radial-gradient(ellipse at 10% 90%, rgba(251, 191, 36, 0.15) 0%, transparent 25%)
+            radial-gradient(ellipse at 25% 25%, ${theme.primary.main}4D 0%, transparent 50%),
+            radial-gradient(ellipse at 75% 75%, ${theme.functional.info.main}40 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 10%, ${theme.functional.success.main}33 0%, transparent 40%),
+            radial-gradient(ellipse at 10% 90%, ${theme.functional.warning.main}26 0%, transparent 25%)
           `,
         }}
       />
@@ -133,8 +125,8 @@ const AdminBackground = () => {
           right: 0,
           bottom: 0,
           backgroundImage: `
-            linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px)
+            linear-gradient(${theme.border.main} 1px, transparent 1px),
+            linear-gradient(90deg, ${theme.border.main} 1px, transparent 1px)
           `,
           backgroundSize: '25px 25px',
           pointerEvents: 'none'
@@ -162,7 +154,7 @@ const AdminBackground = () => {
             top: `${20 + (i % 4) * 20}%`,
             width: '3px',
             height: '3px',
-            background: `rgba(${139 + i * 8}, ${92 + i * 10}, 246, 0.7)`,
+            background: `${theme.primary.main}B3`,
             borderRadius: '50%',
             pointerEvents: 'none'
           }}
@@ -249,10 +241,10 @@ const Categories = () => {
   };
 
   const getSLAColor = (slaTime) => {
-    if (slaTime <= 60) return '#10b981'; // Зеленый
-    if (slaTime <= 120) return '#f59e0b'; // Желтый
-    if (slaTime <= 240) return '#ef4444'; // Красный
-    return '#8b5cf6'; // Фиолетовый
+    if (slaTime <= 60) return theme.functional.success.main;
+    if (slaTime <= 120) return theme.functional.warning.main;
+    if (slaTime <= 240) return theme.functional.error.main;
+    return theme.primary.main;
   };
 
   const getSLALabel = (slaTime) => {
@@ -274,12 +266,12 @@ const Categories = () => {
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <Settings size={64} color="#ef4444" style={{ marginBottom: 16 }} />
+              <Settings size={64} color={theme.functional.error.main} style={{ marginBottom: 16 }} />
             </motion.div>
-            <Typography variant="h4" sx={{ color: 'white', fontWeight: 700, mb: 2 }}>
+            <Typography variant="h4" sx={{ color: theme.text.primary, fontWeight: 700, mb: 2 }}>
               Доступ запрещен
             </Typography>
-            <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '1.1rem' }}>
+            <Typography sx={{ color: theme.text.secondary, fontSize: '1.1rem' }}>
               Недостаточно прав для управления категориями
             </Typography>
           </GlassCard>
@@ -315,38 +307,38 @@ const Categories = () => {
                   }}
                 >
                   <Box
-                    sx={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: 3,
-                      background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 20px 60px rgba(139, 92, 246, 0.4)'
-                    }}
-                  >
-                    <Category size={32} color="white" />
-                  </Box>
+  sx={{
+    width: 70,
+    height: 70,
+    borderRadius: 3,
+    background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 20px 60px rgba(245, 158, 11, 0.4)'
+  }}
+>
+  <Category size={32} color="white" />
+</Box>
                 </motion.div>
                 
                 <Box>
-                  <Typography 
-                    variant="h3" 
-                    sx={{ 
-                      fontWeight: 900,
-                      color: '#ffffff !important',
-                      textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(139, 92, 246, 0.5)',
-                      mb: 1,
-                      background: 'linear-gradient(135deg, #ffffff 0%, #8b5cf6 100%)',
-                      backgroundClip: 'text',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent'
-                    }}
-                  >
-                    🏷️ Категории услуг
-                  </Typography>
-                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '1.1rem' }}>
+<Typography 
+  variant="h3" 
+  sx={{ 
+    fontWeight: 900,
+    color: '#ffffff',
+    textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(245, 158, 11, 0.5)',
+    mb: 1,
+    background: 'linear-gradient(135deg, #ffffff 0%, #f59e0b 100%)',
+    backgroundClip: 'text',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent'
+  }}
+>
+  Категории услуг
+</Typography>
+                  <Typography sx={{ color: theme.text.secondary, fontSize: '1.1rem' }}>
                     Управление типами и SLA обращений
                   </Typography>
                 </Box>
@@ -357,26 +349,27 @@ const Categories = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Button
-                  variant="contained"
-                  startIcon={<Add />}
-                  onClick={() => handleOpenDialog()}
-                  sx={{
-                    background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-                    borderRadius: 3,
-                    px: 4,
-                    py: 1.5,
-                    fontWeight: 700,
-                    fontSize: '1rem',
-                    boxShadow: '0 8px 25px rgba(139, 92, 246, 0.4)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    '&:hover': {
-                      background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-                      boxShadow: '0 15px 40px rgba(139, 92, 246, 0.6)',
-                    }
-                  }}
-                >
-                  Добавить категорию
-                </Button>
+  variant="contained"
+  startIcon={<Add />}
+  onClick={() => handleOpenDialog()}
+  sx={{
+    background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+    borderRadius: 3,
+    px: 4,
+    py: 1.5,
+    fontWeight: 700,
+    fontSize: '1rem',
+    boxShadow: '0 8px 25px rgba(245, 158, 11, 0.4)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    '&:hover': {
+      background: 'linear-gradient(135deg, #ea580c 0%, #dc2626 100%)',
+      boxShadow: '0 15px 40px rgba(245, 158, 11, 0.6)',
+    }
+  }}
+>
+  Добавить категорию
+</Button>
+
               </motion.div>
             </Box>
           </GlassCard>
@@ -396,8 +389,8 @@ const Categories = () => {
                   severity="error"
                   sx={{ 
                     background: 'transparent',
-                    color: 'white',
-                    '& .MuiAlert-icon': { color: '#ef4444' }
+                    color: theme.text.primary,
+                    '& .MuiAlert-icon': { color: theme.functional.error.main }
                   }}
                 >
                   {error}
@@ -406,8 +399,7 @@ const Categories = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Таблица */}
+{/* Таблица */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -422,19 +414,19 @@ const Categories = () => {
                       variant="rectangular" 
                       width={200} 
                       height={40} 
-                      sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)', borderRadius: 2 }}
+                      sx={{ bgcolor: theme.background.elevated, borderRadius: 2 }}
                     />
                     <Skeleton 
                       variant="rectangular" 
                       width={300} 
                       height={40} 
-                      sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)', borderRadius: 2 }}
+                      sx={{ bgcolor: theme.background.elevated, borderRadius: 2 }}
                     />
                     <Skeleton 
                       variant="rectangular" 
                       width={100} 
                       height={40} 
-                      sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)', borderRadius: 2 }}
+                      sx={{ bgcolor: theme.background.elevated, borderRadius: 2 }}
                     />
                   </Box>
                 ))}
@@ -445,11 +437,11 @@ const Categories = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ 
-                        color: 'rgba(255, 255, 255, 0.9)', 
+                        color: theme.text.primary,
                         fontWeight: 700, 
                         fontSize: '1rem',
-                        borderBottom: '2px solid rgba(139, 92, 246, 0.3)',
-                        background: 'rgba(139, 92, 246, 0.1)'
+                        borderBottom: `2px solid ${theme.primary.main}4D`,
+                        background: `${theme.primary.main}1A`
                       }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <ViewList size={20} />
@@ -457,11 +449,11 @@ const Categories = () => {
                         </Box>
                       </TableCell>
                       <TableCell sx={{ 
-                        color: 'rgba(255, 255, 255, 0.9)', 
+                        color: theme.text.primary,
                         fontWeight: 700, 
                         fontSize: '1rem',
-                        borderBottom: '2px solid rgba(139, 92, 246, 0.3)',
-                        background: 'rgba(139, 92, 246, 0.1)'
+                        borderBottom: `2px solid ${theme.primary.main}4D`,
+                        background: `${theme.primary.main}1A`
                       }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Info size={20} />
@@ -469,11 +461,11 @@ const Categories = () => {
                         </Box>
                       </TableCell>
                       <TableCell sx={{ 
-                        color: 'rgba(255, 255, 255, 0.9)', 
+                        color: theme.text.primary,
                         fontWeight: 700, 
                         fontSize: '1rem',
-                        borderBottom: '2px solid rgba(139, 92, 246, 0.3)',
-                        background: 'rgba(139, 92, 246, 0.1)'
+                        borderBottom: `2px solid ${theme.primary.main}4D`,
+                        background: `${theme.primary.main}1A`
                       }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <AccessTime size={20} />
@@ -481,11 +473,11 @@ const Categories = () => {
                         </Box>
                       </TableCell>
                       <TableCell sx={{ 
-                        color: 'rgba(255, 255, 255, 0.9)', 
+                        color: theme.text.primary,
                         fontWeight: 700, 
                         fontSize: '1rem',
-                        borderBottom: '2px solid rgba(139, 92, 246, 0.3)',
-                        background: 'rgba(139, 92, 246, 0.1)'
+                        borderBottom: `2px solid ${theme.primary.main}4D`,
+                        background: `${theme.primary.main}1A`
                       }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Settings size={20} />
@@ -499,7 +491,7 @@ const Categories = () => {
                       <TableRow>
                         <TableCell colSpan={4} align="center" sx={{ 
                           py: 6, 
-                          color: 'rgba(255, 255, 255, 0.7)',
+                          color: theme.text.secondary,
                           borderBottom: 'none'
                         }}>
                           <motion.div
@@ -515,7 +507,7 @@ const Categories = () => {
                             <Typography variant="h6" sx={{ mb: 2 }}>
                               📂 Категории не найдены
                             </Typography>
-                            <Typography variant="body2" sx={{ opacity: 0.6 }}>
+                            <Typography variant="body2" sx={{ color: theme.text.disabled }}>
                               Создайте первую категорию для организации заявок
                             </Typography>
                           </motion.div>
@@ -529,33 +521,33 @@ const Categories = () => {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.1 }}
                           component={TableRow}
-                          whileHover={{ backgroundColor: 'rgba(139, 92, 246, 0.05)' }}
+                          whileHover={{ backgroundColor: `${theme.primary.main}0D` }}
                           style={{ cursor: 'pointer' }}
                         >
                           <TableCell sx={{ 
-                            color: 'white', 
+                            color: theme.text.primary,
                             fontWeight: 600,
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                            borderBottom: `1px solid ${theme.border.main}`
                           }}>
                             {category.name}
                           </TableCell>
                           <TableCell sx={{ 
-                            color: 'rgba(255, 255, 255, 0.8)',
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: theme.text.secondary,
+                            borderBottom: `1px solid ${theme.border.main}`,
                             maxWidth: 300
                           }}>
                             {category.description}
                           </TableCell>
                           <TableCell sx={{ 
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                            borderBottom: `1px solid ${theme.border.main}`
                           }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <Chip
                                 label={`${category.slaTime} мин`}
                                 size="small"
                                 sx={{
-                                  background: `linear-gradient(135deg, ${getSLAColor(category.slaTime)}, ${getSLAColor(category.slaTime)}cc)`,
-                                  color: 'white',
+                                  background: `linear-gradient(135deg, ${getSLAColor(category.slaTime)}, ${getSLAColor(category.slaTime)}CC)`,
+                                  color: theme.text.primary,
                                   fontWeight: 600
                                 }}
                               />
@@ -568,7 +560,7 @@ const Categories = () => {
                             </Box>
                           </TableCell>
                           <TableCell sx={{ 
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                            borderBottom: `1px solid ${theme.border.main}`
                           }}>
                             <Box sx={{ display: 'flex', gap: 1 }}>
                               <Tooltip title="Редактировать">
@@ -577,10 +569,10 @@ const Categories = () => {
                                     size="small"
                                     onClick={() => handleOpenDialog(category)}
                                     sx={{
-                                      background: 'rgba(59, 130, 246, 0.2)',
-                                      color: '#3b82f6',
+                                      background: theme.functional.info.bg,
+                                      color: theme.functional.info.main,
                                       '&:hover': {
-                                        background: 'rgba(59, 130, 246, 0.3)',
+                                        background: `${theme.functional.info.main}4D`,
                                       }
                                     }}
                                   >
@@ -595,10 +587,10 @@ const Categories = () => {
                                     size="small"
                                     onClick={() => setDeleteConfirmId(category.id)}
                                     sx={{
-                                      background: 'rgba(239, 68, 68, 0.2)',
-                                      color: '#ef4444',
+                                      background: theme.functional.error.bg,
+                                      color: theme.functional.error.main,
                                       '&:hover': {
-                                        background: 'rgba(239, 68, 68, 0.3)',
+                                        background: `${theme.functional.error.main}4D`,
                                       }
                                     }}
                                   >
@@ -618,7 +610,7 @@ const Categories = () => {
           </GlassCard>
         </motion.div>
 
-        {/* Диалог создания/редактирования */}
+        {/* Диалог создания/редактирования - ИСПРАВЛЕНЫ TextField */}
         <Dialog 
           open={openDialog} 
           onClose={handleCloseDialog} 
@@ -626,11 +618,11 @@ const Categories = () => {
           fullWidth
           PaperProps={{
             sx: {
-              background: 'rgba(255, 255, 255, 0.05)',
+              background: theme.background.secondary,
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: `1px solid ${theme.border.main}`,
               borderRadius: 4,
-              boxShadow: '0 25px 80px rgba(0, 0, 0, 0.8)'
+              boxShadow: theme.glass.dark.shadow
             }
           }}
         >
@@ -640,15 +632,16 @@ const Categories = () => {
             transition={{ duration: 0.3 }}
           >
             <DialogTitle sx={{ 
-              color: 'white', 
+              color: theme.text.primary,
               fontWeight: 700, 
               fontSize: '1.5rem',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+              borderBottom: `1px solid ${theme.border.main}`
             }}>
-              {editingCategory ? '✏️ Редактировать категорию' : '➕ Создать категорию'}
+              {editingCategory ? '✏️ Редактировать категорию' : 'Создать категорию'}
             </DialogTitle>
             
             <DialogContent sx={{ pt: 3 }}>
+              {/* ПОЛЕ НАЗВАНИЕ - ИСПРАВЛЕНО */}
               <TextField
                 fullWidth
                 label="Название"
@@ -657,26 +650,37 @@ const Categories = () => {
                 margin="normal"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    color: 'white',
+                    backgroundColor: theme.background.elevated,
                     '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      borderColor: theme.border.main,
                     },
                     '&:hover fieldset': {
-                      borderColor: 'rgba(139, 92, 246, 0.8)',
+                      borderColor: theme.primary.main,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#8b5cf6',
+                      borderColor: theme.primary.main,
                     },
                   },
+                  '& .MuiOutlinedInput-input': {
+                    color: '#ffffff',
+                    fontWeight: 500,
+                    '&::placeholder': {
+                      color: '#ffffff',
+                      opacity: 0.9
+                    }
+                  },
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: '#ffffff',
+                    opacity: 0.9,
+                    fontWeight: 600,
                     '&.Mui-focused': {
-                      color: '#8b5cf6',
+                      color: theme.primary.main,
                     },
                   },
                 }}
               />
               
+              {/* ПОЛЕ ОПИСАНИЕ - ИСПРАВЛЕНО */}
               <TextField
                 fullWidth
                 label="Описание"
@@ -687,29 +691,40 @@ const Categories = () => {
                 margin="normal"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    color: 'white',
+                    backgroundColor: theme.background.elevated,
                     '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      borderColor: theme.border.main,
                     },
                     '&:hover fieldset': {
-                      borderColor: 'rgba(139, 92, 246, 0.8)',
+                      borderColor: theme.primary.main,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#8b5cf6',
+                      borderColor: theme.primary.main,
                     },
                   },
+                  '& .MuiOutlinedInput-input': {
+                    color: '#ffffff',
+                    fontWeight: 500,
+                    '&::placeholder': {
+                      color: '#ffffff',
+                      opacity: 0.9
+                    }
+                  },
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: '#ffffff',
+                    opacity: 0.9,
+                    fontWeight: 600,
                     '&.Mui-focused': {
-                      color: '#8b5cf6',
+                      color: theme.primary.main,
                     },
                   },
                 }}
               />
               
+              {/* ПОЛЕ SLA ВРЕМЯ - ИСПРАВЛЕНО */}
               <TextField
                 fullWidth
-                label="SLA время (минуты)"
+                label="SLA (минуты)"
                 type="number"
                 value={formData.slaTime}
                 onChange={(e) => setFormData({ ...formData, slaTime: parseInt(e.target.value) || 0 })}
@@ -717,40 +732,58 @@ const Categories = () => {
                 helperText="Время реакции на заявки данной категории"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    color: 'white',
+                    backgroundColor: theme.background.elevated,
                     '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      borderColor: theme.border.main,
                     },
                     '&:hover fieldset': {
-                      borderColor: 'rgba(139, 92, 246, 0.8)',
+                      borderColor: theme.primary.main,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#8b5cf6',
+                      borderColor: theme.primary.main,
                     },
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    color: '#ffffff',
+                    fontWeight: 500,
+                    '&::placeholder': {
+                      color: '#ffffff',
+                      opacity: 0.9
+                    }
                   },
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: '#ffffff',
+                    opacity: 0.9,
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
                     '&.Mui-focused': {
-                      color: '#8b5cf6',
+                      color: theme.primary.main,
                     },
+                    '&.MuiInputLabel-shrink': {
+                      fontSize: '0.75rem',
+                      transform: 'translate(14px, -18px) scale(1)',
+                      backgroundColor: theme.background.secondary,
+                      px: -0.5,
+                      borderRadius: '4px'
+                    }
                   },
                   '& .MuiFormHelperText-root': {
-                    color: 'rgba(255, 255, 255, 0.6)',
+                    color: theme.text.disabled,
                   },
                 }}
               />
             </DialogContent>
             
-            <DialogActions sx={{ p: 3, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <DialogActions sx={{ p: 3, borderTop: `1px solid ${theme.border.main}` }}>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button 
                   onClick={handleCloseDialog}
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    color: theme.text.secondary,
+                    borderColor: theme.border.main,
                     '&:hover': {
-                      borderColor: 'rgba(255, 255, 255, 0.6)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      borderColor: theme.border.light,
+                      backgroundColor: theme.background.elevated,
                     }
                   }}
                   variant="outlined"
@@ -765,16 +798,16 @@ const Categories = () => {
                   variant="contained"
                   disabled={!formData.name.trim()}
                   sx={{
-                    background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+                    background: theme.gradients.primary,
                     fontWeight: 700,
-                    boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)',
+                    boxShadow: `0 4px 15px ${theme.primary.main}66`,
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-                      boxShadow: '0 8px 25px rgba(139, 92, 246, 0.6)',
+                      background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
+                      boxShadow: `0 8px 25px ${theme.primary.main}99`,
                     },
                     '&:disabled': {
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      color: 'rgba(255, 255, 255, 0.3)',
+                      background: theme.background.secondary,
+                      color: theme.text.disabled,
                     }
                   }}
                 >
@@ -791,11 +824,11 @@ const Categories = () => {
           onClose={() => setDeleteConfirmId(null)}
           PaperProps={{
             sx: {
-              background: 'rgba(255, 255, 255, 0.05)',
+              background: theme.background.secondary,
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
+              border: `1px solid ${theme.functional.error.border}`,
               borderRadius: 4,
-              boxShadow: '0 25px 80px rgba(0, 0, 0, 0.8)'
+              boxShadow: theme.glass.dark.shadow
             }
           }}
         >
@@ -804,15 +837,15 @@ const Categories = () => {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <DialogTitle sx={{ color: '#ef4444', fontWeight: 700, textAlign: 'center' }}>
+            <DialogTitle sx={{ color: theme.functional.error.main, fontWeight: 700, textAlign: 'center' }}>
               ⚠️ Подтверждение удаления
             </DialogTitle>
             
             <DialogContent sx={{ textAlign: 'center', pb: 2 }}>
-              <Typography sx={{ color: 'white', fontSize: '1.1rem' }}>
+              <Typography sx={{ color: theme.text.primary, fontSize: '1.1rem' }}>
                 Вы уверены, что хотите удалить эту категорию?
               </Typography>
-              <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 1 }}>
+              <Typography sx={{ color: theme.text.secondary, mt: 1 }}>
                 Это действие нельзя отменить
               </Typography>
             </DialogContent>
@@ -823,11 +856,11 @@ const Categories = () => {
                   onClick={() => setDeleteConfirmId(null)}
                   variant="outlined"
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    color: theme.text.secondary,
+                    borderColor: theme.border.main,
                     '&:hover': {
-                      borderColor: 'rgba(255, 255, 255, 0.6)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      borderColor: theme.border.light,
+                      backgroundColor: theme.background.elevated,
                     }
                   }}
                 >
@@ -840,12 +873,12 @@ const Categories = () => {
                   onClick={() => handleDelete(deleteConfirmId)}
                   variant="contained"
                   sx={{
-                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    background: `linear-gradient(135deg, ${theme.functional.error.main} 0%, #dc2626 100%)`,
                     fontWeight: 700,
-                    boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)',
+                    boxShadow: `0 4px 15px ${theme.functional.error.main}66`,
                     '&:hover': {
                       background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-                      boxShadow: '0 8px 25px rgba(239, 68, 68, 0.6)',
+                      boxShadow: `0 8px 25px ${theme.functional.error.main}99`,
                     }
                   }}
                 >

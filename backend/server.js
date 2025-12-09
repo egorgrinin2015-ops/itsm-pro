@@ -17,6 +17,10 @@ const ticketRoutes = require('./routes/ticketRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const subtaskRoutes = require('./routes/subtaskRoutes');
 const statsRoutes = require('./routes/statsRoutes');
+const kbRoutes = require('./routes/kbRoutes');
+const slaRoutes = require('./routes/slaRoutes');
+
+console.log('📦 Все маршруты загружены');
 
 // ИСПОЛЬЗУЕМ МАРШРУТЫ
 app.use('/api/auth', authRoutes);
@@ -25,6 +29,10 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/subtasks', subtaskRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/kb', kbRoutes);
+app.use('/api/sla', slaRoutes);
+
+console.log('✅ Все маршруты подключены');
 
 // Тестовый маршрут
 app.get('/api/test', (req, res) => {
@@ -42,7 +50,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Что-то пошло не так!' });
 });
 
-// Обработка несуществующих маршрутов
+// Обработка несуществующих маршрутов (ДОЛЖНА БЫТЬ ПОСЛЕДНЕЙ!)
 app.use((req, res) => {
   console.log('404 for:', req.method, req.path);
   res.status(404).json({ message: 'Маршрут не найден: ' + req.path });
@@ -65,7 +73,9 @@ const startServer = async () => {
       console.log('   • /api/tickets (заявки)');
       console.log('   • /api/comments (комментарии)');
       console.log('   • /api/subtasks (подзадачи)');
-      console.log('   • /api/stats (📊 СТАТИСТИКА!)');
+      console.log('   • /api/stats (статистика)');
+      console.log('   • /api/kb (база знаний)');
+      console.log('   • /api/sla (🎯 SLA!)');
       console.log('\n🚀 Backend готов к работе!\n');
     });
   } else {

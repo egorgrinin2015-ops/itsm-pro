@@ -1,53 +1,55 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { motion } from 'framer-motion';
+import theme from '../theme/theme';
 
 const GlassCard = ({ 
   children, 
   sx = {}, 
   blur = 20,
   opacity = 0.9,
-  gradient = 'rgba(255, 255, 255, 0.1)',
-  border = 'rgba(255, 255, 255, 0.2)',
+  gradient = theme.background.elevated,
+  border = theme.border.main,
   variant = 'default', // 'default', 'dark', 'colored'
   color = 'blue', // для colored варианта
   delay = 0,
   hover = true,
   ...props 
 }) => {
-  // Варианты дизайна
+  // Варианты дизайна с новой палитрой
   const getVariantStyles = () => {
     switch (variant) {
       case 'dark':
         return {
           background: `linear-gradient(135deg, 
-            rgba(15, 23, 42, 0.8) 0%, 
-            rgba(30, 41, 59, 0.6) 100%
+            ${theme.background.primary}CC 0%, 
+            ${theme.background.secondary}99 100%
           )`,
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+          border: `1px solid ${theme.border.main}`,
+          boxShadow: theme.glass.dark.shadow
         };
       
       case 'colored':
         const colorMap = {
-          blue: 'rgba(59, 130, 246, 0.1)',
-          purple: 'rgba(139, 92, 246, 0.1)',
-          green: 'rgba(34, 197, 94, 0.1)',
-          yellow: 'rgba(251, 191, 36, 0.1)',
-          red: 'rgba(239, 68, 68, 0.1)'
+          blue: theme.functional.info.main,
+          purple: theme.primary.main,
+          green: theme.functional.success.main,
+          yellow: theme.functional.warning.main,
+          red: theme.functional.error.main
         };
+        const selectedColor = colorMap[color] || colorMap.blue;
         return {
           background: `linear-gradient(135deg, 
-            ${colorMap[color] || colorMap.blue} 0%, 
-            rgba(255, 255, 255, 0.05) 100%
+            ${selectedColor}1A 0%, 
+            ${theme.background.elevated}80 100%
           )`,
-          border: `1px solid ${colorMap[color] || colorMap.blue}`,
-          boxShadow: `0 20px 60px ${colorMap[color] || colorMap.blue}`
+          border: `1px solid ${selectedColor}40`,
+          boxShadow: `0 20px 60px ${selectedColor}30`
         };
       
       default:
         return {
-          background: `linear-gradient(135deg, ${gradient}, rgba(255, 255, 255, 0.05))`,
+          background: `linear-gradient(135deg, ${theme.background.elevated}, ${theme.background.secondary}80)`,
           border: `1px solid ${border}`,
           boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
         };
@@ -55,6 +57,20 @@ const GlassCard = ({
   };
 
   const variantStyles = getVariantStyles();
+
+  // Получаем цвет для анимаций
+  const getAnimationColor = () => {
+    const colorMap = {
+      blue: theme.functional.info.main,
+      purple: theme.primary.main,
+      green: theme.functional.success.main,
+      yellow: theme.functional.warning.main,
+      red: theme.functional.error.main
+    };
+    return colorMap[color] || theme.primary.main;
+  };
+
+  const animationColor = getAnimationColor();
 
   return (
     <motion.div
@@ -93,14 +109,14 @@ const GlassCard = ({
             bottom: 0,
             background: variant === 'colored' ? 
               `linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.1) 0%, 
+                ${theme.text.primary}1A 0%, 
                 transparent 30%, 
-                rgba(255, 255, 255, 0.05) 100%
+                ${theme.text.primary}0D 100%
               )` :
               `linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.1) 0%, 
+                ${theme.text.primary}1A 0%, 
                 transparent 50%, 
-                rgba(255, 255, 255, 0.05) 100%
+                ${theme.text.primary}0D 100%
               )`,
             pointerEvents: 'none',
             borderRadius: 'inherit'
@@ -116,19 +132,11 @@ const GlassCard = ({
             bottom: -1,
             background: variant === 'colored' ? 
               `linear-gradient(45deg, 
-                ${color === 'blue' ? 'rgba(59, 130, 246, 0.5)' : 
-                  color === 'purple' ? 'rgba(139, 92, 246, 0.5)' :
-                  color === 'green' ? 'rgba(34, 197, 94, 0.5)' :
-                  color === 'yellow' ? 'rgba(251, 191, 36, 0.5)' :
-                  'rgba(239, 68, 68, 0.5)'} 0%, 
+                ${animationColor}80 0%, 
                 transparent 50%,
-                ${color === 'blue' ? 'rgba(59, 130, 246, 0.5)' : 
-                  color === 'purple' ? 'rgba(139, 92, 246, 0.5)' :
-                  color === 'green' ? 'rgba(34, 197, 94, 0.5)' :
-                  color === 'yellow' ? 'rgba(251, 191, 36, 0.5)' :
-                  'rgba(239, 68, 68, 0.5)'} 100%
+                ${animationColor}80 100%
               )` :
-              'linear-gradient(45deg, rgba(255, 255, 255, 0.2), transparent, rgba(255, 255, 255, 0.2))',
+              `linear-gradient(45deg, ${theme.primary.main}33, transparent, ${theme.primary.main}33)`,
             borderRadius: 'inherit',
             opacity: 0,
             transition: 'opacity 0.3s ease',
@@ -140,12 +148,8 @@ const GlassCard = ({
           ...(hover && {
             '&:hover': {
               boxShadow: variant === 'colored' ?
-                `0 30px 80px ${color === 'blue' ? 'rgba(59, 130, 246, 0.4)' : 
-                  color === 'purple' ? 'rgba(139, 92, 246, 0.4)' :
-                  color === 'green' ? 'rgba(34, 197, 94, 0.4)' :
-                  color === 'yellow' ? 'rgba(251, 191, 36, 0.4)' :
-                  'rgba(239, 68, 68, 0.4)'}` :
-                '0 30px 80px rgba(0, 0, 0, 0.5)',
+                `0 30px 80px ${animationColor}40` :
+                `0 30px 80px ${theme.primary.main}30`,
               
               '&::after': {
                 opacity: 1

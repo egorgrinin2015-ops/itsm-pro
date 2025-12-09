@@ -7,6 +7,8 @@ exports.register = async (req, res) => {
   try {
     const { username, email, password, fullName, role } = req.body;
 
+    console.log('📝 Попытка регистрации:', { username, email, role });
+
     // Проверка существования пользователя
     const existingUser = await User.findOne({ 
       where: { 
@@ -15,6 +17,7 @@ exports.register = async (req, res) => {
     });
 
     if (existingUser) {
+      console.log('❌ Пользователь уже существует');
       return res.status(400).json({ 
         message: 'Пользователь с таким email или username уже существует' 
       });
@@ -29,8 +32,11 @@ exports.register = async (req, res) => {
       email,
       password: hashedPassword,
       fullName,
-      role: role || 'user'
+      role: role || 'user',
+      isActive: true
     });
+
+    console.log('✅ Пользователь зарегистрирован:', user.email);
 
     res.status(201).json({
       message: 'Пользователь успешно зарегистрирован',
@@ -44,7 +50,7 @@ exports.register = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Ошибка регистрации:', error);
+    console.error('❌ Ошибка регистрации:', error);
     res.status(500).json({ message: 'Ошибка сервера при регистрации' });
   }
 };
@@ -54,26 +60,52 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log('🔍 Попытка входа для:', email);
+    console.log('📧 Email:', email);
+    console.log('🔑 Password длина:', password?.length);
+
     // Поиск пользователя
     const user = await User.findOne({ where: { email } });
 
+    console.log('👤 Пользователь найден:', user ? 'ДА' : 'НЕТ');
+    
+    if (user) {
+      console.log('📋 Данные пользователя:', {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        isActive: user.isActive,
+        passwordHash: user.password ? user.password.substring(0, 20) + '...' : 'НЕТ'
+      });
+    }
+
     if (!user) {
+      console.log('❌ Пользователь не найден в БД');
       return res.status(401).json({ message: 'Неверный email или пароль' });
     }
 
     // Проверка пароля
+    console.log('🔐 Проверяем пароль...');
+    console.log('🔐 Хеш из БД:', user.password.substring(0, 30) + '...');
+    
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('✅ Пароль валиден:', isPasswordValid);
 
     if (!isPasswordValid) {
+      console.log('❌ Пароль не совпадает');
       return res.status(401).json({ message: 'Неверный email или пароль' });
     }
 
     // Проверка активности пользователя
-    if (!user.isActive) {
+    console.log('🔍 Проверка isActive:', user.isActive);
+    if (user.isActive === false) {
+      console.log('❌ Аккаунт деактивирован');
       return res.status(403).json({ message: 'Аккаунт деактивирован' });
     }
 
     // Создание токена
+    console.log('🎫 Создаём токен...');
     const token = jwt.sign(
       { 
         id: user.id, 
@@ -83,6 +115,9 @@ exports.login = async (req, res) => {
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
+
+    console.log('✅ Вход успешен для:', user.email);
+    console.log('🎫 Токен создан:', token.substring(0, 20) + '...');
 
     res.json({
       message: 'Вход выполнен успешно',
@@ -97,7 +132,8 @@ exports.login = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Ошибка входа:', error);
+    console.error('❌ ОШИБКА ВХОДА:', error);
+    console.error('Stack:', error.stack);
     res.status(500).json({ message: 'Ошибка сервера при входе' });
   }
 };

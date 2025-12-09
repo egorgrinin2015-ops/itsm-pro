@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import ticketService from '../services/ticketService';
 import categoryService from '../services/categoryService';
 import GlassCard from '../components/GlassCard';
+import theme from '../theme/theme';
 import {
   Container,
   Typography,
@@ -43,26 +44,26 @@ import {
   Sparkles
 } from 'lucide-react';
 
-// Принудительные глобальные стили для темного фона
+// Глобальные стили с Space Indigo темой
 const darkBackgroundStyles = (
   <GlobalStyles
     styles={{
       body: {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       '#root': {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       html: {
-        background: '#000000 !important',
+        background: `${theme.background.primary} !important`,
       }
     }}
   />
 );
 
-// Фон для формы
+// Фон для формы с новой палитрой
 const FormBackground = () => {
   return (
     <Box
@@ -78,7 +79,7 @@ const FormBackground = () => {
         zIndex: '-999 !important',
       }}
     >
-      {/* ТЕМНЫЙ ФОН */}
+      {/* ОСНОВНОЙ ФОН */}
       <Box
         sx={{
           position: 'absolute !important',
@@ -88,16 +89,7 @@ const FormBackground = () => {
           bottom: '0 !important',
           width: '100% !important',
           height: '100% !important',
-          background: `
-            linear-gradient(135deg, 
-              #000000 0%,
-              #1a1a2e 20%,
-              #16213e 40%,
-              #0f172a 60%,
-              #020617 80%,
-              #000000 100%
-            ) !important
-          `,
+          background: theme.gradients.background,
         }}
       />
 
@@ -110,9 +102,9 @@ const FormBackground = () => {
           right: '0 !important',
           bottom: '0 !important',
           background: `
-            radial-gradient(ellipse at 20% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-            radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.25) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 20%, rgba(34, 197, 94, 0.2) 0%, transparent 40%)
+            radial-gradient(ellipse at 20% 30%, ${theme.primary.main}4D 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 70%, ${theme.primary.light}40 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 20%, ${theme.functional.success.main}33 0%, transparent 40%)
           `,
         }}
       />
@@ -135,8 +127,8 @@ const FormBackground = () => {
           right: 0,
           bottom: 0,
           backgroundImage: `
-            linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px)
+            linear-gradient(${theme.border.main} 1px, transparent 1px),
+            linear-gradient(90deg, ${theme.border.main} 1px, transparent 1px)
           `,
           backgroundSize: '20px 20px',
           pointerEvents: 'none'
@@ -166,29 +158,29 @@ const CreateTicket = () => {
   // Шаги создания заявки
   const steps = ['Основная информация', 'Детали', 'Подтверждение'];
 
-  // Мапинг приоритетов с цветами и описаниями
+  // Мапинг приоритетов с новыми цветами
   const priorityConfig = {
     low: { 
       label: 'Низкий', 
-      color: '#10b981', 
+      color: theme.functional.success.main,
       description: 'Некритичные вопросы',
       icon: '🟢'
     },
     medium: { 
       label: 'Средний', 
-      color: '#f59e0b', 
+      color: theme.functional.warning.main,
       description: 'Стандартные запросы',
       icon: '🟡'
     },
     high: { 
       label: 'Высокий', 
-      color: '#ef4444', 
+      color: theme.functional.error.main,
       description: 'Требует быстрого решения',
       icon: '🟠'
     },
     critical: { 
       label: 'Критичный', 
-      color: '#dc2626', 
+      color: theme.functional.error.main,
       description: 'Блокирующие проблемы',
       icon: '🔴'
     }
@@ -328,6 +320,7 @@ const CreateTicket = () => {
             transition={{ duration: 0.3 }}
           >
             <Box sx={{ space: 3 }}>
+              {/* ПОЛЕ "Тема заявки" - ИСПРАВЛЕНО */}
               <TextField
                 fullWidth
                 required
@@ -341,35 +334,52 @@ const CreateTicket = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Title sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
+                      <Title sx={{ color: theme.text.secondary }} />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    color: 'white',
+                    backgroundColor: theme.background.elevated,
                     '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      borderColor: theme.border.main,
                     },
                     '&:hover fieldset': {
-                      borderColor: 'rgba(59, 130, 246, 0.8)',
+                      borderColor: theme.primary.main,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#3b82f6',
+                      borderColor: theme.primary.main,
                     },
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    color: '#ffffff',
+                    fontWeight: 500,
+                    '&::placeholder': {
+                      color: '#ffffff',
+                      opacity: 0.9
+                    }
                   },
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: '#ffffff',
+                    opacity: 0.9,
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
                     '&.Mui-focused': {
-                      color: '#3b82f6',
+                      color: theme.primary.main,
                     },
+                    '&.MuiInputLabel-shrink': {
+                      fontSize: '0.75rem',
+                      transform: 'translate(14px, -18px) scale(1)',
+                      px: 1
+                    }
                   },
                   '& .MuiFormHelperText-root': {
-                    color: 'rgba(255, 255, 255, 0.6)',
+                    color: theme.text.disabled,
                   },
                 }}
               />
 
+              {/* ПОЛЕ "Подробное описание" - ИСПРАВЛЕНО */}
               <TextField
                 fullWidth
                 required
@@ -385,31 +395,47 @@ const CreateTicket = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1 }}>
-                      <Description sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
+                      <Description sx={{ color: theme.text.secondary }} />
                     </InputAdornment>
                   ),
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    color: 'white',
+                    backgroundColor: theme.background.elevated,
                     '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      borderColor: theme.border.main,
                     },
                     '&:hover fieldset': {
-                      borderColor: 'rgba(59, 130, 246, 0.8)',
+                      borderColor: theme.primary.main,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#3b82f6',
+                      borderColor: theme.primary.main,
                     },
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    color: '#ffffff',
+                    fontWeight: 500,
+                    '&::placeholder': {
+                      color: '#ffffff',
+                      opacity: 0.9
+                    }
                   },
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: '#ffffff',
+                    opacity: 0.9,
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
                     '&.Mui-focused': {
-                      color: '#3b82f6',
+                      color: theme.primary.main,
                     },
+                    '&.MuiInputLabel-shrink': {
+                      fontSize: '0.75rem',
+                      transform: 'translate(14px, -18px) scale(1)',
+                      px: 1
+                    }
                   },
                   '& .MuiFormHelperText-root': {
-                    color: 'rgba(255, 255, 255, 0.6)',
+                    color: theme.text.disabled,
                   },
                 }}
               />
@@ -417,12 +443,12 @@ const CreateTicket = () => {
               {/* Подсказки */}
               <GlassCard variant="colored" color="blue" sx={{ p: 3, mt: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                  <Lightbulb sx={{ color: '#3b82f6' }} />
-                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                  <Lightbulb sx={{ color: theme.functional.info.main }} />
+                  <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 600 }}>
                     Полезные советы
                   </Typography>
                 </Box>
-                <Box sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                <Box sx={{ color: theme.text.secondary }}>
                   <Typography variant="body2" sx={{ mb: 1 }}>
                     • Укажите точное время возникновения проблемы
                   </Typography>
@@ -447,6 +473,7 @@ const CreateTicket = () => {
             transition={{ duration: 0.3 }}
           >
             <Box sx={{ space: 3 }}>
+              {/* ПОЛЕ "Категория" - ИСПРАВЛЕНО */}
               <TextField
                 fullWidth
                 required
@@ -461,31 +488,68 @@ const CreateTicket = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Category sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
+                      <Category sx={{ color: theme.text.secondary }} />
                     </InputAdornment>
                   ),
                 }}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      sx: {
+                        backgroundColor: theme.background.secondary,
+                        backdropFilter: 'blur(20px)',
+                        border: `1px solid ${theme.border.main}`,
+                        boxShadow: theme.glass.dark.shadow,
+                        maxHeight: 300,
+                        '& .MuiMenuItem-root': {
+                          color: theme.text.primary,
+                          '&:hover': {
+                            backgroundColor: `${theme.primary.main}33`,
+                          },
+                          '&.Mui-selected': {
+                            backgroundColor: `${theme.primary.main}4D`,
+                            '&:hover': {
+                              backgroundColor: `${theme.primary.main}66`,
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    color: 'white',
+                    backgroundColor: theme.background.elevated,
                     '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      borderColor: theme.border.main,
                     },
                     '&:hover fieldset': {
-                      borderColor: 'rgba(59, 130, 246, 0.8)',
+                      borderColor: theme.primary.main,
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#3b82f6',
+                      borderColor: theme.primary.main,
                     },
+                  },
+                  '& .MuiSelect-select': {
+                    color: '#ffffff',
+                    fontWeight: 500
                   },
                   '& .MuiInputLabel-root': {
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: '#ffffff',
+                    opacity: 0.9,
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
                     '&.Mui-focused': {
-                      color: '#3b82f6',
+                      color: theme.primary.main,
                     },
+                    '&.MuiInputLabel-shrink': {
+                      fontSize: '0.75rem',
+                      transform: 'translate(14px, -18px) scale(1)',
+                      px: 1
+                    }
                   },
                   '& .MuiFormHelperText-root': {
-                    color: 'rgba(255, 255, 255, 0.6)',
+                    color: theme.text.disabled,
                   },
                 }}
               >
@@ -496,16 +560,6 @@ const CreateTicket = () => {
                     <MenuItem 
                       key={cat.id} 
                       value={cat.id}
-                      sx={{ 
-                        color: 'white',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        '&:hover': {
-                          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        },
-                        '&.Mui-selected': {
-                          backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        }
-                      }}
                     >
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                         <span>{cat.name}</span>
@@ -513,8 +567,9 @@ const CreateTicket = () => {
                           label={`SLA: ${cat.slaTime} мин`} 
                           size="small"
                           sx={{ 
-                            backgroundColor: 'rgba(34, 197, 94, 0.2)',
-                            color: '#10b981'
+                            backgroundColor: theme.functional.success.bg,
+                            color: theme.functional.success.main,
+                            fontSize: '0.75rem'
                           }}
                         />
                       </Box>
@@ -527,19 +582,19 @@ const CreateTicket = () => {
               {getSelectedCategory() && (
                 <GlassCard variant="colored" color="green" sx={{ p: 3, mt: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                    <CheckCircle sx={{ color: '#10b981' }} />
-                    <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                    <CheckCircle sx={{ color: theme.functional.success.main }} />
+                    <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 600 }}>
                       {getSelectedCategory().name}
                     </Typography>
                   </Box>
-                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                  <Typography sx={{ color: theme.text.secondary }}>
                     Время реакции по SLA: {getSelectedCategory().slaTime} минут
                   </Typography>
                 </GlassCard>
               )}
 
               <Box sx={{ mt: 4 }}>
-                <Typography variant="h6" sx={{ color: 'white', mb: 2, fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ color: theme.text.primary, mb: 2, fontWeight: 600 }}>
                   Приоритет заявки
                 </Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 2 }}>
@@ -557,7 +612,7 @@ const CreateTicket = () => {
                           cursor: 'pointer',
                           border: formData.priority === value ? 
                             `2px solid ${config.color}` : 
-                            '2px solid rgba(255, 255, 255, 0.1)',
+                            `2px solid ${theme.border.main}`,
                         }}
                         onClick={() => setFormData({...formData, priority: value})}
                       >
@@ -566,7 +621,7 @@ const CreateTicket = () => {
                           <Typography 
                             variant="h6" 
                             sx={{ 
-                              color: formData.priority === value ? 'white' : config.color,
+                              color: formData.priority === value ? theme.text.primary : config.color,
                               fontWeight: 600 
                             }}
                           >
@@ -577,8 +632,8 @@ const CreateTicket = () => {
                           variant="body2" 
                           sx={{ 
                             color: formData.priority === value ? 
-                              'rgba(255, 255, 255, 0.8)' : 
-                              'rgba(255, 255, 255, 0.6)'
+                              theme.text.secondary : 
+                              theme.text.disabled
                           }}
                         >
                           {config.description}
@@ -589,6 +644,7 @@ const CreateTicket = () => {
                 </Box>
               </Box>
 
+              {/* ПОЛЕ "ID пользователя" - ИСПРАВЛЕНО */}
               {isEngineer && (
                 <TextField
                   fullWidth
@@ -602,32 +658,48 @@ const CreateTicket = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Person sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
+                        <Person sx={{ color: theme.text.secondary }} />
                       </InputAdornment>
                     ),
                   }}
                   sx={{
                     mt: 3,
                     '& .MuiOutlinedInput-root': {
-                      color: 'white',
+                      backgroundColor: theme.background.elevated,
                       '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        borderColor: theme.border.main,
                       },
                       '&:hover fieldset': {
-                        borderColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: theme.primary.main,
                       },
                       '&.Mui-focused fieldset': {
-                        borderColor: '#3b82f6',
+                        borderColor: theme.primary.main,
                       },
+                    },
+                    '& .MuiOutlinedInput-input': {
+                      color: '#ffffff',
+                      fontWeight: 500,
+                      '&::placeholder': {
+                        color: '#ffffff',
+                        opacity: 0.9
+                      }
                     },
                     '& .MuiInputLabel-root': {
-                      color: 'rgba(255, 255, 255, 0.7)',
+                      color: '#ffffff',
+                      opacity: 0.9,
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
                       '&.Mui-focused': {
-                        color: '#3b82f6',
+                        color: theme.primary.main,
                       },
+                      '&.MuiInputLabel-shrink': {
+                        fontSize: '0.75rem',
+                        transform: 'translate(14px, -18px) scale(1)',
+                        px: 1
+                      }
                     },
                     '& .MuiFormHelperText-root': {
-                      color: 'rgba(255, 255, 255, 0.6)',
+                      color: theme.text.disabled,
                     },
                   }}
                 />
@@ -655,53 +727,68 @@ const CreateTicket = () => {
                     repeat: Infinity
                   }}
                 >
-                  <CheckCircle sx={{ fontSize: 60, color: '#10b981', mb: 2 }} />
+                  <CheckCircle sx={{ fontSize: 60, color: theme.functional.success.main, mb: 2 }} />
                 </motion.div>
-                <Typography variant="h4" sx={{ color: 'white', fontWeight: 700, mb: 2 }}>
+                <Typography variant="h4" sx={{ color: theme.text.primary, fontWeight: 700, mb: 2 }}>
                   Проверьте данные
                 </Typography>
-                <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                <Typography sx={{ color: theme.text.secondary }}>
                   Убедитесь, что вся информация указана корректно
                 </Typography>
               </Box>
 
-              <Box sx={{ space: 2 }}>
-                <GlassCard variant="colored" color="blue" sx={{ p: 3, mb: 2 }}>
-                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 600, mb: 1 }}>
-                    📝 {formData.title}
-                  </Typography>
-                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                    {formData.description}
-                  </Typography>
-                </GlassCard>
-
-                <GlassCard variant="colored" color="green" sx={{ p: 3, mb: 2 }}>
-                  <Box sx={{ display: 'flex', justify: 'space-between', alignItems: 'center' }}>
-                    <Box>
-                      <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
-                        📂 {getSelectedCategory()?.name}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {/* Тема и описание */}
+                <GlassCard variant="colored" color="blue" sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                    <Title sx={{ color: theme.functional.info.main, mt: 0.5 }} />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 600, mb: 1 }}>
+                        {formData.title}
                       </Typography>
-                      <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                        SLA: {getSelectedCategory()?.slaTime} минут
+                      <Typography sx={{ color: theme.text.secondary }}>
+                        {formData.description}
                       </Typography>
                     </Box>
+                  </Box>
+                </GlassCard>
+
+                {/* Категория и приоритет */}
+                <GlassCard variant="colored" color="green" sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Category sx={{ color: theme.functional.success.main }} />
+                      <Box>
+                        <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 600 }}>
+                          {getSelectedCategory()?.name}
+                        </Typography>
+                        <Typography sx={{ color: theme.text.secondary, fontSize: '0.875rem' }}>
+                          SLA: {getSelectedCategory()?.slaTime} минут
+                        </Typography>
+                      </Box>
+                    </Box>
                     <Chip 
-                      icon={<span>{priorityConfig[formData.priority]?.icon}</span>}
+                      icon={<PriorityHigh sx={{ fontSize: '1rem' }} />}
                       label={priorityConfig[formData.priority]?.label}
                       sx={{ 
                         backgroundColor: priorityConfig[formData.priority]?.color,
-                        color: 'white',
-                        fontWeight: 600
+                        color: theme.text.primary,
+                        fontWeight: 600,
+                        height: '32px'
                       }}
                     />
                   </Box>
                 </GlassCard>
 
+                {/* Пользователь (если указан) */}
                 {formData.userId && (
-                  <GlassCard variant="colored" color="purple" sx={{ p: 3, mb: 2 }}>
-                    <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
-                      👤 Пользователь ID: {formData.userId}
-                    </Typography>
+                  <GlassCard variant="colored" color="purple" sx={{ p: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Person sx={{ color: theme.primary.main }} />
+                      <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 600 }}>
+                        Пользователь ID: {formData.userId}
+                      </Typography>
+                    </Box>
                   </GlassCard>
                 )}
               </Box>
@@ -739,13 +826,13 @@ const CreateTicket = () => {
                   ease: "easeInOut"
                 }}
               >
-                <CheckCircle sx={{ fontSize: 80, color: '#10b981', mb: 3 }} />
+                <CheckCircle sx={{ fontSize: 80, color: theme.functional.success.main, mb: 3 }} />
               </motion.div>
               
-              <Typography variant="h3" sx={{ color: 'white', fontWeight: 800, mb: 2 }}>
+              <Typography variant="h3" sx={{ color: theme.text.primary, fontWeight: 800, mb: 2 }}>
                 🎉 Заявка создана!
               </Typography>
-              <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 4 }}>
+              <Typography variant="h6" sx={{ color: theme.text.secondary, mb: 4 }}>
                 Ваша заявка успешно отправлена и будет обработана в ближайшее время
               </Typography>
               
@@ -756,15 +843,15 @@ const CreateTicket = () => {
               >
                 <LinearProgress 
                   sx={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    backgroundColor: theme.background.elevated,
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: '#10b981'
+                      backgroundColor: theme.functional.success.main
                     }
                   }} 
                 />
               </motion.div>
               
-              <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', mt: 2 }}>
+              <Typography sx={{ color: theme.text.disabled, mt: 2 }}>
                 Перенаправление на список заявок...
               </Typography>
             </GlassCard>
@@ -805,14 +892,14 @@ const CreateTicket = () => {
                       width: 60,
                       height: 60,
                       borderRadius: 3,
-                      background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                      background: theme.gradients.primary,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 15px 35px rgba(59, 130, 246, 0.4)'
+                      boxShadow: `0 15px 35px ${theme.primary.main}66`
                     }}
                   >
-                    <Sparkles size={28} color="white" />
+                    <Sparkles size={28} color={theme.text.primary} />
                   </Box>
                 </motion.div>
                 
@@ -821,13 +908,13 @@ const CreateTicket = () => {
                     variant="h4" 
                     sx={{ 
                       fontWeight: 800,
-                      color: 'white',
+                      color: theme.text.primary,
                       textShadow: '0 2px 8px rgba(0,0,0,0.5)'
                     }}
                   >
-                    ✨ Создание заявки
+                  Создание заявки
                   </Typography>
-                  <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                  <Typography sx={{ color: theme.text.secondary }}>
                     Заполните форму для отправки нового обращения
                   </Typography>
                 </Box>
@@ -841,11 +928,11 @@ const CreateTicket = () => {
                   startIcon={<ArrowBack />}
                   onClick={() => navigate('/tickets')}
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    color: theme.text.secondary,
+                    borderColor: theme.border.main,
                     '&:hover': {
-                      borderColor: 'rgba(255, 255, 255, 0.6)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      borderColor: theme.border.light,
+                      backgroundColor: theme.background.elevated,
                     }
                   }}
                   variant="outlined"
@@ -870,22 +957,22 @@ const CreateTicket = () => {
                   <StepLabel
                     sx={{
                       '& .MuiStepLabel-label': {
-                        color: 'rgba(255, 255, 255, 0.7)',
+                        color: theme.text.secondary,
                         fontWeight: 600,
                         '&.Mui-active': {
-                          color: '#3b82f6',
+                          color: theme.primary.main,
                         },
                         '&.Mui-completed': {
-                          color: '#10b981',
+                          color: theme.functional.success.main,
                         }
                       },
                       '& .MuiStepIcon-root': {
-                        color: 'rgba(255, 255, 255, 0.3)',
+                        color: theme.border.main,
                         '&.Mui-active': {
-                          color: '#3b82f6',
+                          color: theme.primary.main,
                         },
                         '&.Mui-completed': {
-                          color: '#10b981',
+                          color: theme.functional.success.main,
                         }
                       }
                     }}
@@ -912,8 +999,8 @@ const CreateTicket = () => {
                   severity="error"
                   sx={{ 
                     background: 'transparent',
-                    color: 'white',
-                    '& .MuiAlert-icon': { color: '#ef4444' }
+                    color: theme.text.primary,
+                    '& .MuiAlert-icon': { color: theme.functional.error.main }
                   }}
                 >
                   {error}
@@ -947,15 +1034,15 @@ const CreateTicket = () => {
                     variant="outlined"
                     sx={{
                       minWidth: 120,
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      color: theme.text.secondary,
+                      borderColor: theme.border.main,
                       '&:hover': {
-                        borderColor: 'rgba(255, 255, 255, 0.6)',
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        borderColor: theme.border.light,
+                        backgroundColor: theme.background.elevated,
                       },
                       '&:disabled': {
-                        color: 'rgba(255, 255, 255, 0.3)',
-                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        color: theme.text.disabled,
+                        borderColor: theme.border.main,
                       }
                     }}
                   >
@@ -975,15 +1062,15 @@ const CreateTicket = () => {
                       disabled={loading || !canProceedToNextStep()}
                       sx={{
                         minWidth: 160,
-                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                        boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)',
+                        background: `linear-gradient(135deg, ${theme.functional.success.main} 0%, #059669 100%)`,
+                        boxShadow: `0 8px 25px ${theme.functional.success.main}66`,
                         '&:hover': {
                           background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                          boxShadow: '0 15px 40px rgba(16, 185, 129, 0.6)',
+                          boxShadow: `0 15px 40px ${theme.functional.success.main}99`,
                         },
                         '&:disabled': {
-                          background: 'rgba(255, 255, 255, 0.1)',
-                          color: 'rgba(255, 255, 255, 0.3)',
+                          background: theme.background.secondary,
+                          color: theme.text.disabled,
                         }
                       }}
                     >
@@ -996,15 +1083,15 @@ const CreateTicket = () => {
                       disabled={!canProceedToNextStep()}
                       sx={{
                         minWidth: 120,
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                        boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)',
+                        background: theme.gradients.primary,
+                        boxShadow: `0 8px 25px ${theme.primary.main}66`,
                         '&:hover': {
-                          background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)',
-                          boxShadow: '0 15px 40px rgba(59, 130, 246, 0.6)',
+                          background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
+                          boxShadow: `0 15px 40px ${theme.primary.main}99`,
                         },
                         '&:disabled': {
-                          background: 'rgba(255, 255, 255, 0.1)',
-                          color: 'rgba(255, 255, 255, 0.3)',
+                          background: theme.background.secondary,
+                          color: theme.text.disabled,
                         }
                       }}
                     >

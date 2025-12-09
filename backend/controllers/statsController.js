@@ -1,94 +1,148 @@
-const { Ticket, User, ServiceCategory, sequelize } = require('../models');
-const { Op } = require('sequelize');
+const { sequelize } = require('../models');
+const { QueryTypes } = require('sequelize');
 
 // Общая статистика
 exports.getOverallStats = async (req, res) => {
   try {
     const userRole = req.user.role;
 
-    if (userRole !== 'manager') {
+    if (userRole !== 'manager' && userRole !== 'admin') {
       return res.status(403).json({ message: 'Недостаточно прав' });
     }
 
     // Реальные подсчеты из базы
-    const totalTickets = await Ticket.count();
-    const totalUsers = await User.count();  
-    const totalCategories = await ServiceCategory.count();
-    const resolvedTickets = await Ticket.count({ where: { status: 'resolved' } });
-    const newTickets = await Ticket.count({ where: { status: 'new' } });
-    const inProgressTickets = await Ticket.count({ where: { status: 'in_progress' } });
-    const waitingTickets = await Ticket.count({ where: { status: 'waiting' } });
-    const closedTickets = await Ticket.count({ where: { status: 'closed' } });
+    const totalTickets = await sequelize.query(
+      'SELECT COUNT(*) as count FROM tickets',
+      { type: QueryTypes.SELECT }
+    );
+    
+    const totalUsers = await sequelize.query(
+      'SELECT COUNT(*) as count FROM users',
+      { type: QueryTypes.SELECT }
+    );
+    
+    const totalCategories = await sequelize.query(
+      'SELECT COUNT(*) as count FROM service_categories',
+      { type: QueryTypes.SELECT }
+    );
+    
+    const resolvedTickets = await sequelize.query(
+      "SELECT COUNT(*) as count FROM tickets WHERE status = 'resolved'",
+      { type: QueryTypes.SELECT }
+    );
+    
+    const newTickets = await sequelize.query(
+      "SELECT COUNT(*) as count FROM tickets WHERE status = 'new'",
+      { type: QueryTypes.SELECT }
+    );
+    
+    const inProgressTickets = await sequelize.query(
+      "SELECT COUNT(*) as count FROM tickets WHERE status = 'in_progress'",
+      { type: QueryTypes.SELECT }
+    );
+    
+    const waitingTickets = await sequelize.query(
+      "SELECT COUNT(*) as count FROM tickets WHERE status = 'waiting'",
+      { type: QueryTypes.SELECT }
+    );
+    
+    const closedTickets = await sequelize.query(
+      "SELECT COUNT(*) as count FROM tickets WHERE status = 'closed'",
+      { type: QueryTypes.SELECT }
+    );
 
-    const openTickets = newTickets + inProgressTickets + waitingTickets;
+    const total = parseInt(totalTickets[0].count);
+    const resolved = parseInt(resolvedTickets[0].count);
+    const newCount = parseInt(newTickets[0].count);
+    const inProgress = parseInt(inProgressTickets[0].count);
+    const waiting = parseInt(waitingTickets[0].count);
+    const closed = parseInt(closedTickets[0].count);
+    const openTickets = newCount + inProgress + waiting;
 
-    // Реальная статистика по приоритетам
-    const lowPriority = await Ticket.count({ where: { priority: 'low' } });
-    const mediumPriority = await Ticket.count({ where: { priority: 'medium' } });
-    const highPriority = await Ticket.count({ where: { priority: 'high' } });
-    const criticalPriority = await Ticket.count({ where: { priority: 'critical' } });
+    // Статистика по приоритетам
+    const priorityStats = await sequelize.query(`
+      SELECT 
+        priority,
+        COUNT(*) as count
+      FROM tickets
+      GROUP BY priority
+    `, { type: QueryTypes.SELECT });
 
-    // Реальная статистика по категориям
+    // Статистика по категориям
     const categoryStats = await sequelize.query(`
-      SELECT sc.name as "categoryName", COUNT(t.id) as count
-      FROM service_categories sc
-      LEFT JOIN tickets t ON sc.id = t."categoryId"
-      GROUP BY sc.id, sc.name
-      ORDER BY COUNT(t.id) DESC
-    `, { type: sequelize.QueryTypes.SELECT });
+      SELECT 
+        c.name as "categoryName",
+        COUNT(t.id) as count
+      FROM service_categories c
+      LEFT JOIN tickets t ON c.id = t."categoryId"
+      GROUP BY c.id, c.name
+      ORDER BY count DESC
+    `, { type: QueryTypes.SELECT });
+
+    // Форматируем приоритеты
+    const priorityMap = { low: 0, medium: 0, high: 0, critical: 0 };
+    priorityStats.forEach(stat => {
+      priorityMap[stat.priority] = parseInt(stat.count);
+    });
 
     res.json({
       overall: {
-        totalTickets,
-        totalUsers,
-        totalCategories,
+        totalTickets: total,
+        totalUsers: parseInt(totalUsers[0].count),
+        totalCategories: parseInt(totalCategories[0].count),
         openTickets,
-        resolvedTickets,
-        resolutionRate: totalTickets > 0 ? Math.round((resolvedTickets / totalTickets) * 100) : 0
+        resolvedTickets: resolved,
+        resolutionRate: total > 0 ? Math.round((resolved / total) * 100) : 0
       },
       priority: [
-        { priority: 'low', count: lowPriority },
-        { priority: 'medium', count: mediumPriority },
-        { priority: 'high', count: highPriority },
-        { priority: 'critical', count: criticalPriority }
+        { priority: 'low', count: priorityMap.low },
+        { priority: 'medium', count: priorityMap.medium },
+        { priority: 'high', count: priorityMap.high },
+        { priority: 'critical', count: priorityMap.critical }
       ],
       status: [
-        { status: 'new', count: newTickets },
-        { status: 'in_progress', count: inProgressTickets },
-        { status: 'waiting', count: waitingTickets },
-        { status: 'resolved', count: resolvedTickets },
-        { status: 'closed', count: closedTickets }
+        { status: 'new', count: newCount },
+        { status: 'in_progress', count: inProgress },
+        { status: 'waiting', count: waiting },
+        { status: 'resolved', count: resolved },
+        { status: 'closed', count: closed }
       ],
-      categories: categoryStats
+      categories: categoryStats.map(cat => ({
+        categoryName: cat.categoryName,
+        count: parseInt(cat.count)
+      }))
     });
 
   } catch (error) {
     console.error('Ошибка получения статистики:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    res.status(500).json({ 
+      message: 'Ошибка сервера',
+      error: error.message 
+    });
   }
 };
 
-// Статистика по дням (реальные данные)
+// Статистика по дням
 exports.getTicketsByDate = async (req, res) => {
   try {
     const userRole = req.user.role;
 
-    if (userRole !== 'manager') {
+    if (userRole !== 'manager' && userRole !== 'admin') {
       return res.status(403).json({ message: 'Недостаточно прав' });
     }
 
-    // Получаем реальную статистику за последние 30 дней
+    // Получаем статистику за последние 30 дней
     const ticketsByDate = await sequelize.query(`
       SELECT 
-        DATE(t."createdAt") as date,
-        COUNT(t.id) as count
-      FROM tickets t
-      WHERE t."createdAt" >= NOW() - INTERVAL '30 days'
-      GROUP BY DATE(t."createdAt")
-      ORDER BY DATE(t."createdAt") ASC
-    `, { type: sequelize.QueryTypes.SELECT });
+        DATE("createdAt") as date,
+        COUNT(*) as count
+      FROM tickets
+      WHERE "createdAt" >= NOW() - INTERVAL '30 days'
+      GROUP BY DATE("createdAt")
+      ORDER BY DATE("createdAt") ASC
+    `, { type: QueryTypes.SELECT });
 
-    // Если нет данных за последние 30 дней, создаем базовую структуру
+    // Если нет данных, создаем пустую структуру
     if (ticketsByDate.length === 0) {
       const result = [];
       const today = new Date();
@@ -106,24 +160,32 @@ exports.getTicketsByDate = async (req, res) => {
       return res.json({ ticketsByDate: result });
     }
 
-    res.json({ ticketsByDate });
+    res.json({ 
+      ticketsByDate: ticketsByDate.map(item => ({
+        date: item.date,
+        count: parseInt(item.count)
+      }))
+    });
 
   } catch (error) {
     console.error('Ошибка получения статистики по дням:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    res.status(500).json({ 
+      message: 'Ошибка сервера',
+      error: error.message 
+    });
   }
 };
 
-// Топ исполнители (реальные данные)
+// Топ исполнители
 exports.getTopPerformers = async (req, res) => {
   try {
     const userRole = req.user.role;
 
-    if (userRole !== 'manager') {
+    if (userRole !== 'manager' && userRole !== 'admin') {
       return res.status(403).json({ message: 'Недостаточно прав' });
     }
 
-    // Получаем реальную статистику исполнителей
+    // Получаем топ исполнителей
     const topPerformers = await sequelize.query(`
       SELECT 
         u."fullName" as "assigneeName",
@@ -134,107 +196,94 @@ exports.getTopPerformers = async (req, res) => {
       GROUP BY u.id, u."fullName"
       ORDER BY COUNT(t.id) DESC
       LIMIT 5
-    `, { type: sequelize.QueryTypes.SELECT });
+    `, { type: QueryTypes.SELECT });
 
-    // Если нет реальных данных, используем пользователей из базы
+    // Если нет данных, возвращаем пустой массив
     if (topPerformers.length === 0) {
-      const engineers = await User.findAll({
-        where: { 
-          role: {
-            [Op.in]: ['engineer', 'manager']
-          }
-        },
-        limit: 5,
-        order: [['fullName', 'ASC']]
-      });
-
-      const mockPerformers = engineers.map((user, index) => ({
-        assigneeName: user.fullName,
-        resolvedCount: Math.max(1, 10 - index * 2) // Убывающие числа от 10
-      }));
-
-      return res.json({ topPerformers: mockPerformers });
+      return res.json({ topPerformers: [] });
     }
 
-    res.json({ topPerformers });
+    res.json({ 
+      topPerformers: topPerformers.map(performer => ({
+        assigneeName: performer.assigneeName,
+        resolvedCount: parseInt(performer.resolvedCount)
+      }))
+    });
 
   } catch (error) {
     console.error('Ошибка получения топ исполнителей:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    res.status(500).json({ 
+      message: 'Ошибка сервера',
+      error: error.message 
+    });
   }
 };
 
-// SLA метрики (реальные данные)
+// SLA метрики
 exports.getSLAMetrics = async (req, res) => {
   try {
     const userRole = req.user.role;
 
-    if (userRole !== 'manager') {
+    if (userRole !== 'manager' && userRole !== 'admin') {
       return res.status(403).json({ message: 'Недостаточно прав' });
     }
 
-    // Реальные просроченные заявки
-    const overdueTickets = await Ticket.count({
-      where: {
-        slaDeadline: { [Op.lt]: new Date() },
-        status: { 
-          [Op.notIn]: ['resolved', 'closed'] 
-        }
-      }
-    });
+    // Просроченные заявки
+    const overdueTickets = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM tickets
+      WHERE "slaDeadline" < NOW()
+      AND status NOT IN ('resolved', 'closed')
+    `, { type: QueryTypes.SELECT });
 
     // Заявки близкие к дедлайну (в течение 2 часов)
-    const twoHoursFromNow = new Date();
-    twoHoursFromNow.setHours(twoHoursFromNow.getHours() + 2);
+    const nearDeadline = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM tickets
+      WHERE "slaDeadline" BETWEEN NOW() AND NOW() + INTERVAL '2 hours'
+      AND status NOT IN ('resolved', 'closed')
+    `, { type: QueryTypes.SELECT });
 
-    const nearDeadline = await Ticket.count({
-      where: {
-        slaDeadline: {
-          [Op.between]: [new Date(), twoHoursFromNow]
-        },
-        status: { 
-          [Op.notIn]: ['resolved', 'closed'] 
-        }
-      }
-    });
-
-    // SLA по категориям (реальные данные)
-    const categories = await ServiceCategory.findAll({
-      order: [['name', 'ASC']]
-    });
-
-    const slaByCategory = await Promise.all(
-      categories.map(async (cat) => {
-        // Среднее время решения для данной категории
-        const avgTime = await sequelize.query(`
-          SELECT AVG(EXTRACT(EPOCH FROM (t."resolvedAt" - t."createdAt"))/60) as avg_minutes
-          FROM tickets t
-          WHERE t."categoryId" = :categoryId 
-          AND t.status = 'resolved'
-          AND t."resolvedAt" IS NOT NULL
-        `, {
-          replacements: { categoryId: cat.id },
-          type: sequelize.QueryTypes.SELECT
-        });
-
-        return {
-          name: cat.name,
-          slaTime: cat.slaTime,
-          avgResolutionTime: avgTime[0]?.avg_minutes ? 
-            Math.round(parseFloat(avgTime[0].avg_minutes)) : 
-            Math.floor(cat.slaTime * 0.8) // Если нет данных, используем 80% от SLA
-        };
-      })
-    );
+    // SLA по категориям
+    const slaByCategory = await sequelize.query(`
+      SELECT 
+        c.name,
+        c."slaTime",
+        COALESCE(
+          AVG(EXTRACT(EPOCH FROM (t."resolvedAt" - t."createdAt")) / 60),
+          c."slaTime" * 0.8
+        ) as "avgResolutionTime"
+      FROM service_categories c
+      LEFT JOIN tickets t ON c.id = t."categoryId" 
+        AND t.status = 'resolved' 
+        AND t."resolvedAt" IS NOT NULL
+      GROUP BY c.id, c.name, c."slaTime"
+      ORDER BY c.name ASC
+    `, { type: QueryTypes.SELECT });
 
     res.json({
-      overdueTickets,
-      nearDeadline,
-      slaByCategory
+      overdueTickets: parseInt(overdueTickets[0].count),
+      nearDeadline: parseInt(nearDeadline[0].count),
+      slaByCategory: slaByCategory.map(cat => ({
+        name: cat.name,
+        slaTime: cat.slaTime,
+        avgResolutionTime: Math.round(parseFloat(cat.avgResolutionTime))
+      }))
     });
 
   } catch (error) {
     console.error('Ошибка получения SLA метрик:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    res.status(500).json({ 
+      message: 'Ошибка сервера',
+      error: error.message 
+    });
   }
+};
+
+// ПРАВИЛЬНЫЙ ЭКСПОРТ
+module.exports = {
+  getOverallStats: exports.getOverallStats,
+  getTicketsByDate: exports.getTicketsByDate,
+  getTopPerformers: exports.getTopPerformers,
+  getSLAMetrics: exports.getSLAMetrics
 };

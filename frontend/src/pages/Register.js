@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import authService from '../services/authService';
+import theme from '../theme/theme';
 import {
   Container,
   Paper,
@@ -57,13 +58,47 @@ const Register = () => {
           alignItems: 'center'
         }}
       >
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
-          <Typography component="h1" variant="h5" align="center" gutterBottom>
+        <Paper 
+          elevation={3} 
+          sx={{ 
+            padding: 4, 
+            width: '100%',
+            background: theme.background.secondary,
+            backdropFilter: 'blur(20px)',
+            border: `1px solid ${theme.border.main}`,
+            boxShadow: theme.glass.dark.shadow
+          }}
+        >
+          <Typography 
+            component="h1" 
+            variant="h5" 
+            align="center" 
+            gutterBottom
+            sx={{
+              color: theme.text.primary,
+              fontWeight: 700,
+              background: theme.gradients.primary,
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
             Регистрация
           </Typography>
 
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 2,
+                backgroundColor: theme.functional.error.bg,
+                color: theme.text.primary,
+                border: `1px solid ${theme.functional.error.border}`,
+                '& .MuiAlert-icon': {
+                  color: theme.functional.error.main
+                }
+              }}
+            >
               {error}
             </Alert>
           )}
@@ -77,6 +112,30 @@ const Register = () => {
               label="Имя пользователя"
               value={formData.username}
               onChange={handleChange}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: theme.background.elevated,
+                  color: theme.text.primary,
+                  '& fieldset': {
+                    borderColor: theme.border.main
+                  },
+                  '&:hover fieldset': {
+                    borderColor: theme.primary.main
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: theme.primary.main
+                  }
+                },
+                '& .MuiInputLabel-root': {
+                  color: theme.text.secondary,
+                  '&.Mui-focused': {
+                    color: theme.primary.main
+                  }
+                },
+                '& input': {
+                  color: theme.text.primary
+                }
+              }}
             />
             <TextField
               margin="normal"
@@ -87,6 +146,30 @@ const Register = () => {
               type="email"
               value={formData.email}
               onChange={handleChange}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: theme.background.elevated,
+                  color: theme.text.primary,
+                  '& fieldset': {
+                    borderColor: theme.border.main
+                  },
+                  '&:hover fieldset': {
+                    borderColor: theme.primary.main
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: theme.primary.main
+                  }
+                },
+                '& .MuiInputLabel-root': {
+                  color: theme.text.secondary,
+                  '&.Mui-focused': {
+                    color: theme.primary.main
+                  }
+                },
+                '& input': {
+                  color: theme.text.primary
+                }
+              }}
             />
             <TextField
               margin="normal"
@@ -97,6 +180,30 @@ const Register = () => {
               type="password"
               value={formData.password}
               onChange={handleChange}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: theme.background.elevated,
+                  color: theme.text.primary,
+                  '& fieldset': {
+                    borderColor: theme.border.main
+                  },
+                  '&:hover fieldset': {
+                    borderColor: theme.primary.main
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: theme.primary.main
+                  }
+                },
+                '& .MuiInputLabel-root': {
+                  color: theme.text.secondary,
+                  '&.Mui-focused': {
+                    color: theme.primary.main
+                  }
+                },
+                '& input': {
+                  color: theme.text.primary
+                }
+              }}
             />
             <TextField
               margin="normal"
@@ -106,6 +213,30 @@ const Register = () => {
               label="Полное имя"
               value={formData.fullName}
               onChange={handleChange}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: theme.background.elevated,
+                  color: theme.text.primary,
+                  '& fieldset': {
+                    borderColor: theme.border.main
+                  },
+                  '&:hover fieldset': {
+                    borderColor: theme.primary.main
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: theme.primary.main
+                  }
+                },
+                '& .MuiInputLabel-root': {
+                  color: theme.text.secondary,
+                  '&.Mui-focused': {
+                    color: theme.primary.main
+                  }
+                },
+                '& input': {
+                  color: theme.text.primary
+                }
+              }}
             />
             <TextField
               margin="normal"
@@ -116,23 +247,122 @@ const Register = () => {
               label="Роль"
               value={formData.role}
               onChange={handleChange}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: theme.background.elevated,
+                  color: theme.text.primary,
+                  '& fieldset': {
+                    borderColor: theme.border.main
+                  },
+                  '&:hover fieldset': {
+                    borderColor: theme.primary.main
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: theme.primary.main
+                  }
+                },
+                '& .MuiInputLabel-root': {
+                  color: theme.text.secondary,
+                  '&.Mui-focused': {
+                    color: theme.primary.main
+                  }
+                },
+                '& .MuiSelect-select': {
+                  color: theme.text.primary
+                }
+              }}
             >
-              <MenuItem value="user">Пользователь</MenuItem>
-              <MenuItem value="engineer">Инженер</MenuItem>
-              <MenuItem value="manager">Менеджер</MenuItem>
+              <MenuItem 
+                value="user"
+                sx={{
+                  backgroundColor: theme.background.elevated,
+                  color: theme.text.primary,
+                  '&:hover': {
+                    backgroundColor: theme.background.secondary
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: `${theme.primary.main}33`,
+                    '&:hover': {
+                      backgroundColor: `${theme.primary.main}4D`
+                    }
+                  }
+                }}
+              >
+                Пользователь
+              </MenuItem>
+              <MenuItem 
+                value="engineer"
+                sx={{
+                  backgroundColor: theme.background.elevated,
+                  color: theme.text.primary,
+                  '&:hover': {
+                    backgroundColor: theme.background.secondary
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: `${theme.primary.main}33`,
+                    '&:hover': {
+                      backgroundColor: `${theme.primary.main}4D`
+                    }
+                  }
+                }}
+              >
+                Инженер
+              </MenuItem>
+              <MenuItem 
+                value="manager"
+                sx={{
+                  backgroundColor: theme.background.elevated,
+                  color: theme.text.primary,
+                  '&:hover': {
+                    backgroundColor: theme.background.secondary
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: `${theme.primary.main}33`,
+                    '&:hover': {
+                      backgroundColor: `${theme.primary.main}4D`
+                    }
+                  }
+                }}
+              >
+                Менеджер
+              </MenuItem>
             </TextField>
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
               disabled={loading}
+              sx={{ 
+                mt: 3, 
+                mb: 2,
+                background: theme.gradients.primary,
+                color: theme.text.primary,
+                fontWeight: 700,
+                py: 1.5,
+                '&:hover': {
+                  background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
+                  boxShadow: `0 8px 24px ${theme.primary.main}66`
+                },
+                '&:disabled': {
+                  background: theme.background.secondary,
+                  color: theme.text.disabled
+                }
+              }}
             >
               {loading ? 'Регистрация...' : 'Зарегистрироваться'}
             </Button>
             <Box sx={{ textAlign: 'center' }}>
               <Link to="/login" style={{ textDecoration: 'none' }}>
-                <Typography color="primary">
+                <Typography 
+                  sx={{
+                    color: theme.primary.main,
+                    fontWeight: 600,
+                    '&:hover': {
+                      color: theme.primary.light,
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
                   Уже есть аккаунт? Войти
                 </Typography>
               </Link>

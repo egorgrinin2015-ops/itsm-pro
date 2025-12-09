@@ -20,8 +20,10 @@ import {
   Category,
   Dashboard,
   ExitToApp,
-  Stars
+  Stars,
+  Book
 } from '@mui/icons-material';
+import theme from '../theme/theme';
 
 const Navbar = () => {
   const { user, logout, isManager } = useAuth();
@@ -41,18 +43,18 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // Определяем цвет роли
+  // Определяем цвет роли с новой палитрой
   const getRoleColor = (role) => {
     switch (role?.toLowerCase()) {
       case 'admin':
       case 'manager':
-        return '#f59e0b';
+        return theme.functional.warning.main;  // #f59e0b
       case 'engineer':
-        return '#10b981';
+        return theme.functional.success.main;  // #10b981
       case 'user':
-        return '#6366f1';
+        return theme.functional.info.main;     // #3b82f6
       default:
-        return '#64748b';
+        return theme.primary.main;             // #9a8c98
     }
   };
 
@@ -66,10 +68,10 @@ const Navbar = () => {
         position="static"
         elevation={0}
         sx={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%)',
+          background: `linear-gradient(135deg, ${theme.background.primary}F2 0%, ${theme.background.secondary}E6 100%)`,
           backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          borderBottom: `1px solid ${theme.border.main}`,
+          boxShadow: theme.glass.dark.shadow
         }}
       >
         <Toolbar sx={{ py: 1 }}>
@@ -95,14 +97,14 @@ const Navbar = () => {
                     width: 40,
                     height: 40,
                     borderRadius: 2,
-                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(139, 92, 246, 0.8) 100%)',
+                    background: theme.gradients.primary,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)'
+                    boxShadow: `0 8px 20px ${theme.primary.main}40`
                   }}
                 >
-                  <Stars sx={{ fontSize: 20, color: 'white' }} />
+                  <Stars sx={{ fontSize: 20, color: theme.text.primary }} />
                 </Box>
               </motion.div>
               <Typography 
@@ -110,7 +112,7 @@ const Navbar = () => {
                 component="div" 
                 sx={{ 
                   fontWeight: 800,
-                  background: 'linear-gradient(135deg, #ffffff 0%, rgba(59, 130, 246, 0.9) 100%)',
+                  background: theme.gradients.primary,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -122,8 +124,9 @@ const Navbar = () => {
             </Box>
           </motion.div>
 
-          {/* Навигационные кнопки */}
+{/* Навигационные кнопки */}
           <Box sx={{ flexGrow: 1, display: 'flex', gap: 1 }}>
+            {/* ЗАЯВКИ - ГОЛУБОЙ */}
             <motion.div
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.95 }}
@@ -138,14 +141,15 @@ const Navbar = () => {
                   px: 3,
                   py: 1.5,
                   fontWeight: 600,
-                  color: '#ffffff',
-                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: theme.text.primary,
+                  background: theme.background.elevated,
                   backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  border: `1px solid ${theme.border.main}`,
                   transition: 'all 0.3s ease',
                   '&:hover': {
-                    background: 'rgba(59, 130, 246, 0.2)',
-                    boxShadow: '0 8px 25px rgba(59, 130, 246, 0.3)',
+                    background: 'rgba(6, 182, 212, 0.2)',
+                    borderColor: '#06b6d4',
+                    boxShadow: '0 8px 25px rgba(6, 182, 212, 0.3)',
                     transform: 'translateY(-2px)'
                   }
                 }}
@@ -154,8 +158,41 @@ const Navbar = () => {
               </Button>
             </motion.div>
 
+            {/* БАЗА ЗНАНИЙ - ЗЕЛЁНЫЙ */}
+            <motion.div
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                color="inherit"
+                startIcon={<Book />}
+                component={Link}
+                to="/kb"
+                sx={{
+                  borderRadius: 3,
+                  px: 3,
+                  py: 1.5,
+                  fontWeight: 600,
+                  color: theme.text.primary,
+                  background: theme.background.elevated,
+                  backdropFilter: 'blur(10px)',
+                  border: `1px solid ${theme.border.main}`,
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    background: 'rgba(16, 185, 129, 0.2)',
+                    borderColor: '#10b981',
+                    boxShadow: '0 8px 25px rgba(16, 185, 129, 0.3)',
+                    transform: 'translateY(-2px)'
+                  }
+                }}
+              >
+                База знаний
+              </Button>
+            </motion.div>
+
             {isManager && (
               <>
+                {/* КАТЕГОРИИ - ОРАНЖЕВЫЙ */}
                 <motion.div
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.95 }}
@@ -170,14 +207,15 @@ const Navbar = () => {
                       px: 3,
                       py: 1.5,
                       fontWeight: 600,
-                      color: '#ffffff',
-                      background: 'rgba(255, 255, 255, 0.1)',
+                      color: theme.text.primary,
+                      background: theme.background.elevated,
                       backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      border: `1px solid ${theme.border.main}`,
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        background: 'rgba(34, 197, 94, 0.2)',
-                        boxShadow: '0 8px 25px rgba(34, 197, 94, 0.3)',
+                        background: 'rgba(245, 158, 11, 0.2)',
+                        borderColor: '#f59e0b',
+                        boxShadow: '0 8px 25px rgba(245, 158, 11, 0.3)',
                         transform: 'translateY(-2px)'
                       }
                     }}
@@ -186,6 +224,7 @@ const Navbar = () => {
                   </Button>
                 </motion.div>
 
+                {/* СТАТИСТИКА - ФИОЛЕТОВЫЙ */}
                 <motion.div
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.95 }}
@@ -200,13 +239,14 @@ const Navbar = () => {
                       px: 3,
                       py: 1.5,
                       fontWeight: 600,
-                      color: '#ffffff',
-                      background: 'rgba(255, 255, 255, 0.1)',
+                      color: theme.text.primary,
+                      background: theme.background.elevated,
                       backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      border: `1px solid ${theme.border.main}`,
                       transition: 'all 0.3s ease',
                       '&:hover': {
                         background: 'rgba(139, 92, 246, 0.2)',
+                        borderColor: '#8b5cf6',
                         boxShadow: '0 8px 25px rgba(139, 92, 246, 0.3)',
                         transform: 'translateY(-2px)'
                       }
@@ -231,7 +271,7 @@ const Navbar = () => {
                   <Typography 
                     variant="body1" 
                     sx={{ 
-                      color: '#ffffff',
+                      color: theme.text.primary,
                       fontWeight: 600,
                       textShadow: '0 1px 2px rgba(0,0,0,0.3)',
                       fontSize: '0.95rem'
@@ -246,8 +286,8 @@ const Navbar = () => {
                       label={user?.role}
                       size="small"
                       sx={{
-                        background: `linear-gradient(135deg, ${getRoleColor(user?.role)} 0%, ${getRoleColor(user?.role)}80 100%)`,
-                        color: '#ffffff',
+                        background: `linear-gradient(135deg, ${getRoleColor(user?.role)} 0%, ${getRoleColor(user?.role)}CC 100%)`,
+                        color: theme.text.primary,
                         fontWeight: 600,
                         fontSize: '0.75rem',
                         boxShadow: `0 4px 12px ${getRoleColor(user?.role)}40`,
@@ -265,12 +305,12 @@ const Navbar = () => {
                     size="large"
                     onClick={handleMenu}
                     sx={{
-                      background: 'rgba(255, 255, 255, 0.1)',
+                      background: theme.background.elevated,
                       backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      border: `1px solid ${theme.border.main}`,
                       '&:hover': {
-                        background: 'rgba(255, 255, 255, 0.2)',
-                        boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)'
+                        background: theme.background.secondary,
+                        boxShadow: theme.glass.dark.shadow
                       }
                     }}
                   >
@@ -278,7 +318,7 @@ const Navbar = () => {
                       sx={{ 
                         width: 36, 
                         height: 36,
-                        background: `linear-gradient(135deg, ${getRoleColor(user?.role)} 0%, ${getRoleColor(user?.role)}80 100%)`,
+                        background: `linear-gradient(135deg, ${getRoleColor(user?.role)} 0%, ${getRoleColor(user?.role)}CC 100%)`,
                         fontWeight: 700,
                         boxShadow: `0 4px 15px ${getRoleColor(user?.role)}40`
                       }}
@@ -298,9 +338,9 @@ const Navbar = () => {
                 onClose={handleClose}
                 PaperProps={{
                   sx: {
-                    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%)',
+                    background: `linear-gradient(135deg, ${theme.background.primary}F2 0%, ${theme.background.secondary}E6 100%)`,
                     backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: `1px solid ${theme.border.main}`,
                     borderRadius: 3,
                     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
                     mt: 1
@@ -308,13 +348,13 @@ const Navbar = () => {
                 }}
               >
                 <motion.div
-                  whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
+                  whileHover={{ backgroundColor: `${theme.functional.info.main}1A` }}
                   transition={{ duration: 0.2 }}
                 >
                   <MenuItem 
                     onClick={() => { handleClose(); navigate('/profile'); }}
                     sx={{
-                      color: '#ffffff',
+                      color: theme.text.primary,
                       fontWeight: 500,
                       py: 1.5,
                       px: 3,
@@ -322,23 +362,23 @@ const Navbar = () => {
                       mx: 1,
                       my: 0.5,
                       '&:hover': {
-                        background: 'rgba(59, 130, 246, 0.2)',
+                        background: `${theme.functional.info.main}33`,
                       }
                     }}
                   >
-                    <AccountCircle sx={{ mr: 2, color: '#3b82f6' }} />
+                    <AccountCircle sx={{ mr: 2, color: theme.functional.info.main }} />
                     Профиль
                   </MenuItem>
                 </motion.div>
 
                 <motion.div
-                  whileHover={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
+                  whileHover={{ backgroundColor: `${theme.functional.error.main}1A` }}
                   transition={{ duration: 0.2 }}
                 >
                   <MenuItem 
                     onClick={handleLogout}
                     sx={{
-                      color: '#ffffff',
+                      color: theme.text.primary,
                       fontWeight: 500,
                       py: 1.5,
                       px: 3,
@@ -346,11 +386,11 @@ const Navbar = () => {
                       mx: 1,
                       my: 0.5,
                       '&:hover': {
-                        background: 'rgba(239, 68, 68, 0.2)',
+                        background: `${theme.functional.error.main}33`,
                       }
                     }}
                   >
-                    <ExitToApp sx={{ mr: 2, color: '#ef4444' }} />
+                    <ExitToApp sx={{ mr: 2, color: theme.functional.error.main }} />
                     Выйти
                   </MenuItem>
                 </motion.div>

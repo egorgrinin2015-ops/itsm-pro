@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from '../components/GlassCard';
+import theme from '../theme/theme';
 import {
   Container,
   TextField,
@@ -28,26 +29,26 @@ import {
   BarChart3
 } from 'lucide-react';
 
-// Принудительные глобальные стили
+// Глобальные стили с Space Indigo палитрой
 const forceBackgroundStyles = (
   <GlobalStyles
     styles={{
       '#root': {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       body: {
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important',
+        background: `${theme.gradients.background} !important`,
         minHeight: '100vh !important',
       },
       html: {
-        background: '#000000 !important',
+        background: `${theme.background.primary} !important`,
       }
     }}
   />
 );
 
-// Усиленный IT-фон с яркими элементами
+// IT-фон с Space Indigo элементами
 const ITBackground = () => {
   return (
     <>
@@ -66,7 +67,7 @@ const ITBackground = () => {
           zIndex: '-999 !important',
         }}
       >
-        {/* ТЕМНЫЙ ФОН */}
+        {/* ОСНОВНОЙ ФОН */}
         <Box
           sx={{
             position: 'absolute !important',
@@ -76,20 +77,11 @@ const ITBackground = () => {
             bottom: '0 !important',
             width: '100% !important',
             height: '100% !important',
-            background: `
-              linear-gradient(135deg, 
-                #000000 0%,
-                #1a1a2e 20%,
-                #16213e 40%,
-                #0f172a 60%,
-                #020617 80%,
-                #000000 100%
-              ) !important
-            `,
+            background: theme.gradients.background,
           }}
         />
 
-        {/* ЯРКИЕ ЦВЕТНЫЕ АКЦЕНТЫ */}
+        {/* ЦВЕТНЫЕ АКЦЕНТЫ с новой палитрой */}
         <Box
           sx={{
             position: 'absolute !important',
@@ -98,15 +90,15 @@ const ITBackground = () => {
             right: '0 !important',
             bottom: '0 !important',
             background: `
-              radial-gradient(ellipse at 15% 25%, rgba(59, 130, 246, 0.5) 0%, transparent 40%),
-              radial-gradient(ellipse at 85% 75%, rgba(139, 92, 246, 0.45) 0%, transparent 40%),
-              radial-gradient(ellipse at 50% 10%, rgba(34, 197, 94, 0.4) 0%, transparent 30%),
-              radial-gradient(ellipse at 20% 90%, rgba(251, 191, 36, 0.35) 0%, transparent 25%)
+              radial-gradient(ellipse at 15% 25%, ${theme.primary.main}80 0%, transparent 40%),
+              radial-gradient(ellipse at 85% 75%, ${theme.primary.light}70 0%, transparent 40%),
+              radial-gradient(ellipse at 50% 10%, ${theme.functional.success.main}66 0%, transparent 30%),
+              radial-gradient(ellipse at 20% 90%, ${theme.functional.warning.main}59 0%, transparent 25%)
             `,
           }}
         />
 
-        {/* ДВИЖУЩАЯСЯ СЕТКА - БОЛЕЕ ЯРКАЯ */}
+        {/* ДВИЖУЩАЯСЯ СЕТКА */}
         <Box
           sx={{
             position: 'absolute !important',
@@ -115,8 +107,8 @@ const ITBackground = () => {
             right: '0 !important',
             bottom: '0 !important',
             backgroundImage: `
-              linear-gradient(rgba(59, 130, 246, 0.4) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(59, 130, 246, 0.4) 1px, transparent 1px)
+              linear-gradient(${theme.border.main} 1px, transparent 1px),
+              linear-gradient(90deg, ${theme.border.main} 1px, transparent 1px)
             `,
             backgroundSize: '40px 40px',
           }}
@@ -140,15 +132,15 @@ const ITBackground = () => {
             right: 0,
             bottom: 0,
             backgroundImage: `
-              linear-gradient(rgba(139, 92, 246, 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(139, 92, 246, 0.3) 1px, transparent 1px)
+              linear-gradient(${theme.border.light} 1px, transparent 1px),
+              linear-gradient(90deg, ${theme.border.light} 1px, transparent 1px)
             `,
             backgroundSize: '60px 60px',
             pointerEvents: 'none'
           }}
         />
 
-        {/* БОЛЬШИЕ ЯРКИЕ СВЕТЯЩИЕСЯ ЭЛЕМЕНТЫ */}
+        {/* БОЛЬШИЕ СВЕТЯЩИЕСЯ ЭЛЕМЕНТЫ с новыми цветами */}
         <motion.div
           animate={{
             rotate: [0, 360],
@@ -162,7 +154,7 @@ const ITBackground = () => {
             right: '5%',
             width: '500px',
             height: '500px',
-            background: 'conic-gradient(from 0deg, rgba(59, 130, 246, 0.9), rgba(139, 92, 246, 0.7), rgba(34, 197, 94, 0.8), rgba(251, 191, 36, 0.6), rgba(59, 130, 246, 0.9))',
+            background: `conic-gradient(from 0deg, ${theme.primary.main}E6, ${theme.primary.light}B3, ${theme.functional.success.main}CC, ${theme.functional.warning.main}99, ${theme.primary.main}E6)`,
             borderRadius: '50%',
             filter: 'blur(80px)',
             pointerEvents: 'none'
@@ -184,7 +176,7 @@ const ITBackground = () => {
             left: '0%',
             width: '400px',
             height: '400px',
-            background: 'radial-gradient(circle, rgba(34, 197, 94, 0.8) 0%, rgba(251, 191, 36, 0.6) 50%, rgba(139, 92, 246, 0.5) 100%)',
+            background: `radial-gradient(circle, ${theme.functional.success.main}CC 0%, ${theme.functional.warning.main}99 50%, ${theme.primary.main}80 100%)`,
             borderRadius: '50%',
             filter: 'blur(60px)',
             pointerEvents: 'none'
@@ -206,7 +198,7 @@ const ITBackground = () => {
             transform: 'translate(-50%, -50%)',
             width: '600px',
             height: '300px',
-            background: 'linear-gradient(45deg, rgba(59, 130, 246, 0.7), rgba(139, 92, 246, 0.6), rgba(34, 197, 94, 0.5))',
+            background: `linear-gradient(45deg, ${theme.primary.main}B3, ${theme.primary.light}99, ${theme.functional.success.main}80)`,
             borderRadius: '50%',
             filter: 'blur(100px)',
             pointerEvents: 'none'
@@ -226,7 +218,7 @@ const ITBackground = () => {
             left: '15%',
             width: '300px',
             height: '300px',
-            background: 'conic-gradient(from 180deg, rgba(251, 191, 36, 0.7), rgba(239, 68, 68, 0.5), rgba(251, 191, 36, 0.7))',
+            background: `conic-gradient(from 180deg, ${theme.functional.warning.main}B3, ${theme.functional.error.main}80, ${theme.functional.warning.main}B3)`,
             borderRadius: '50%',
             filter: 'blur(70px)',
             pointerEvents: 'none'
@@ -246,14 +238,14 @@ const ITBackground = () => {
             right: '20%',
             width: '350px',
             height: '350px',
-            background: 'radial-gradient(ellipse, rgba(168, 85, 247, 0.6) 0%, rgba(59, 130, 246, 0.4) 70%, transparent 100%)',
+            background: `radial-gradient(ellipse, ${theme.primary.main}99 0%, ${theme.functional.info.main}66 70%, transparent 100%)`,
             borderRadius: '50%',
             filter: 'blur(90px)',
             pointerEvents: 'none'
           }}
         />
 
-        {/* АНИМИРОВАННЫЕ ДИАГОНАЛЬНЫЕ ЛИНИИ - БОЛЕЕ ЯРКИЕ */}
+        {/* АНИМИРОВАННЫЕ ЛИНИИ с новой палитрой */}
         <svg
           width="100%"
           height="100%"
@@ -267,9 +259,9 @@ const ITBackground = () => {
         >
           <defs>
             <linearGradient id="brightLineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: 'rgba(59, 130, 246, 1)', stopOpacity: 1 }} />
-              <stop offset="50%" style={{ stopColor: 'rgba(139, 92, 246, 0.9)', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: 'rgba(34, 197, 94, 0.8)', stopOpacity: 1 }} />
+              <stop offset="0%" style={{ stopColor: theme.primary.main, stopOpacity: 1 }} />
+              <stop offset="50%" style={{ stopColor: theme.primary.light, stopOpacity: 0.9 }} />
+              <stop offset="100%" style={{ stopColor: theme.functional.success.main, stopOpacity: 0.8 }} />
             </linearGradient>
           </defs>
           
@@ -293,7 +285,7 @@ const ITBackground = () => {
 
           <motion.line
             x1="0%" y1="75%" x2="100%" y2="85%"
-            stroke="rgba(251, 191, 36, 1)"
+            stroke={theme.functional.warning.main}
             strokeWidth="4"
             strokeDasharray="12 30"
             initial={{ pathLength: 0, opacity: 0 }}
@@ -312,7 +304,7 @@ const ITBackground = () => {
 
           <motion.line
             x1="0%" y1="45%" x2="100%" y2="55%"
-            stroke="rgba(139, 92, 246, 0.9)"
+            stroke={`${theme.primary.main}E6`}
             strokeWidth="3"
             strokeDasharray="8 20"
             initial={{ pathLength: 0, opacity: 0 }}
@@ -379,9 +371,9 @@ const Login = () => {
   ];
 
   const testAccounts = [
-    { email: 'admin@itsm.com', password: 'admin123', role: 'Менеджер', color: '#f59e0b' },
-    { email: 'engineer@itsm.com', password: 'engineer123', role: 'Инженер', color: '#10b981' },
-    { email: 'user@itsm.com', password: 'user123', role: 'Пользователь', color: '#6366f1' }
+    { email: 'admin@itsm.com', password: 'admin123', role: 'Менеджер', color: theme.functional.warning.main },
+    { email: 'engineer@itsm.com', password: 'engineer123', role: 'Инженер', color: theme.functional.success.main },
+    { email: 'user@itsm.com', password: 'user123', role: 'Пользователь', color: theme.functional.info.main }
   ];
 
   const fillTestAccount = (account) => {
@@ -395,16 +387,15 @@ const Login = () => {
         minHeight: '100vh !important', 
         position: 'relative !important', 
         overflow: 'hidden !important',
-        background: 'linear-gradient(135deg, #000000 0%, #1a1a2e 20%, #16213e 40%, #0f172a 60%, #020617 80%, #000000 100%) !important'
+        background: `${theme.gradients.background} !important`
       }}
-    >
-      {/* ЯРКИЙ IT-ФОН */}
+    >  {/* IT-ФОН */}
       <ITBackground />
       
       <Container maxWidth="lg" sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', py: 4, position: 'relative', zIndex: 10 }}>
         <Box sx={{ width: '100%', display: 'flex', gap: 4, alignItems: 'center' }}>
           
-          {/* Левая панель - УЛУЧШЕННАЯ ВИДИМОСТЬ ТЕКСТА */}
+          {/* Левая панель с новыми цветами */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -434,21 +425,16 @@ const Login = () => {
                         width: 70,
                         height: 70,
                         borderRadius: 4,
-                        background: `
-                          linear-gradient(135deg, 
-                            rgba(59, 130, 246, 0.9) 0%, 
-                            rgba(139, 92, 246, 0.8) 100%
-                          )
-                        `,
+                        background: theme.gradients.primary,
                         backdropFilter: 'blur(20px)',
-                        border: '2px solid rgba(255,255,255,0.3)',
+                        border: `2px solid ${theme.border.main}`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        boxShadow: '0 20px 50px rgba(59, 130, 246, 0.6)',
+                        boxShadow: `0 20px 50px ${theme.primary.main}99`,
                       }}
                     >
-                      <Sparkles size={36} color="white" />
+                      <Sparkles size={36} color={theme.text.primary} />
                     </Box>
                   </motion.div>
                   <Box>
@@ -456,8 +442,8 @@ const Login = () => {
                       variant="h2" 
                       sx={{ 
                         fontWeight: '900 !important',
-                        color: '#ffffff !important',
-                        textShadow: '0 4px 20px rgba(0,0,0,1), 0 0 40px rgba(59, 130, 246, 0.8) !important',
+                        color: `${theme.text.primary} !important`,
+                        textShadow: `0 4px 20px rgba(0,0,0,1), 0 0 40px ${theme.primary.main}CC !important`,
                         fontSize: '3.5rem !important',
                         lineHeight: '1 !important',
                         mb: '0.5rem !important'
@@ -469,7 +455,7 @@ const Login = () => {
                       variant="h4" 
                       sx={{ 
                         fontWeight: '700 !important',
-                        color: '#ffffff !important',
+                        color: `${theme.text.primary} !important`,
                         textShadow: '0 2px 10px rgba(0,0,0,1) !important',
                       }}
                     >
@@ -489,8 +475,8 @@ const Login = () => {
                   sx={{ 
                     mb: '3rem !important',
                     fontWeight: '800 !important',
-                    color: '#ffffff !important',
-                    textShadow: '0 4px 20px rgba(0,0,0,1), 0 0 30px rgba(59, 130, 246, 0.8) !important',
+                    color: `${theme.text.primary} !important`,
+                    textShadow: `0 4px 20px rgba(0,0,0,1), 0 0 30px ${theme.primary.main}CC !important`,
                     lineHeight: '1.3 !important'
                   }}
                 >
@@ -501,7 +487,7 @@ const Login = () => {
                   variant="h6" 
                   sx={{ 
                     mb: '4rem !important',
-                    color: '#ffffff !important',
+                    color: `${theme.text.primary} !important`,
                     lineHeight: '1.6 !important',
                     textShadow: '0 2px 10px rgba(0,0,0,1) !important',
                     fontWeight: '500 !important'
@@ -531,29 +517,19 @@ const Login = () => {
                             width: 65,
                             height: 65,
                             borderRadius: 3,
-                            background: `
-                              linear-gradient(135deg, 
-                                rgba(255,255,255,0.2) 0%, 
-                                rgba(255,255,255,0.1) 100%
-                              )
-                            `,
+                            background: `linear-gradient(135deg, ${theme.background.elevated}CC 0%, ${theme.background.secondary}99 100%)`,
                             backdropFilter: 'blur(40px)',
-                            border: '2px solid rgba(255,255,255,0.3)',
+                            border: `2px solid ${theme.border.main}`,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: 'white',
-                            boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
+                            color: theme.text.primary,
+                            boxShadow: theme.glass.dark.shadow,
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                             '&:hover': {
-                              background: `
-                                linear-gradient(135deg, 
-                                  rgba(255,255,255,0.3) 0%, 
-                                  rgba(255,255,255,0.2) 100%
-                                )
-                              `,
+                              background: `linear-gradient(135deg, ${theme.primary.main}4D 0%, ${theme.background.elevated}CC 100%)`,
                               transform: 'translateY(-8px) scale(1.05)',
-                              boxShadow: '0 25px 60px rgba(0,0,0,0.4)'
+                              boxShadow: `0 25px 60px ${theme.primary.main}66`
                             }
                           }}
                         >
@@ -563,7 +539,7 @@ const Login = () => {
                           <Typography 
                             variant="h6" 
                             sx={{ 
-                              color: '#ffffff', 
+                              color: theme.text.primary, 
                               fontWeight: 800, 
                               mb: 1,
                               textShadow: '0 2px 8px rgba(0,0,0,0.6)'
@@ -574,7 +550,7 @@ const Login = () => {
                           <Typography 
                             variant="body1" 
                             sx={{ 
-                              color: 'rgba(255,255,255,0.85)',
+                              color: theme.text.secondary,
                               lineHeight: 1.6,
                               textShadow: '0 1px 4px rgba(0,0,0,0.4)'
                             }}
@@ -601,9 +577,9 @@ const Login = () => {
               sx={{ 
                 p: 5, 
                 backdropFilter: 'blur(50px)', 
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08))',
-                border: '2px solid rgba(255,255,255,0.2)',
-                boxShadow: '0 25px 60px rgba(0,0,0,0.5)'
+                background: `linear-gradient(135deg, ${theme.background.elevated}99, ${theme.background.secondary}CC)`,
+                border: `2px solid ${theme.border.main}`,
+                boxShadow: theme.glass.dark.shadow
               }}
             >
               <Box sx={{ textAlign: 'center', mb: 4 }}>
@@ -615,9 +591,9 @@ const Login = () => {
                   <motion.div
                     animate={{
                       textShadow: [
-                        '0 2px 4px rgba(59, 130, 246, 0.3)',
-                        '0 4px 8px rgba(139, 92, 246, 0.4)',
-                        '0 2px 4px rgba(59, 130, 246, 0.3)'
+                        `0 2px 4px ${theme.primary.main}4D`,
+                        `0 4px 8px ${theme.primary.light}66`,
+                        `0 2px 4px ${theme.primary.main}4D`
                       ]
                     }}
                     transition={{
@@ -630,10 +606,10 @@ const Login = () => {
                       variant="h4" 
                       sx={{ 
                         fontWeight: '900 !important',
-                        color: '#ffffff !important',
-                        textShadow: '0 2px 4px rgba(59, 130, 246, 0.3), 0 0 20px rgba(255,255,255,0.1) !important',
+                        color: `${theme.text.primary} !important`,
+                        textShadow: `0 2px 4px ${theme.primary.main}4D, 0 0 20px ${theme.text.primary}1A !important`,
                         mb: 1,
-                        background: 'linear-gradient(135deg, #ffffff 0%, rgba(59, 130, 246, 0.9) 100%)',
+                        background: theme.gradients.primary,
                         backgroundClip: 'text',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
@@ -664,7 +640,7 @@ const Login = () => {
                     <Typography 
                       variant="body1" 
                       sx={{ 
-                        color: '#ffffff !important', 
+                        color: `${theme.text.primary} !important`, 
                         fontWeight: 500, 
                         fontSize: '1.1rem',
                         textShadow: '0 1px 3px rgba(0,0,0,0.5)'
@@ -705,41 +681,41 @@ const Login = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Mail size={20} color={focusedField === 'email' ? '#3b82f6' : '#ffffff'} />
+                        <Mail size={20} color={focusedField === 'email' ? theme.functional.info.main : theme.text.primary} />
                       </InputAdornment>
                     ),
                   }}
                   InputLabelProps={{
-                    style: { color: '#ffffff' }
+                    style: { color: theme.text.primary }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 3,
                       backdropFilter: 'blur(30px)',
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
+                      backgroundColor: `${theme.background.elevated}33`,
+                      border: `1px solid ${theme.border.main}`,
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       fontSize: '1.1rem',
-                      color: '#ffffff !important',
+                      color: `${theme.text.primary} !important`,
                       '& input': {
-                        color: '#ffffff !important',
+                        color: `${theme.text.primary} !important`,
                       },
                       '&:hover': {
                         transform: 'translateY(-3px)',
-                        backgroundColor: 'rgba(255,255,255,0.15)',
-                        boxShadow: '0 12px 35px rgba(59, 130, 246, 0.2)',
+                        backgroundColor: `${theme.background.elevated}4D`,
+                        boxShadow: `0 12px 35px ${theme.functional.info.main}33`,
                       },
                       '&.Mui-focused': {
                         transform: 'translateY(-4px)',
-                        boxShadow: '0 20px 50px rgba(59, 130, 246, 0.3)',
-                        backgroundColor: 'rgba(255,255,255,0.2)',
-                        borderColor: '#3b82f6',
+                        boxShadow: `0 20px 50px ${theme.functional.info.main}4D`,
+                        backgroundColor: `${theme.background.elevated}66`,
+                        borderColor: theme.functional.info.main,
                       }
                     },
                     '& .MuiInputLabel-root': {
-                      color: '#ffffff !important',
+                      color: `${theme.text.primary} !important`,
                       '&.Mui-focused': {
-                        color: '#3b82f6 !important'
+                        color: `${theme.functional.info.main} !important`
                       }
                     }
                   }}
@@ -758,7 +734,7 @@ const Login = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Lock size={20} color={focusedField === 'password' ? '#3b82f6' : '#ffffff'} />
+                        <Lock size={20} color={focusedField === 'password' ? theme.functional.info.main : theme.text.primary} />
                       </InputAdornment>
                     ),
                     endAdornment: (
@@ -767,9 +743,9 @@ const Login = () => {
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
                           sx={{ 
-                            color: '#ffffff',
+                            color: theme.text.primary,
                             '&:hover': { 
-                              color: '#3b82f6',
+                              color: theme.functional.info.main,
                               transform: 'scale(1.2)' 
                             } 
                           }}
@@ -780,36 +756,36 @@ const Login = () => {
                     ),
                   }}
                   InputLabelProps={{
-                    style: { color: '#ffffff' }
+                    style: { color: theme.text.primary }
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 3,
                       backdropFilter: 'blur(30px)',
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
+                      backgroundColor: `${theme.background.elevated}33`,
+                      border: `1px solid ${theme.border.main}`,
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       fontSize: '1.1rem',
-                      color: '#ffffff !important',
+                      color: `${theme.text.primary} !important`,
                       '& input': {
-                        color: '#ffffff !important',
+                        color: `${theme.text.primary} !important`,
                       },
                       '&:hover': {
                         transform: 'translateY(-3px)',
-                        backgroundColor: 'rgba(255,255,255,0.15)',
-                        boxShadow: '0 12px 35px rgba(59, 130, 246, 0.2)',
+                        backgroundColor: `${theme.background.elevated}4D`,
+                        boxShadow: `0 12px 35px ${theme.functional.info.main}33`,
                       },
                       '&.Mui-focused': {
                         transform: 'translateY(-4px)',
-                        boxShadow: '0 20px 50px rgba(59, 130, 246, 0.3)',
-                        backgroundColor: 'rgba(255,255,255,0.2)',
-                        borderColor: '#3b82f6',
+                        boxShadow: `0 20px 50px ${theme.functional.info.main}4D`,
+                        backgroundColor: `${theme.background.elevated}66`,
+                        borderColor: theme.functional.info.main,
                       }
                     },
                     '& .MuiInputLabel-root': {
-                      color: '#ffffff !important',
+                      color: `${theme.text.primary} !important`,
                       '&.Mui-focused': {
-                        color: '#3b82f6 !important'
+                        color: `${theme.functional.info.main} !important`
                       }
                     }
                   }}
@@ -828,19 +804,19 @@ const Login = () => {
                     fontSize: '1.2rem',
                     fontWeight: 800,
                     borderRadius: 3,
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                    boxShadow: '0 20px 50px rgba(59, 130, 246, 0.5)',
+                    background: theme.gradients.primary,
+                    boxShadow: `0 20px 50px ${theme.primary.main}80`,
                     textTransform: 'none',
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                      background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
                       transform: 'translateY(-4px)',
-                      boxShadow: '0 30px 70px rgba(59, 130, 246, 0.7)',
+                      boxShadow: `0 30px 70px ${theme.primary.main}B3`,
                     },
                     '&:active': {
                       transform: 'translateY(-2px)',
                     },
                     '&:disabled': {
-                      background: 'rgba(0,0,0,0.12)',
+                      background: `${theme.background.secondary}80`,
                     }
                   }}
                 >
@@ -848,8 +824,8 @@ const Login = () => {
                 </Button>
               </Box>
 
-              <Divider sx={{ my: 3, '&::before, &::after': { borderColor: 'rgba(255,255,255,0.2)' } }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 700, fontSize: '0.9rem' }}>
+              <Divider sx={{ my: 3, '&::before, &::after': { borderColor: theme.border.main } }}>
+                <Typography variant="body2" sx={{ color: theme.text.secondary, fontWeight: 700, fontSize: '0.9rem' }}>
                   Демо-доступ
                 </Typography>
               </Divider>
@@ -869,17 +845,17 @@ const Login = () => {
                       sx={{
                         py: 2.5,
                         borderRadius: 3,
-                        borderColor: 'rgba(255,255,255,0.2)',
-                        color: 'text.primary',
-                        backgroundColor: 'rgba(255,255,255,0.08)',
+                        borderColor: theme.border.main,
+                        color: theme.text.primary,
+                        backgroundColor: `${theme.background.elevated}33`,
                         backdropFilter: 'blur(40px)',
                         fontWeight: 700,
                         fontSize: '1rem',
                         '&:hover': {
                           borderColor: account.color,
-                          backgroundColor: `${account.color}20`,
+                          backgroundColor: `${account.color}33`,
                           transform: 'translateY(-4px)',
-                          boxShadow: `0 15px 40px ${account.color}40`,
+                          boxShadow: `0 15px 40px ${account.color}66`,
                         }
                       }}
                     >
@@ -890,7 +866,7 @@ const Login = () => {
                             height: 16,
                             borderRadius: '50%',
                             backgroundColor: account.color,
-                            boxShadow: `0 0 20px ${account.color}70`
+                            boxShadow: `0 0 20px ${account.color}B3`
                           }}
                         />
                         <Typography variant="body1" sx={{ fontWeight: 800, fontSize: '1rem' }}>
