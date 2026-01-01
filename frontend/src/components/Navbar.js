@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -21,14 +21,24 @@ import {
   Dashboard,
   ExitToApp,
   Stars,
-  Book
+  Book,
+  Archive,
+  Group,
+  Inventory,
+  Security
 } from '@mui/icons-material';
-import theme from '../theme/theme';
 
 const Navbar = () => {
   const { user, logout, isManager } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
+
+  // Проверка роли - обычный пользователь
+  const isRegularUser = user?.role === 'user';
+  
+  // Проверка роли - инженер
+  const isEngineerRole = user && ['engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'].includes(user.role);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -43,20 +53,115 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // Определяем цвет роли с новой палитрой
+  // Проверка активной страницы
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
+
+  // Определяем цвет роли
   const getRoleColor = (role) => {
     switch (role?.toLowerCase()) {
       case 'admin':
       case 'manager':
-        return theme.functional.warning.main;  // #f59e0b
+        return '#f59e0b';
       case 'engineer':
-        return theme.functional.success.main;  // #10b981
+      case 'engineer2':
+      case 'engineer3':
+      case 'engineer4':
+      case 'engineer5':
+        return '#10b981';
       case 'user':
-        return theme.functional.info.main;     // #3b82f6
+        return '#6366f1';
       default:
-        return theme.primary.main;             // #9a8c98
+        return '#64748b';
     }
   };
+
+  // Получить название роли на русском
+  const getRoleName = (role) => {
+    switch (role?.toLowerCase()) {
+      case 'admin':
+        return 'Администратор';
+      case 'manager':
+        return 'Менеджер';
+      case 'engineer':
+      case 'engineer2':
+      case 'engineer3':
+      case 'engineer4':
+      case 'engineer5':
+        return 'Инженер';
+      case 'user':
+        return 'Пользователь';
+      default:
+        return role;
+    }
+  };
+
+  // Конфигурация кнопок навигации с цветами
+  const navButtons = [
+    {
+      id: 'tickets',
+      label: isRegularUser ? 'Мои заявки' : 'Заявки',
+      icon: <Assignment />,
+      path: '/tickets',
+      color: '#3b82f6',
+      show: true
+    },
+    {
+      id: 'kb',
+      label: 'База знаний',
+      icon: <Book />,
+      path: '/kb',
+      color: '#10b981',
+      show: !isRegularUser
+    },
+    {
+      id: 'archive',
+      label: 'Архив',
+      icon: <Archive />,
+      path: '/archive',
+      color: '#a855f7',
+      show: isManager || isEngineerRole
+    },
+    {
+      id: 'equipment',
+      label: 'Инвентаризация',
+      icon: <Inventory />,
+      path: '/equipment',
+      color: '#06b6d4',
+      show: isManager || isEngineerRole
+    },
+    {
+      id: 'categories',
+      label: 'Категории',
+      icon: <Category />,
+      path: '/categories',
+      color: '#f59e0b',
+      show: isManager
+    },
+    {
+      id: 'users',
+      label: 'Пользователи',
+      icon: <Group />,
+      path: '/users',
+      color: '#6366f1',
+      show: isManager
+    },
+    {
+      id: 'dashboard',
+      label: 'Статистика',
+      icon: <Dashboard />,
+      path: '/dashboard',
+      color: '#8b5cf6',
+      show: isManager
+    },
+    {
+      id: 'audit',
+      label: 'Аудит',
+      icon: <Security />,
+      path: '/audit',
+      color: '#ef4444',
+      show: isManager
+    }
+  ];
 
   return (
     <motion.div
@@ -68,10 +173,10 @@ const Navbar = () => {
         position="static"
         elevation={0}
         sx={{
-          background: `linear-gradient(135deg, ${theme.background.primary}F2 0%, ${theme.background.secondary}E6 100%)`,
+          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%)',
           backdropFilter: 'blur(20px)',
-          borderBottom: `1px solid ${theme.border.main}`,
-          boxShadow: theme.glass.dark.shadow
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
         }}
       >
         <Toolbar sx={{ py: 1 }}>
@@ -97,14 +202,14 @@ const Navbar = () => {
                     width: 40,
                     height: 40,
                     borderRadius: 2,
-                    background: theme.gradients.primary,
+                    background: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: `0 8px 20px ${theme.primary.main}40`
+                    boxShadow: '0 8px 20px rgba(99, 102, 241, 0.4)'
                   }}
                 >
-                  <Stars sx={{ fontSize: 20, color: theme.text.primary }} />
+                  <Stars sx={{ fontSize: 20, color: 'white' }} />
                 </Box>
               </motion.div>
               <Typography 
@@ -112,7 +217,7 @@ const Navbar = () => {
                 component="div" 
                 sx={{ 
                   fontWeight: 800,
-                  background: theme.gradients.primary,
+                  background: 'linear-gradient(135deg, #ffffff 0%, #6366f1 100%)',
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -124,139 +229,53 @@ const Navbar = () => {
             </Box>
           </motion.div>
 
-{/* Навигационные кнопки */}
+          {/* Навигационные кнопки */}
           <Box sx={{ flexGrow: 1, display: 'flex', gap: 1 }}>
-            {/* ЗАЯВКИ - ГОЛУБОЙ */}
-            <motion.div
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                color="inherit"
-                startIcon={<Assignment />}
-                component={Link}
-                to="/tickets"
-                sx={{
-                  borderRadius: 3,
-                  px: 3,
-                  py: 1.5,
-                  fontWeight: 600,
-                  color: theme.text.primary,
-                  background: theme.background.elevated,
-                  backdropFilter: 'blur(10px)',
-                  border: `1px solid ${theme.border.main}`,
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    background: 'rgba(6, 182, 212, 0.2)',
-                    borderColor: '#06b6d4',
-                    boxShadow: '0 8px 25px rgba(6, 182, 212, 0.3)',
-                    transform: 'translateY(-2px)'
-                  }
-                }}
-              >
-                Заявки
-              </Button>
-            </motion.div>
-
-            {/* БАЗА ЗНАНИЙ - ЗЕЛЁНЫЙ */}
-            <motion.div
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                color="inherit"
-                startIcon={<Book />}
-                component={Link}
-                to="/kb"
-                sx={{
-                  borderRadius: 3,
-                  px: 3,
-                  py: 1.5,
-                  fontWeight: 600,
-                  color: theme.text.primary,
-                  background: theme.background.elevated,
-                  backdropFilter: 'blur(10px)',
-                  border: `1px solid ${theme.border.main}`,
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    background: 'rgba(16, 185, 129, 0.2)',
-                    borderColor: '#10b981',
-                    boxShadow: '0 8px 25px rgba(16, 185, 129, 0.3)',
-                    transform: 'translateY(-2px)'
-                  }
-                }}
-              >
-                База знаний
-              </Button>
-            </motion.div>
-
-            {isManager && (
-              <>
-                {/* КАТЕГОРИИ - ОРАНЖЕВЫЙ */}
+            {navButtons.filter(btn => btn.show).map((btn) => {
+              const active = isActive(btn.path);
+              return (
                 <motion.div
+                  key={btn.id}
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <Button
                     color="inherit"
-                    startIcon={<Category />}
+                    startIcon={btn.icon}
                     component={Link}
-                    to="/categories"
+                    to={btn.path}
                     sx={{
                       borderRadius: 3,
                       px: 3,
                       py: 1.5,
                       fontWeight: 600,
-                      color: theme.text.primary,
-                      background: theme.background.elevated,
+                      color: '#ffffff',
+                      background: active 
+                        ? `linear-gradient(135deg, ${btn.color} 0%, ${btn.color}CC 100%)`
+                        : `${btn.color}20`,
                       backdropFilter: 'blur(10px)',
-                      border: `1px solid ${theme.border.main}`,
+                      border: `2px solid ${active ? btn.color : `${btn.color}50`}`,
+                      boxShadow: active ? `0 8px 25px ${btn.color}50` : 'none',
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        background: 'rgba(245, 158, 11, 0.2)',
-                        borderColor: '#f59e0b',
-                        boxShadow: '0 8px 25px rgba(245, 158, 11, 0.3)',
+                        background: `linear-gradient(135deg, ${btn.color} 0%, ${btn.color}DD 100%)`,
+                        boxShadow: `0 8px 25px ${btn.color}50`,
+                        border: `2px solid ${btn.color}`,
                         transform: 'translateY(-2px)'
+                      },
+                      '& .MuiButton-startIcon': {
+                        color: active ? '#fff' : btn.color
+                      },
+                      '&:hover .MuiButton-startIcon': {
+                        color: '#fff'
                       }
                     }}
                   >
-                    Категории
+                    {btn.label}
                   </Button>
                 </motion.div>
-
-                {/* СТАТИСТИКА - ФИОЛЕТОВЫЙ */}
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    color="inherit"
-                    startIcon={<Dashboard />}
-                    component={Link}
-                    to="/dashboard"
-                    sx={{
-                      borderRadius: 3,
-                      px: 3,
-                      py: 1.5,
-                      fontWeight: 600,
-                      color: theme.text.primary,
-                      background: theme.background.elevated,
-                      backdropFilter: 'blur(10px)',
-                      border: `1px solid ${theme.border.main}`,
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        background: 'rgba(139, 92, 246, 0.2)',
-                        borderColor: '#8b5cf6',
-                        boxShadow: '0 8px 25px rgba(139, 92, 246, 0.3)',
-                        transform: 'translateY(-2px)'
-                      }
-                    }}
-                  >
-                    Статистика
-                  </Button>
-                </motion.div>
-              </>
-            )}
+              );
+            })}
           </Box>
 
           {/* Информация о пользователе */}
@@ -271,7 +290,7 @@ const Navbar = () => {
                   <Typography 
                     variant="body1" 
                     sx={{ 
-                      color: theme.text.primary,
+                      color: '#ffffff',
                       fontWeight: 600,
                       textShadow: '0 1px 2px rgba(0,0,0,0.3)',
                       fontSize: '0.95rem'
@@ -283,11 +302,11 @@ const Navbar = () => {
                     whileHover={{ scale: 1.05 }}
                   >
                     <Chip
-                      label={user?.role}
+                      label={getRoleName(user?.role)}
                       size="small"
                       sx={{
-                        background: `linear-gradient(135deg, ${getRoleColor(user?.role)} 0%, ${getRoleColor(user?.role)}CC 100%)`,
-                        color: theme.text.primary,
+                        background: `linear-gradient(135deg, ${getRoleColor(user?.role)} 0%, ${getRoleColor(user?.role)}80 100%)`,
+                        color: '#ffffff',
                         fontWeight: 600,
                         fontSize: '0.75rem',
                         boxShadow: `0 4px 12px ${getRoleColor(user?.role)}40`,
@@ -305,12 +324,12 @@ const Navbar = () => {
                     size="large"
                     onClick={handleMenu}
                     sx={{
-                      background: theme.background.elevated,
+                      background: 'rgba(255, 255, 255, 0.1)',
                       backdropFilter: 'blur(10px)',
-                      border: `1px solid ${theme.border.main}`,
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
                       '&:hover': {
-                        background: theme.background.secondary,
-                        boxShadow: theme.glass.dark.shadow
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)'
                       }
                     }}
                   >
@@ -318,7 +337,7 @@ const Navbar = () => {
                       sx={{ 
                         width: 36, 
                         height: 36,
-                        background: `linear-gradient(135deg, ${getRoleColor(user?.role)} 0%, ${getRoleColor(user?.role)}CC 100%)`,
+                        background: `linear-gradient(135deg, ${getRoleColor(user?.role)} 0%, ${getRoleColor(user?.role)}80 100%)`,
                         fontWeight: 700,
                         boxShadow: `0 4px 15px ${getRoleColor(user?.role)}40`
                       }}
@@ -338,9 +357,9 @@ const Navbar = () => {
                 onClose={handleClose}
                 PaperProps={{
                   sx: {
-                    background: `linear-gradient(135deg, ${theme.background.primary}F2 0%, ${theme.background.secondary}E6 100%)`,
+                    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%)',
                     backdropFilter: 'blur(20px)',
-                    border: `1px solid ${theme.border.main}`,
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: 3,
                     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
                     mt: 1
@@ -348,37 +367,13 @@ const Navbar = () => {
                 }}
               >
                 <motion.div
-                  whileHover={{ backgroundColor: `${theme.functional.info.main}1A` }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <MenuItem 
-                    onClick={() => { handleClose(); navigate('/profile'); }}
-                    sx={{
-                      color: theme.text.primary,
-                      fontWeight: 500,
-                      py: 1.5,
-                      px: 3,
-                      borderRadius: 2,
-                      mx: 1,
-                      my: 0.5,
-                      '&:hover': {
-                        background: `${theme.functional.info.main}33`,
-                      }
-                    }}
-                  >
-                    <AccountCircle sx={{ mr: 2, color: theme.functional.info.main }} />
-                    Профиль
-                  </MenuItem>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ backgroundColor: `${theme.functional.error.main}1A` }}
+                  whileHover={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
                   transition={{ duration: 0.2 }}
                 >
                   <MenuItem 
                     onClick={handleLogout}
                     sx={{
-                      color: theme.text.primary,
+                      color: '#ffffff',
                       fontWeight: 500,
                       py: 1.5,
                       px: 3,
@@ -386,11 +381,11 @@ const Navbar = () => {
                       mx: 1,
                       my: 0.5,
                       '&:hover': {
-                        background: `${theme.functional.error.main}33`,
+                        background: 'rgba(239, 68, 68, 0.2)',
                       }
                     }}
                   >
-                    <ExitToApp sx={{ mr: 2, color: theme.functional.error.main }} />
+                    <ExitToApp sx={{ mr: 2, color: '#ef4444' }} />
                     Выйти
                   </MenuItem>
                 </motion.div>

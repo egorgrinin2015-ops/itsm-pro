@@ -13,6 +13,10 @@ import Dashboard from './pages/Dashboard';
 import KnowledgeBase from './pages/KnowledgeBase';
 import KnowledgeBaseArticle from './pages/KnowledgeBaseArticle';
 import KnowledgeBaseEditor from './pages/KnowledgeBaseEditor';
+import Archive from './pages/Archive';
+import Users from './pages/Users';
+import Equipment from './pages/Equipment';
+import Audit from './pages/Audit'; // ← НОВОЕ: аудит!
 import { CssBaseline, ThemeProvider, Box } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
 import { muiTheme, gradients } from './theme/theme';
@@ -166,6 +170,58 @@ function App() {
                       <>
                         <Navbar />
                         <KnowledgeBaseEditor />
+                      </>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Архив закрытых заявок */}
+                <Route
+                  path="/archive"
+                  element={
+                    <ProtectedRoute roles={['manager', 'engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5']}>
+                      <>
+                        <Navbar />
+                        <Archive />
+                      </>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Управление пользователями (только для менеджеров) */}
+                <Route
+                  path="/users"
+                  element={
+                    <ProtectedRoute roles={['manager']}>
+                      <>
+                        <Navbar />
+                        <Users />
+                      </>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Инвентаризация CMDB (менеджеры и инженеры) */}
+                <Route
+                  path="/equipment"
+                  element={
+                    <ProtectedRoute roles={['manager', 'engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5']}>
+                      <>
+                        <Navbar />
+                        <Equipment />
+                      </>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Журнал аудита (только для менеджеров) */}
+                <Route
+                  path="/audit"
+                  element={
+                    <ProtectedRoute roles={['manager']}>
+                      <>
+                        <Navbar />
+                        <Audit />
                       </>
                     </ProtectedRoute>
                   }

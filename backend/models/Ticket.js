@@ -21,7 +21,7 @@ const Ticket = sequelize.define('Ticket', {
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('new', 'in_progress', 'waiting', 'resolved', 'closed'),
+    type: DataTypes.ENUM('new', 'in_progress', 'on_hold', 'waiting', 'resolved', 'closed'),
     defaultValue: 'new',
     allowNull: false
   },
@@ -43,7 +43,7 @@ const Ticket = sequelize.define('Ticket', {
     type: DataTypes.DATE,
     allowNull: true
   },
-  // Внешние ключи (добавим связи позже)
+  // Внешние ключи
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -70,7 +70,7 @@ const Ticket = sequelize.define('Ticket', {
   },
   categoryId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: 'service_categories',
       key: 'id'
@@ -78,7 +78,35 @@ const Ticket = sequelize.define('Ticket', {
   }
 }, {
   tableName: 'tickets',
-  timestamps: true
+  timestamps: true,
+  underscored: false
 });
+
+// АССОЦИАЦИИ - ЭТО ВАЖНО!
+Ticket.associate = (models) => {
+  // Создатель заявки
+  Ticket.belongsTo(models.User, {
+    foreignKey: 'createdBy',
+    as: 'creator'
+  });
+
+  // Назначенный исполнитель
+  Ticket.belongsTo(models.User, {
+    foreignKey: 'assignedTo',
+    as: 'assignedToUser'
+  });
+
+  // Категория
+  Ticket.belongsTo(models.Category, {
+    foreignKey: 'categoryId',
+    as: 'category'
+  });
+
+  // Комментарии
+  Ticket.hasMany(models.Comment, {
+    foreignKey: 'ticketId',
+    as: 'comments'
+  });
+};
 
 module.exports = Ticket;

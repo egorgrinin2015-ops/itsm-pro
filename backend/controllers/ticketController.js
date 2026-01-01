@@ -1,586 +1,457 @@
-const { sequelize } = require('../models');
-const { QueryTypes } = require('sequelize');
+const { Ticket, User, Category, Comment } = require('../models');
+const { Op } = require('sequelize');
+const auditService = require('../services/auditService');
 
-// Получение всех заявок с фильтрами
+// Проверка прав доступа для управления заявками
+const canManageTicket = (userRole) => {
+  return ['admin', 'manager', 'engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'].includes(userRole);
+};
+
+// Получить все заявки с фильтрами
 exports.getTickets = async (req, res) => {
   try {
-    console.log('🔍 Получены параметры фильтров:', req.query);
+    const { status, priority, categoryId, search, myTickets, showClosed } = req.query;
+    const userId = req.user.id;
+    const userRole = req.user.role;
 
-    let query = `
-      SELECT 
-        t.*,
-        u."fullName" as "creatorName",
-        c.name as "categoryName",
-        CASE 
-          WHEN t."resolvedAt" IS NOT NULL THEN
-            CASE 
-              WHEN t."resolvedAt" <= t."slaDeadline" THEN 'met'
-              ELSE 'breached'
-            END
-          WHEN NOW() > t."slaDeadline" THEN 'breached'
-          WHEN t."slaDeadline" - NOW() <= INTERVAL '1 hour' THEN 'warning'
-          ELSE 'ok'
-        END as "slaStatus"
-      FROM tickets t
-      LEFT JOIN users u ON t."userId" = u.id
-      LEFT JOIN service_categories c ON t."categoryId" = c.id
-      WHERE 1=1
-    `;
-    const replacements = {};
-    let paramCounter = 0;
+    const whereClause = {};
 
-    // ПОИСК
-    if (req.query.search && req.query.search.trim()) {
-      console.log('🔍 Применяется поиск:', req.query.search);
-      paramCounter++;
-      query += ` AND (
-        t.title ILIKE :search${paramCounter} OR 
-        t.description ILIKE :search${paramCounter} OR 
-        CAST(t.id AS TEXT) ILIKE :search${paramCounter}
-      )`;
-      replacements[`search${paramCounter}`] = `%${req.query.search.trim()}%`;
+    if (status) {
+      const statusArray = status.includes(',') ? status.split(',').map(s => s.trim()) : [status];
+      whereClause.status = { [Op.in]: statusArray };
+    } else if (showClosed === 'true' && req.query.onlyClosed === 'true') {
+      whereClause.status = 'closed';
+    } else if (showClosed !== 'true') {
+      whereClause.status = { [Op.ne]: 'closed' };
     }
 
-    // СТАТУСЫ
-    if (req.query.status && req.query.status.trim()) {
-      const statuses = req.query.status.split(',').filter(s => s.trim());
-      if (statuses.length > 0) {
-        console.log('📊 Фильтр по статусам:', statuses);
-        const placeholders = statuses.map((_, i) => `:status${paramCounter}_${i}`).join(', ');
-        query += ` AND t.status IN (${placeholders})`;
-        statuses.forEach((status, i) => {
-          replacements[`status${paramCounter}_${i}`] = status;
-        });
-        paramCounter++;
-      }
+    if (priority) {
+      const priorityArray = priority.includes(',') ? priority.split(',').map(p => p.trim()) : [priority];
+      whereClause.priority = { [Op.in]: priorityArray };
     }
 
-    // ПРИОРИТЕТЫ
-    if (req.query.priority && req.query.priority.trim()) {
-      const priorities = req.query.priority.split(',').filter(p => p.trim());
-      if (priorities.length > 0) {
-        console.log('⚡ Фильтр по приоритетам:', priorities);
-        const placeholders = priorities.map((_, i) => `:priority${paramCounter}_${i}`).join(', ');
-        query += ` AND t.priority IN (${placeholders})`;
-        priorities.forEach((priority, i) => {
-          replacements[`priority${paramCounter}_${i}`] = priority;
-        });
-        paramCounter++;
-      }
+    if (categoryId) {
+      const categoryArray = categoryId.includes(',') ? categoryId.split(',').map(c => parseInt(c.trim(), 10)) : [parseInt(categoryId, 10)];
+      whereClause.categoryId = { [Op.in]: categoryArray };
     }
 
-    // КАТЕГОРИИ
-    if (req.query.categoryId && req.query.categoryId.trim()) {
-      const categoryIds = req.query.categoryId.split(',').map(c => parseInt(c.trim()));
-      if (categoryIds.length > 0) {
-        console.log('📂 Фильтр по категориям:', categoryIds);
-        const placeholders = categoryIds.map((_, i) => `:categoryId${paramCounter}_${i}`).join(', ');
-        query += ` AND t."categoryId" IN (${placeholders})`;
-        categoryIds.forEach((id, i) => {
-          replacements[`categoryId${paramCounter}_${i}`] = id;
-        });
-        paramCounter++;
-      }
+    if (search) {
+      whereClause[Op.or] = [
+        { title: { [Op.iLike]: `%${search}%` } },
+        { description: { [Op.iLike]: `%${search}%` } }
+      ];
     }
 
-    // ДАТА
-    let dateRange = req.query['dateRange[]'] || req.query.dateRange;
-    
-    if (dateRange) {
-      if (typeof dateRange === 'string') {
-        dateRange = dateRange.split(',').map(n => parseInt(n.trim()));
-      } else if (Array.isArray(dateRange)) {
-        dateRange = dateRange.map(n => parseInt(n));
-      }
-      
-      if (dateRange && dateRange.length === 2) {
-        const [minDays, maxDays] = dateRange;
-        console.log(`📅 Фильтр по дате: ${minDays}-${maxDays} дней назад`);
-        
-        paramCounter++;
-        query += ` AND t."createdAt" >= NOW() - INTERVAL '1 day' * :maxDays${paramCounter}`;
-        replacements[`maxDays${paramCounter}`] = maxDays;
-        
-        if (minDays > 0) {
-          paramCounter++;
-          query += ` AND t."createdAt" <= NOW() - INTERVAL '1 day' * :minDays${paramCounter}`;
-          replacements[`minDays${paramCounter}`] = minDays;
-        }
-      }
+    if (myTickets === 'true' && canManageTicket(userRole)) {
+      whereClause.assignedTo = userId;
     }
 
-    // ИСПОЛНИТЕЛЬ
-    if (req.query.assignedTo && req.query.assignedTo.trim()) {
-      const assignedIds = req.query.assignedTo.split(',').map(a => parseInt(a.trim()));
-      if (assignedIds.length > 0) {
-        console.log('👤 Фильтр по исполнителям:', assignedIds);
-        const placeholders = assignedIds.map((_, i) => `:assignedTo${paramCounter}_${i}`).join(', ');
-        query += ` AND t."assignedTo" IN (${placeholders})`;
-        assignedIds.forEach((id, i) => {
-          replacements[`assignedTo${paramCounter}_${i}`] = id;
-        });
-        paramCounter++;
-      }
+    if (userRole === 'user') {
+      whereClause.userId = userId;
     }
 
-    // АВТОФИЛЬТР ДЛЯ ИНЖЕНЕРОВ - показывать только свои заявки
-    if (req.query.myTickets === 'true' && req.user) {
-      const userRole = req.user.role;
-      const isEngineer = ['engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'].includes(userRole);
-      
-      if (isEngineer) {
-        console.log('👷 Фильтр "Мои заявки" для инженера:', req.user.id);
-        paramCounter++;
-        query += ` AND t."assignedTo" = :myUserId${paramCounter}`;
-        replacements[`myUserId${paramCounter}`] = req.user.id;
-      }
-    }
-
-    // ПАГИНАЦИЯ
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
-    const offset = (page - 1) * limit;
-
-    console.log(`📄 Пагинация: страница ${page}, лимит ${limit}`);
-
-    // COUNT
-    const countQuery = query.replace(/SELECT.*?FROM/s, 'SELECT COUNT(*) as total FROM');
-    
-    const countResult = await sequelize.query(countQuery, {
-      replacements,
-      type: QueryTypes.SELECT
-    });
-    
-    const total = countResult[0]?.total || 0;
-    console.log(`✅ Найдено заявок: ${total}`);
-
-    // LIMIT OFFSET
-    query += ` ORDER BY t."createdAt" DESC LIMIT :limit OFFSET :offset`;
-    replacements.limit = limit;
-    replacements.offset = offset;
-
-    // РЕЗУЛЬТАТ
-    const tickets = await sequelize.query(query, {
-      replacements,
-      type: QueryTypes.SELECT
+    const tickets = await Ticket.findAll({
+      where: whereClause,
+      include: [
+        { model: User, as: 'creator', attributes: ['id', 'fullName', 'email'] },
+        { model: User, as: 'assignedToUser', attributes: ['id', 'fullName', 'email'] },
+        { model: Category, as: 'category', attributes: ['id', 'name', 'description'] }
+      ],
+      order: [['createdAt', 'DESC']]
     });
 
-    console.log(`✅ Возвращено заявок: ${tickets.length}`);
+    const formattedTickets = tickets.map(ticket => ({
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      status: ticket.status,
+      priority: ticket.priority,
+      createdAt: ticket.createdAt,
+      updatedAt: ticket.updatedAt,
+      resolvedAt: ticket.resolvedAt,
+      creatorName: ticket.creator?.fullName || 'Неизвестно',
+      creatorEmail: ticket.creator?.email || '',
+      categoryName: ticket.category?.name || 'Без категории',
+      categoryId: ticket.categoryId,
+      assignedTo: ticket.assignedToUser ? {
+        id: ticket.assignedToUser.id,
+        fullName: ticket.assignedToUser.fullName,
+        email: ticket.assignedToUser.email
+      } : null
+    }));
 
-    res.json({
-      tickets,
-      pagination: {
-        page,
-        limit,
-        total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
-    });
+    res.json({ tickets: formattedTickets });
   } catch (error) {
-    console.error('❌ Ошибка получения заявок:', error);
-    res.status(500).json({ 
-      message: 'Ошибка получения заявок',
-      error: error.message 
-    });
+    console.error('Ошибка получения заявок:', error);
+    res.status(500).json({ message: 'Ошибка получения заявок', error: error.message });
   }
 };
 
-// Получение одной заявки
+// Получить заявку по ID
 exports.getTicketById = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const query = `
-      SELECT 
-        t.*,
-        u."fullName" as "creatorName",
-        u.email as "creatorEmail",
-        c.name as "categoryName",
-        c."slaTime" as "slaMinutes",
-        eng."fullName" as "engineerName",
-        jsonb_build_object(
-          'id', eng.id,
-          'fullName', eng."fullName",
-          'email', eng.email
-        ) as "assignedTo",
-        CASE 
-          WHEN t."resolvedAt" IS NOT NULL THEN
-            CASE 
-              WHEN t."resolvedAt" <= t."slaDeadline" THEN 'met'
-              ELSE 'breached'
-            END
-          WHEN NOW() > t."slaDeadline" THEN 'breached'
-          WHEN t."slaDeadline" - NOW() <= INTERVAL '1 hour' THEN 'warning'
-          ELSE 'ok'
-        END as "slaStatus",
-        CASE 
-          WHEN t."resolvedAt" IS NULL THEN
-            EXTRACT(EPOCH FROM (t."slaDeadline" - NOW())) / 60
-          ELSE
-            EXTRACT(EPOCH FROM (t."slaDeadline" - t."resolvedAt")) / 60
-        END as "slaRemainingMinutes"
-      FROM tickets t
-      LEFT JOIN users u ON t."userId" = u.id
-      LEFT JOIN service_categories c ON t."categoryId" = c.id
-      LEFT JOIN users eng ON t."assignedTo" = eng.id
-      WHERE t.id = :id
-    `;
-    
-    const tickets = await sequelize.query(query, {
-      replacements: { id },
-      type: QueryTypes.SELECT
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    const ticket = await Ticket.findByPk(id, {
+      include: [
+        { model: User, as: 'creator', attributes: ['id', 'fullName', 'email'] },
+        { model: User, as: 'assignedToUser', attributes: ['id', 'fullName', 'email'] },
+        { model: Category, as: 'category', attributes: ['id', 'name', 'description'] }
+      ]
     });
-    
-    if (tickets.length === 0) {
+
+    if (!ticket) {
       return res.status(404).json({ message: 'Заявка не найдена' });
     }
-    
-    res.json(tickets[0]);
+
+    if (userRole === 'user' && ticket.userId !== userId) {
+      return res.status(403).json({ message: 'Нет доступа к этой заявке' });
+    }
+
+    const formattedTicket = {
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      status: ticket.status,
+      priority: ticket.priority,
+      createdAt: ticket.createdAt,
+      updatedAt: ticket.updatedAt,
+      resolvedAt: ticket.resolvedAt,
+      creatorName: ticket.creator?.fullName || 'Неизвестно',
+      creatorEmail: ticket.creator?.email || '',
+      categoryName: ticket.category?.name || 'Без категории',
+      categoryId: ticket.categoryId,
+      assignedTo: ticket.assignedToUser ? {
+        id: ticket.assignedToUser.id,
+        fullName: ticket.assignedToUser.fullName,
+        email: ticket.assignedToUser.email
+      } : null
+    };
+
+    res.json(formattedTicket);
   } catch (error) {
     console.error('Ошибка получения заявки:', error);
-    res.status(500).json({ 
-      message: 'Ошибка получения заявки',
-      error: error.message 
-    });
+    res.status(500).json({ message: 'Ошибка получения заявки', error: error.message });
   }
 };
 
-// Создание заявки с автоматическим расчетом SLA
+// Создать новую заявку
 exports.createTicket = async (req, res) => {
   try {
-    const { title, description, priority, categoryId } = req.body;
+    const { title, description, priority, categoryId, autoAssign } = req.body;
     const userId = req.user.id;
 
-    console.log('📝 Создание заявки:', { title, description, priority, categoryId, userId });
-
     if (!title || !description) {
-      return res.status(400).json({ 
-        message: 'Необходимо указать название и описание заявки' 
-      });
+      return res.status(400).json({ message: 'Заголовок и описание обязательны' });
     }
 
-    // Получаем SLA время категории
-    let slaMinutes = 120; // По умолчанию 2 часа
-    if (categoryId) {
-      const categoryResult = await sequelize.query(
-        'SELECT "slaTime" FROM service_categories WHERE id = :categoryId',
-        { 
-          replacements: { categoryId },
-          type: QueryTypes.SELECT 
-        }
-      );
-      if (categoryResult.length > 0) {
-        slaMinutes = categoryResult[0].slaTime;
+    const lastTicket = await Ticket.findOne({ order: [['id', 'DESC']], attributes: ['id'] });
+    const nextId = lastTicket ? lastTicket.id + 1 : 1;
+    const ticketNumber = `TICKET-${String(nextId).padStart(6, '0')}`;
+
+    const ticket = await Ticket.create({
+      ticketNumber,
+      title,
+      description,
+      priority: priority || 'medium',
+      categoryId: categoryId || null,
+      userId: userId,
+      initiatorId: userId,
+      status: 'new'
+    });
+
+    // 📝 АУДИТ: Создание заявки
+    await auditService.logCreate(req, 'ticket', ticket.id, ticket.title, {
+      priority: ticket.priority,
+      status: ticket.status
+    });
+
+    let assignmentResult = null;
+    if (autoAssign === true || autoAssign === 'true') {
+      const { autoAssignTicket } = require('../services/autoAssignService');
+      try {
+        assignmentResult = await autoAssignTicket(ticket.id);
+        await ticket.reload();
+      } catch (autoAssignError) {
+        console.error('Ошибка автоназначения:', autoAssignError);
       }
     }
 
-    // Рассчитываем SLA deadline
-    const slaDeadline = new Date(Date.now() + slaMinutes * 60 * 1000);
-
-    // Генерируем номер заявки
-    const ticketNumber = `TICKET-${Date.now()}`;
-
-    const query = `
-      INSERT INTO tickets (
-        "ticketNumber", title, description, priority, "categoryId", "userId", 
-        "initiatorId", status, "slaDeadline", "createdAt", "updatedAt"
-      ) VALUES (
-        :ticketNumber, :title, :description, :priority, :categoryId, :userId, 
-        :initiatorId, 'new', :slaDeadline, NOW(), NOW()
-      ) RETURNING *
-    `;
-    
-    const result = await sequelize.query(query, {
-      replacements: {
-        ticketNumber,
-        title,
-        description,
-        priority: priority || 'medium',
-        categoryId: categoryId || null,
-        userId,
-        initiatorId: userId,
-        slaDeadline
-      },
-      type: QueryTypes.INSERT
+    await ticket.reload({
+      include: [
+        { model: User, as: 'creator', attributes: ['id', 'fullName', 'email'] },
+        { model: User, as: 'assignedToUser', attributes: ['id', 'fullName', 'email'] },
+        { model: Category, as: 'category', attributes: ['id', 'name', 'description'] }
+      ]
     });
-
-    const ticket = result[0][0];
-    
-    console.log('✅ Заявка создана:', ticket);
-    console.log('⏰ SLA deadline:', slaDeadline);
 
     res.status(201).json({
       message: 'Заявка успешно создана',
-      ticket: ticket
+      ticket: {
+        id: ticket.id,
+        title: ticket.title,
+        description: ticket.description,
+        status: ticket.status,
+        priority: ticket.priority,
+        createdAt: ticket.createdAt,
+        creatorName: ticket.creator?.fullName,
+        categoryName: ticket.category?.name || 'Без категории',
+        assignedTo: ticket.assignedToUser ? {
+          id: ticket.assignedToUser.id,
+          fullName: ticket.assignedToUser.fullName,
+          email: ticket.assignedToUser.email
+        } : null
+      },
+      autoAssignment: assignmentResult
     });
   } catch (error) {
-    console.error('❌ Ошибка создания заявки:', error);
-    console.error('Stack:', error.stack);
-    res.status(500).json({ 
-      message: 'Ошибка создания заявки',
-      error: error.message 
-    });
+    console.error('Ошибка создания заявки:', error);
+    res.status(500).json({ message: 'Ошибка создания заявки', error: error.message });
   }
 };
 
-// Обновление заявки
-exports.updateTicket = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updates = req.body;
-
-    console.log('🔄 Обновление заявки:', { id, updates });
-
-    const existing = await sequelize.query(
-      'SELECT * FROM tickets WHERE id = :id',
-      { replacements: { id }, type: QueryTypes.SELECT }
-    );
-    
-    if (existing.length === 0) {
-      return res.status(404).json({ message: 'Заявка не найдена' });
-    }
-
-    const allowedFields = [
-      'title', 'description', 'status', 'priority', 
-      'categoryId', 'assignedTo', 'resolution'
-    ];
-    
-    const updateFields = [];
-    const replacements = { id };
-
-    Object.keys(updates).forEach(key => {
-      if (allowedFields.includes(key)) {
-        updateFields.push(`"${key}" = :${key}`);
-        replacements[key] = updates[key];
-      }
-    });
-
-    if (updateFields.length === 0) {
-      return res.status(400).json({ message: 'Нет полей для обновления' });
-    }
-
-    // Если статус меняется на resolved/closed, устанавливаем resolvedAt
-    if (updates.status && (updates.status === 'resolved' || updates.status === 'closed')) {
-      updateFields.push('"resolvedAt" = NOW()');
-    }
-
-    updateFields.push('"updatedAt" = NOW()');
-
-    const query = `UPDATE tickets SET ${updateFields.join(', ')} WHERE id = :id RETURNING *`;
-
-    console.log('📊 SQL запрос обновления:', query);
-    console.log('📊 Параметры:', replacements);
-
-    const result = await sequelize.query(query, {
-      replacements,
-      type: QueryTypes.UPDATE
-    });
-
-    console.log('✅ Заявка обновлена:', result[0][0]);
-
-    res.json({
-      message: 'Заявка успешно обновлена',
-      ticket: result[0][0]
-    });
-  } catch (error) {
-    console.error('❌ Ошибка обновления заявки:', error);
-    res.status(500).json({ 
-      message: 'Ошибка обновления заявки',
-      error: error.message 
-    });
-  }
-};
-
-// Удаление заявки
-exports.deleteTicket = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (req.user.role !== 'manager' && req.user.role !== 'admin') {
-      return res.status(403).json({ 
-        message: 'Недостаточно прав для удаления заявки' 
-      });
-    }
-
-    const existing = await sequelize.query(
-      'SELECT * FROM tickets WHERE id = :id',
-      { replacements: { id }, type: QueryTypes.SELECT }
-    );
-    
-    if (existing.length === 0) {
-      return res.status(404).json({ message: 'Заявка не найдена' });
-    }
-
-    await sequelize.query('DELETE FROM tickets WHERE id = :id', {
-      replacements: { id },
-      type: QueryTypes.DELETE
-    });
-
-    res.json({ message: 'Заявка успешно удалена' });
-  } catch (error) {
-    console.error('Ошибка удаления заявки:', error);
-    res.status(500).json({ 
-      message: 'Ошибка удаления заявки',
-      error: error.message 
-    });
-  }
-};
-
-// НОВОЕ: Изменение статуса заявки (только менеджеры)
+// Обновить статус заявки
 exports.updateTicketStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+    const userRole = req.user.role;
 
-    console.log('🔄 Изменение статуса заявки:', { id, status });
-
-    // Проверка прав (менеджеры, админы и инженеры)
-    const allowedRoles = ['manager', 'admin', 'engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'];
-    if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        message: 'Недостаточно прав для изменения статуса' 
-      });
+    if (!canManageTicket(userRole)) {
+      return res.status(403).json({ message: 'Недостаточно прав для изменения статуса' });
     }
 
-    // Проверка валидности статуса
-    const validStatuses = ['new', 'in_progress', 'on_hold', 'resolved', 'closed'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ 
-        message: 'Недопустимый статус. Допустимые: ' + validStatuses.join(', ')
-      });
-    }
-
-    // Проверка существования заявки
-    const existing = await sequelize.query(
-      'SELECT * FROM tickets WHERE id = :id',
-      { replacements: { id }, type: QueryTypes.SELECT }
-    );
-    
-    if (existing.length === 0) {
+    const ticket = await Ticket.findByPk(id);
+    if (!ticket) {
       return res.status(404).json({ message: 'Заявка не найдена' });
     }
 
-    // Обновление статуса
-    let updateQuery = `UPDATE tickets SET status = :status, "updatedAt" = NOW()`;
-    const replacements = { id, status };
-
-    // Если статус "решена" или "закрыта" - устанавливаем resolvedAt
-    if ((status === 'resolved' || status === 'closed') && !existing[0].resolvedAt) {
-      updateQuery += `, "resolvedAt" = NOW()`;
+    const validStatuses = ['new', 'in_progress', 'on_hold', 'resolved', 'closed'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Недопустимый статус' });
     }
 
-    updateQuery += ` WHERE id = :id RETURNING *`;
+    const oldStatus = ticket.status;
+    ticket.status = status;
 
-    const result = await sequelize.query(updateQuery, {
-      replacements,
-      type: QueryTypes.UPDATE
-    });
+    if (status === 'resolved' || status === 'closed') {
+      if (!ticket.resolvedAt) {
+        ticket.resolvedAt = new Date();
+      }
+    }
 
-    console.log('✅ Статус заявки изменён:', result[0][0]);
+    await ticket.save();
+
+    // 📝 АУДИТ: Изменение статуса
+    await auditService.logStatusChange(req, 'ticket', ticket.id, ticket.title, oldStatus, status);
 
     res.json({
-      message: 'Статус успешно изменён',
-      ticket: result[0][0]
+      message: 'Статус заявки обновлён',
+      ticket: { id: ticket.id, status: ticket.status, resolvedAt: ticket.resolvedAt }
     });
   } catch (error) {
-    console.error('❌ Ошибка изменения статуса:', error);
-    res.status(500).json({ 
-      message: 'Ошибка изменения статуса',
-      error: error.message 
-    });
+    console.error('Ошибка обновления статуса:', error);
+    res.status(500).json({ message: 'Ошибка обновления статуса', error: error.message });
   }
 };
 
-// НОВОЕ: Назначение ответственного исполнителя (только менеджеры)
+// Назначить исполнителя
 exports.assignTicket = async (req, res) => {
   try {
     const { id } = req.params;
     const { engineerId } = req.body;
+    const userRole = req.user.role;
 
-    console.log('👤 Назначение ответственного:', { ticketId: id, engineerId });
-
-    // Проверка прав (менеджеры, админы и инженеры)
-    const allowedRoles = ['manager', 'admin', 'engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'];
-    if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        message: 'Недостаточно прав для назначения ответственного' 
-      });
+    if (!canManageTicket(userRole)) {
+      return res.status(403).json({ message: 'Недостаточно прав для назначения исполнителя' });
     }
 
-    // Проверка существования заявки
-    const existing = await sequelize.query(
-      'SELECT * FROM tickets WHERE id = :id',
-      { replacements: { id }, type: QueryTypes.SELECT }
-    );
-    
-    if (existing.length === 0) {
+    const ticket = await Ticket.findByPk(id);
+    if (!ticket) {
       return res.status(404).json({ message: 'Заявка не найдена' });
     }
 
-    // Проверка существования инженера
-    const engineer = await sequelize.query(
-      'SELECT id, "fullName", email FROM users WHERE id = :engineerId',
-      { replacements: { engineerId }, type: QueryTypes.SELECT }
-    );
-    
-    if (engineer.length === 0) {
+    const engineer = await User.findByPk(engineerId);
+    if (!engineer) {
       return res.status(404).json({ message: 'Инженер не найден' });
     }
 
-    // Назначение ответственного
-    await sequelize.query(
-      'UPDATE tickets SET "assignedTo" = :engineerId, "updatedAt" = NOW() WHERE id = :id',
-      { 
-        replacements: { id, engineerId },
-        type: QueryTypes.UPDATE
-      }
-    );
+    if (!canManageTicket(engineer.role)) {
+      return res.status(400).json({ message: 'Указанный пользователь не является инженером' });
+    }
 
-    // Получаем обновлённую заявку с данными исполнителя
-    const updatedTicket = await sequelize.query(
-      `SELECT 
-        t.*,
-        u."fullName" as "creatorName",
-        c.name as "categoryName",
-        eng."fullName" as "engineerName",
-        eng.email as "engineerEmail",
-        jsonb_build_object(
-          'id', eng.id,
-          'fullName', eng."fullName",
-          'email', eng.email
-        ) as "assignedTo"
-      FROM tickets t
-      LEFT JOIN users u ON t."userId" = u.id
-      LEFT JOIN service_categories c ON t."categoryId" = c.id
-      LEFT JOIN users eng ON t."assignedTo" = eng.id
-      WHERE t.id = :id`,
-      { 
-        replacements: { id },
-        type: QueryTypes.SELECT
-      }
-    );
+    ticket.assignedTo = engineerId;
+    await ticket.save();
 
-    console.log('✅ Ответственный назначен:', updatedTicket[0]);
+    // 📝 АУДИТ: Назначение исполнителя
+    await auditService.logAssign(req, 'ticket', ticket.id, ticket.title, engineer.fullName);
+
+    await ticket.reload({
+      include: [{ model: User, as: 'assignedToUser', attributes: ['id', 'fullName', 'email'] }]
+    });
 
     res.json({
-      message: 'Ответственный успешно назначен',
-      ticket: updatedTicket[0]
+      message: 'Исполнитель назначен',
+      ticket: {
+        id: ticket.id,
+        assignedTo: ticket.assignedToUser ? {
+          id: ticket.assignedToUser.id,
+          fullName: ticket.assignedToUser.fullName,
+          email: ticket.assignedToUser.email
+        } : null
+      }
     });
   } catch (error) {
-    console.error('❌ Ошибка назначения ответственного:', error);
-    res.status(500).json({ 
-      message: 'Ошибка назначения ответственного',
-      error: error.message 
-    });
+    console.error('Ошибка назначения исполнителя:', error);
+    res.status(500).json({ message: 'Ошибка назначения исполнителя', error: error.message });
   }
 };
 
-module.exports = {
-  getTickets: exports.getTickets,
-  getTicketById: exports.getTicketById,
-  createTicket: exports.createTicket,
-  updateTicket: exports.updateTicket,
-  deleteTicket: exports.deleteTicket,
-  updateTicketStatus: exports.updateTicketStatus,
-  assignTicket: exports.assignTicket
+// Обновить заявку
+exports.updateTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, priority, categoryId } = req.body;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    const ticket = await Ticket.findByPk(id);
+    if (!ticket) {
+      return res.status(404).json({ message: 'Заявка не найдена' });
+    }
+
+    if (userRole === 'user' && ticket.userId !== userId) {
+      return res.status(403).json({ message: 'Нет прав для редактирования этой заявки' });
+    }
+
+    const oldValues = {
+      title: ticket.title,
+      description: ticket.description,
+      priority: ticket.priority,
+      categoryId: ticket.categoryId
+    };
+
+    if (title) ticket.title = title;
+    if (description) ticket.description = description;
+    if (priority) ticket.priority = priority;
+    if (categoryId !== undefined) ticket.categoryId = categoryId;
+
+    await ticket.save();
+
+    // 📝 АУДИТ: Обновление заявки
+    await auditService.logUpdate(req, 'ticket', ticket.id, ticket.title, oldValues, {
+      title: ticket.title,
+      description: ticket.description,
+      priority: ticket.priority,
+      categoryId: ticket.categoryId
+    });
+
+    res.json({
+      message: 'Заявка обновлена',
+      ticket: {
+        id: ticket.id,
+        title: ticket.title,
+        description: ticket.description,
+        priority: ticket.priority,
+        categoryId: ticket.categoryId
+      }
+    });
+  } catch (error) {
+    console.error('Ошибка обновления заявки:', error);
+    res.status(500).json({ message: 'Ошибка обновления заявки', error: error.message });
+  }
 };
+
+// Удалить заявку
+exports.deleteTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userRole = req.user.role;
+
+    if (userRole !== 'admin' && userRole !== 'manager') {
+      return res.status(403).json({ message: 'Недостаточно прав для удаления заявки' });
+    }
+
+    const ticket = await Ticket.findByPk(id);
+    if (!ticket) {
+      return res.status(404).json({ message: 'Заявка не найдена' });
+    }
+
+    const ticketTitle = ticket.title;
+
+    // 📝 АУДИТ: Удаление заявки
+    await auditService.logDelete(req, 'ticket', ticket.id, ticketTitle, {
+      title: ticket.title,
+      status: ticket.status,
+      priority: ticket.priority
+    });
+
+    await ticket.destroy();
+
+    res.json({ message: 'Заявка удалена' });
+  } catch (error) {
+    console.error('Ошибка удаления заявки:', error);
+    res.status(500).json({ message: 'Ошибка удаления заявки', error: error.message });
+  }
+};
+
+// Получить статистику заявок
+exports.getTicketStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    let whereClause = {};
+    if (userRole === 'user') {
+      whereClause.userId = userId;
+    }
+    whereClause.status = { [Op.ne]: 'closed' };
+
+    const [totalTickets, newTickets, inProgressTickets, onHoldTickets, resolvedTickets] = await Promise.all([
+      Ticket.count({ where: whereClause }),
+      Ticket.count({ where: { ...whereClause, status: 'new' } }),
+      Ticket.count({ where: { ...whereClause, status: 'in_progress' } }),
+      Ticket.count({ where: { ...whereClause, status: 'on_hold' } }),
+      Ticket.count({ where: { ...whereClause, status: 'resolved' } })
+    ]);
+
+    const closedTickets = await Ticket.count({ 
+      where: { ...(userRole === 'user' ? { userId: userId } : {}), status: 'closed' } 
+    });
+
+    res.json({
+      total: totalTickets,
+      new: newTickets,
+      in_progress: inProgressTickets,
+      on_hold: onHoldTickets,
+      resolved: resolvedTickets,
+      closed: closedTickets
+    });
+  } catch (error) {
+    console.error('Ошибка получения статистики:', error);
+    res.status(500).json({ message: 'Ошибка получения статистики', error: error.message });
+  }
+};
+
+// Получить статистику загруженности инженеров
+exports.getEngineersLoad = async (req, res) => {
+  try {
+    const userRole = req.user.role;
+
+    if (!['admin', 'manager'].includes(userRole)) {
+      return res.status(403).json({ message: 'Недостаточно прав для просмотра загруженности инженеров' });
+    }
+
+    const { getEngineersLoadStats } = require('../services/autoAssignService');
+    const stats = await getEngineersLoadStats();
+
+    res.json({ engineers: stats, timestamp: new Date() });
+  } catch (error) {
+    console.error('Ошибка получения загруженности инженеров:', error);
+    res.status(500).json({ message: 'Ошибка получения загруженности инженеров', error: error.message });
+  }
+};
+
+module.exports = exports;

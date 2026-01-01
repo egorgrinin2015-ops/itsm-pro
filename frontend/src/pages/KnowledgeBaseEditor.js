@@ -473,20 +473,21 @@ const KnowledgeBaseEditor = () => {
               {/* Кнопки */}
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
                 <Button
-                  variant="outlined"
-                  onClick={() => navigate('/kb')}
-                  disabled={loading}
-                  sx={{
-                    color: theme.text.secondary,
-                    borderColor: theme.border.main,
-                    '&:hover': {
-                      borderColor: theme.border.light,
-                      backgroundColor: theme.background.elevated,
-                    }
-                  }}
-                >
-                  Отмена
-                </Button>
+  variant="contained"
+  onClick={() => navigate('/kb')}
+  disabled={loading}
+  sx={{
+    background: theme.gradients.primary,
+    color: theme.text.primary,
+    border: '2px solid transparent',
+    '&:hover': {
+      background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
+      border: `2px solid ${theme.text.primary}`,
+    }
+  }}
+>
+  Отмена
+</Button>
                 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button

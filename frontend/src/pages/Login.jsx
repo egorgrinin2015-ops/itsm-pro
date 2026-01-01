@@ -24,9 +24,9 @@ import {
   Lock,
   ArrowRight,
   Sparkles,
-  Shield,
-  Users,
-  BarChart3
+  Ticket,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 
 // Глобальные стили с Space Indigo палитрой
@@ -81,7 +81,7 @@ const ITBackground = () => {
           }}
         />
 
-        {/* ЦВЕТНЫЕ АКЦЕНТЫ с новой палитрой */}
+        {/* ЦВЕТНЫЕ АКЦЕНТЫ */}
         <Box
           sx={{
             position: 'absolute !important',
@@ -140,7 +140,7 @@ const ITBackground = () => {
           }}
         />
 
-        {/* БОЛЬШИЕ СВЕТЯЩИЕСЯ ЭЛЕМЕНТЫ с новыми цветами */}
+        {/* БОЛЬШИЕ СВЕТЯЩИЕСЯ ЭЛЕМЕНТЫ */}
         <motion.div
           animate={{
             rotate: [0, 360],
@@ -245,7 +245,7 @@ const ITBackground = () => {
           }}
         />
 
-        {/* АНИМИРОВАННЫЕ ЛИНИИ с новой палитрой */}
+        {/* АНИМИРОВАННЫЕ ЛИНИИ */}
         <svg
           width="100%"
           height="100%"
@@ -352,27 +352,33 @@ const Login = () => {
     }
   };
 
+  // ОБНОВЛЁННЫЕ FEATURES - соответствуют ITSM системе
   const features = [
     {
-      icon: <Shield size={24} />,
-      title: 'Корпоративная безопасность',
-      description: 'Многоуровневая защита конфиденциальных данных'
+      icon: <Ticket size={24} />,
+      title: 'Управление заявками',
+      description: 'Создание, отслеживание и обработка обращений пользователей'
     },
     {
-      icon: <Users size={24} />,
-      title: 'Командная работа',
-      description: 'Синхронизация задач и эффективная коммуникация'
+      icon: <Clock size={24} />,
+      title: 'Контроль SLA',
+      description: 'Мониторинг сроков выполнения и соблюдение регламентов'
     },
     {
-      icon: <BarChart3 size={24} />,
-      title: 'Бизнес-аналитика',
-      description: 'Глубинные инсайты и прогнозирование трендов'
+      icon: <CheckCircle size={24} />,
+      title: 'Аналитика и отчёты',
+      description: 'Статистика по заявкам, исполнителям и категориям услуг'
     }
   ];
 
+  // ОБНОВЛЁННЫЕ ТЕСТОВЫЕ АККАУНТЫ - добавлены все инженеры
   const testAccounts = [
     { email: 'admin@itsm.com', password: 'admin123', role: 'Менеджер', color: theme.functional.warning.main },
-    { email: 'engineer@itsm.com', password: 'engineer123', role: 'Инженер', color: theme.functional.success.main },
+    { email: 'engineer@itsm.com', password: 'engineer123', role: 'Инженер 1', color: theme.functional.success.main },
+    { email: 'engineer2@itsm.com', password: 'engineer123', role: 'Инженер 2', color: theme.functional.success.main },
+    { email: 'engineer3@itsm.com', password: 'engineer123', role: 'Инженер 3', color: theme.functional.success.main },
+    { email: 'engineer4@itsm.com', password: 'engineer123', role: 'Инженер 4', color: theme.functional.success.main },
+    { email: 'engineer5@itsm.com', password: 'engineer123', role: 'Инженер 5', color: theme.functional.success.main },
     { email: 'user@itsm.com', password: 'user123', role: 'Пользователь', color: theme.functional.info.main }
   ];
 
@@ -389,13 +395,14 @@ const Login = () => {
         overflow: 'hidden !important',
         background: `${theme.gradients.background} !important`
       }}
-    >  {/* IT-ФОН */}
+    >
+      {/* IT-ФОН */}
       <ITBackground />
       
       <Container maxWidth="lg" sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', py: 4, position: 'relative', zIndex: 10 }}>
         <Box sx={{ width: '100%', display: 'flex', gap: 4, alignItems: 'center' }}>
           
-          {/* Левая панель с новыми цветами */}
+          {/* Левая панель */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -470,6 +477,7 @@ const Login = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
               >
+                {/* ОБНОВЛЁННЫЙ ЗАГОЛОВОК */}
                 <Typography 
                   variant="h4" 
                   sx={{ 
@@ -480,9 +488,10 @@ const Login = () => {
                     lineHeight: '1.3 !important'
                   }}
                 >
-                  🚀 Интеллектуальная платформа управления IT-сервисами
+                  Автоматизированная система управления ИТ-услугами
                 </Typography>
                 
+                {/* ОБНОВЛЁННЫЙ ПОДЗАГОЛОВОК - без эмодзи солнца */}
                 <Typography 
                   variant="h6" 
                   sx={{ 
@@ -493,7 +502,7 @@ const Login = () => {
                     fontWeight: '500 !important'
                   }}
                 >
-                  💻 Автоматизируйте процессы, повышайте эффективность команды и обеспечивайте непрерывность бизнеса с помощью современных инструментов мониторинга и аналитики
+                  Централизованная обработка заявок, контроль сроков выполнения и прозрачная отчётность для эффективной работы службы технической поддержки
                 </Typography>
               </motion.div>
 
@@ -588,37 +597,19 @@ const Login = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.5 }}
                 >
-                  <motion.div
-                    animate={{
-                      textShadow: [
-                        `0 2px 4px ${theme.primary.main}4D`,
-                        `0 4px 8px ${theme.primary.light}66`,
-                        `0 2px 4px ${theme.primary.main}4D`
-                      ]
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
+                  {/* ОБНОВЛЁННЫЙ ЗАГОЛОВОК - более контрастный */}
+                  <Typography 
+                    variant="h4" 
+                    sx={{ 
+                      fontWeight: '900 !important',
+                      color: '#ffffff !important',
+                      textShadow: '0 2px 10px rgba(0,0,0,0.8), 0 0 30px rgba(139, 92, 246, 0.5) !important',
+                      mb: 1,
+                      fontSize: '2rem'
                     }}
                   >
-                    <Typography 
-                      variant="h4" 
-                      sx={{ 
-                        fontWeight: '900 !important',
-                        color: `${theme.text.primary} !important`,
-                        textShadow: `0 2px 4px ${theme.primary.main}4D, 0 0 20px ${theme.text.primary}1A !important`,
-                        mb: 1,
-                        background: theme.gradients.primary,
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
-                      }}
-                    >
-                      Вход в систему
-                    </Typography>
-                  </motion.div>
+                    Вход в систему
+                  </Typography>
                 </motion.div>
                 
                 <motion.div
@@ -626,29 +617,18 @@ const Login = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.6, delay: 0.7 }}
                 >
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.02, 1],
-                      opacity: [0.8, 1, 0.8]
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut"
+                  {/* ОБНОВЛЁННЫЙ ТЕКСТ - без эмодзи солнца */}
+                  <Typography 
+                    variant="body1" 
+                    sx={{ 
+                      color: `${theme.text.primary} !important`, 
+                      fontWeight: 500, 
+                      fontSize: '1.1rem',
+                      textShadow: '0 1px 3px rgba(0,0,0,0.5)'
                     }}
                   >
-                    <Typography 
-                      variant="body1" 
-                      sx={{ 
-                        color: `${theme.text.primary} !important`, 
-                        fontWeight: 500, 
-                        fontSize: '1.1rem',
-                        textShadow: '0 1px 3px rgba(0,0,0,0.5)'
-                      }}
-                    >
-                      🌟 Добро пожаловать в цифровое будущее
-                    </Typography>
-                  </motion.div>
+                    Добро пожаловать в ITSM Pro
+                  </Typography>
                 </motion.div>
               </Box>
 
@@ -808,10 +788,11 @@ const Login = () => {
                     boxShadow: `0 20px 50px ${theme.primary.main}80`,
                     textTransform: 'none',
                     '&:hover': {
-                      background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
-                      transform: 'translateY(-4px)',
-                      boxShadow: `0 30px 70px ${theme.primary.main}B3`,
-                    },
+  background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
+  transform: 'translateY(-4px)',
+  boxShadow: `0 30px 70px ${theme.primary.main}B3`,
+  border: `2px solid ${theme.text.primary}`,
+},
                     '&:active': {
                       transform: 'translateY(-2px)',
                     },
@@ -830,11 +811,12 @@ const Login = () => {
                 </Typography>
               </Divider>
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {/* ОБНОВЛЁННЫЙ СПИСОК АККАУНТОВ - добавлены все инженеры */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, maxHeight: 280, overflowY: 'auto' }}>
                 {testAccounts.map((account, index) => (
                   <motion.div
                     key={index}
-                    whileHover={{ scale: 1.02, y: -3 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ duration: 0.2 }}
                   >
@@ -843,36 +825,36 @@ const Login = () => {
                       variant="outlined"
                       onClick={() => fillTestAccount(account)}
                       sx={{
-                        py: 2.5,
+                        py: 1.5,
                         borderRadius: 3,
                         borderColor: theme.border.main,
                         color: theme.text.primary,
                         backgroundColor: `${theme.background.elevated}33`,
                         backdropFilter: 'blur(40px)',
                         fontWeight: 700,
-                        fontSize: '1rem',
+                        fontSize: '0.9rem',
                         '&:hover': {
                           borderColor: account.color,
                           backgroundColor: `${account.color}33`,
-                          transform: 'translateY(-4px)',
-                          boxShadow: `0 15px 40px ${account.color}66`,
+                          transform: 'translateY(-2px)',
+                          boxShadow: `0 10px 30px ${account.color}50`,
                         }
                       }}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, width: '100%' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
                         <Box
                           sx={{
-                            width: 16,
-                            height: 16,
+                            width: 12,
+                            height: 12,
                             borderRadius: '50%',
                             backgroundColor: account.color,
-                            boxShadow: `0 0 20px ${account.color}B3`
+                            boxShadow: `0 0 15px ${account.color}B3`
                           }}
                         />
-                        <Typography variant="body1" sx={{ fontWeight: 800, fontSize: '1rem' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.9rem' }}>
                           {account.role}
                         </Typography>
-                        <Typography variant="caption" sx={{ marginLeft: 'auto', opacity: 0.8, fontWeight: 600 }}>
+                        <Typography variant="caption" sx={{ marginLeft: 'auto', opacity: 0.8, fontWeight: 600, fontSize: '0.75rem' }}>
                           @{account.email.split('@')[0]}
                         </Typography>
                       </Box>

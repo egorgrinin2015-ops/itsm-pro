@@ -5,16 +5,9 @@ import categoryService from '../services/categoryService';
 import GlassCard from '../components/GlassCard';
 import theme from '../theme/theme';
 import {
-  Container,
   Typography,
   Button,
   Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -25,8 +18,8 @@ import {
   IconButton,
   Chip,
   Tooltip,
-  Skeleton,
-  GlobalStyles
+  Avatar,
+  LinearProgress
 } from '@mui/material';
 import {
   Add,
@@ -34,135 +27,18 @@ import {
   Delete,
   AccessTime,
   Category,
-  Info,
   Settings,
-  FilterList,
-  ViewList,
-  Dashboard
+  TrendingUp,
+  Speed,
+  Assignment,
+  CheckCircle,
+  Schedule,
+  KeyboardArrowRight,
+  Folder,
+  Timer,
+  LocalOffer,
+  Close
 } from '@mui/icons-material';
-
-// Глобальные стили с Space Indigo темой
-const darkBackgroundStyles = (
-  <GlobalStyles
-    styles={{
-      body: {
-        background: `${theme.gradients.background} !important`,
-        minHeight: '100vh !important',
-      },
-      '#root': {
-        background: `${theme.gradients.background} !important`,
-        minHeight: '100vh !important',
-      },
-      html: {
-        background: `${theme.background.primary} !important`,
-      }
-    }}
-  />
-);
-
-// IT-фон для админ-панели
-const AdminBackground = () => {
-  return (
-    <Box
-      sx={{
-        position: 'fixed !important',
-        top: '0 !important',
-        left: '0 !important',
-        right: '0 !important',
-        bottom: '0 !important',
-        width: '100vw !important',
-        height: '100vh !important',
-        overflow: 'hidden !important',
-        zIndex: '-999 !important',
-      }}
-    >
-      {/* ОСНОВНОЙ ФОН */}
-      <Box
-        sx={{
-          position: 'absolute !important',
-          top: '0 !important',
-          left: '0 !important',
-          right: '0 !important',
-          bottom: '0 !important',
-          width: '100% !important',
-          height: '100% !important',
-          background: theme.gradients.background,
-        }}
-      />
-
-      {/* ЦВЕТНЫЕ АКЦЕНТЫ ДЛЯ АДМИНКИ */}
-      <Box
-        sx={{
-          position: 'absolute !important',
-          top: '0 !important',
-          left: '0 !important',
-          right: '0 !important',
-          bottom: '0 !important',
-          background: `
-            radial-gradient(ellipse at 25% 25%, ${theme.primary.main}4D 0%, transparent 50%),
-            radial-gradient(ellipse at 75% 75%, ${theme.functional.info.main}40 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 10%, ${theme.functional.success.main}33 0%, transparent 40%),
-            radial-gradient(ellipse at 10% 90%, ${theme.functional.warning.main}26 0%, transparent 25%)
-          `,
-        }}
-      />
-
-      {/* ДВИЖУЩАЯСЯ АДМИНСКАЯ СЕТКА */}
-      <motion.div
-        animate={{
-          x: [0, 25],
-          y: [0, 25]
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: `
-            linear-gradient(${theme.border.main} 1px, transparent 1px),
-            linear-gradient(90deg, ${theme.border.main} 1px, transparent 1px)
-          `,
-          backgroundSize: '25px 25px',
-          pointerEvents: 'none'
-        }}
-      />
-
-      {/* ПЛАВАЮЩИЕ ЧАСТИЦЫ */}
-      {[...Array(12)].map((_, i) => (
-        <motion.div
-          key={i}
-          animate={{
-            y: [0, -15, 0],
-            opacity: [0.1, 0.4, 0.1],
-            scale: [1, 1.2, 1]
-          }}
-          transition={{
-            duration: 3 + i * 0.2,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.2
-          }}
-          style={{
-            position: 'absolute',
-            left: `${15 + i * 7}%`,
-            top: `${20 + (i % 4) * 20}%`,
-            width: '3px',
-            height: '3px',
-            background: `${theme.primary.main}B3`,
-            borderRadius: '50%',
-            pointerEvents: 'none'
-          }}
-        />
-      ))}
-    </Box>
-  );
-};
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -248,647 +124,726 @@ const Categories = () => {
   };
 
   const getSLALabel = (slaTime) => {
-    if (slaTime <= 60) return 'Быстро';
-    if (slaTime <= 120) return 'Стандарт';
-    if (slaTime <= 240) return 'Медленно';
-    return 'Очень долго';
+    if (slaTime <= 60) return 'Быстрый';
+    if (slaTime <= 120) return 'Стандартный';
+    if (slaTime <= 240) return 'Расширенный';
+    return 'Длительный';
   };
 
-  // Только менеджеры могут управлять категориями
+  const formatSLATime = (minutes) => {
+    if (minutes < 60) return `${minutes} мин`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours} ч ${mins} мин` : `${hours} ч`;
+  };
+
+  // Статистика
+  const totalCategories = categories.length;
+  const avgSLA = categories.length > 0 
+    ? Math.round(categories.reduce((sum, c) => sum + c.slaTime, 0) / categories.length) 
+    : 0;
+  const fastCategories = categories.filter(c => c.slaTime <= 60).length;
+  const slowCategories = categories.filter(c => c.slaTime > 240).length;
+
+  // Цвета для категорий
+  const categoryColors = [
+    { bg: `${theme.functional.success.main}15`, border: theme.functional.success.main, gradient: `linear-gradient(135deg, ${theme.functional.success.main}, ${theme.functional.success.main}CC)` },
+    { bg: `${theme.functional.info.main}15`, border: theme.functional.info.main, gradient: `linear-gradient(135deg, ${theme.functional.info.main}, ${theme.functional.info.main}CC)` },
+    { bg: `${theme.functional.warning.main}15`, border: theme.functional.warning.main, gradient: `linear-gradient(135deg, ${theme.functional.warning.main}, ${theme.functional.warning.main}CC)` },
+    { bg: `${theme.primary.main}15`, border: theme.primary.main, gradient: `linear-gradient(135deg, ${theme.primary.main}, ${theme.primary.main}CC)` },
+    { bg: `${theme.functional.error.main}15`, border: theme.functional.error.main, gradient: `linear-gradient(135deg, ${theme.functional.error.main}, ${theme.functional.error.main}CC)` },
+  ];
+
+  const getCategoryColor = (index) => categoryColors[index % categoryColors.length];
+
   if (!isManager) {
     return (
-      <Box sx={{ position: 'relative', minHeight: '100vh' }}>
-        {darkBackgroundStyles}
-        <AdminBackground />
-        <Container sx={{ py: 4, position: 'relative', zIndex: 10 }}>
-          <GlassCard variant="colored" color="red" sx={{ p: 4, textAlign: 'center' }}>
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <Settings size={64} color={theme.functional.error.main} style={{ marginBottom: 16 }} />
-            </motion.div>
+      <Box sx={{ position: 'relative', minHeight: '100vh', pb: 4 }}>
+        <Box sx={{ py: 4, px: 4 }}>
+          <GlassCard variant="dark" sx={{ p: 6, textAlign: 'center' }}>
+            <Settings sx={{ fontSize: 64, color: theme.functional.error.main, mb: 2 }} />
             <Typography variant="h4" sx={{ color: theme.text.primary, fontWeight: 700, mb: 2 }}>
               Доступ запрещен
             </Typography>
-            <Typography sx={{ color: theme.text.secondary, fontSize: '1.1rem' }}>
+            <Typography sx={{ color: theme.text.secondary }}>
               Недостаточно прав для управления категориями
             </Typography>
           </GlassCard>
-        </Container>
+        </Box>
+      </Box>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress size={60} sx={{ color: theme.functional.warning.main }} />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ position: 'relative', minHeight: '100vh' }}>
-      {darkBackgroundStyles}
-      <AdminBackground />
-      
-      <Container maxWidth="lg" sx={{ py: 4, position: 'relative', zIndex: 10 }}>
-        {/* Заголовок */}
+    <Box sx={{ position: 'relative', minHeight: '100vh', pb: 4 }}>
+      <Box sx={{ py: 4, position: 'relative', zIndex: 10 }}>
+
+        {/* ШАПКА */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8 }}
         >
-          <GlassCard variant="dark" sx={{ p: 4, mb: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <GlassCard variant="dark" sx={{ p: 4, mb: 3, mx: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                 <motion.div
-                  animate={{
-                    rotate: [0, 360],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
+                  animate={{ rotate: [0, 360], scale: [1, 1.1, 1] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                 >
                   <Box
-  sx={{
-    width: 70,
-    height: 70,
-    borderRadius: 3,
-    background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 20px 60px rgba(245, 158, 11, 0.4)'
-  }}
->
-  <Category size={32} color="white" />
-</Box>
+                    sx={{
+                      width: 70,
+                      height: 70,
+                      borderRadius: 3,
+                      background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 20px 60px rgba(245, 158, 11, 0.4)'
+                    }}
+                  >
+                    <Category sx={{ fontSize: 32, color: '#fff' }} />
+                  </Box>
                 </motion.div>
-                
+
                 <Box>
-<Typography 
-  variant="h3" 
-  sx={{ 
-    fontWeight: 900,
-    color: '#ffffff',
-    textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(245, 158, 11, 0.5)',
-    mb: 1,
-    background: 'linear-gradient(135deg, #ffffff 0%, #f59e0b 100%)',
-    backgroundClip: 'text',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent'
-  }}
->
-  Категории услуг
-</Typography>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: 900,
+                      color: theme.text.primary,
+                      textShadow: '0 4px 20px rgba(0,0,0,0.8)',
+                      mb: 1,
+                      background: 'linear-gradient(135deg, #ffffff 0%, #f59e0b 100%)',
+                      backgroundClip: 'text',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}
+                  >
+                    Категории услуг
+                  </Typography>
                   <Typography sx={{ color: theme.text.secondary, fontSize: '1.1rem' }}>
                     Управление типами и SLA обращений
                   </Typography>
                 </Box>
               </Box>
 
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
-  variant="contained"
-  startIcon={<Add />}
-  onClick={() => handleOpenDialog()}
-  sx={{
-    background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-    borderRadius: 3,
-    px: 4,
-    py: 1.5,
-    fontWeight: 700,
-    fontSize: '1rem',
-    boxShadow: '0 8px 25px rgba(245, 158, 11, 0.4)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    '&:hover': {
-      background: 'linear-gradient(135deg, #ea580c 0%, #dc2626 100%)',
-      boxShadow: '0 15px 40px rgba(245, 158, 11, 0.6)',
-    }
-  }}
->
-  Добавить категорию
-</Button>
-
+                  variant="contained"
+                  startIcon={<Add />}
+                  onClick={() => handleOpenDialog()}
+                  sx={{
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                    borderRadius: 3,
+                    px: 4,
+                    py: 1.5,
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    boxShadow: '0 8px 25px rgba(245, 158, 11, 0.4)',
+                    border: '2px solid transparent',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #ea580c 0%, #dc2626 100%)',
+                      boxShadow: '0 15px 40px rgba(245, 158, 11, 0.6)',
+                      border: `2px solid ${theme.text.primary}`,
+                    }
+                  }}
+                >
+                  Добавить категорию
+                </Button>
               </motion.div>
             </Box>
           </GlassCard>
         </motion.div>
 
-        {/* Ошибки */}
+        {/* ОШИБКИ */}
         <AnimatePresence>
           {error && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-            >
-              <GlassCard variant="colored" color="red" sx={{ p: 2, mb: 3 }}>
-                <Alert 
-                  severity="error"
-                  sx={{ 
-                    background: 'transparent',
-                    color: theme.text.primary,
-                    '& .MuiAlert-icon': { color: theme.functional.error.main }
-                  }}
-                >
-                  {error}
-                </Alert>
-              </GlassCard>
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+              <Alert severity="error" sx={{ mb: 3, mx: 4, backgroundColor: theme.functional.error.bg, color: theme.text.primary, border: `1px solid ${theme.functional.error.border}`, '& .MuiAlert-icon': { color: theme.functional.error.main } }}>
+                {error}
+              </Alert>
             </motion.div>
           )}
         </AnimatePresence>
-{/* Таблица */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <GlassCard variant="dark" sx={{ overflow: 'hidden' }}>
-            {loading ? (
-              <Box sx={{ p: 4 }}>
-                {[...Array(5)].map((_, i) => (
-                  <Box key={i} sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
-                    <Skeleton 
-                      variant="rectangular" 
-                      width={200} 
-                      height={40} 
-                      sx={{ bgcolor: theme.background.elevated, borderRadius: 2 }}
-                    />
-                    <Skeleton 
-                      variant="rectangular" 
-                      width={300} 
-                      height={40} 
-                      sx={{ bgcolor: theme.background.elevated, borderRadius: 2 }}
-                    />
-                    <Skeleton 
-                      variant="rectangular" 
-                      width={100} 
-                      height={40} 
-                      sx={{ bgcolor: theme.background.elevated, borderRadius: 2 }}
-                    />
+
+        {/* ДВУХКОЛОНОЧНЫЙ LAYOUT */}
+        <Box sx={{ px: 4, display: 'flex', gap: 3, flexDirection: { xs: 'column', lg: 'row' } }}>
+
+          {/* ЛЕВАЯ КОЛОНКА */}
+          <Box sx={{ width: { xs: '100%', lg: 320 }, flexShrink: 0 }}>
+
+            {/* Статистика */}
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
+              <GlassCard variant="dark" sx={{ p: 3, mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+                  <TrendingUp sx={{ color: theme.functional.warning.main }} />
+                  <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 700 }}>Статистика</Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, mb: 2, borderRadius: 2, background: `linear-gradient(135deg, ${theme.functional.warning.main}15, ${theme.functional.warning.main}05)`, border: `1px solid ${theme.functional.warning.main}30` }}>
+                  <Avatar sx={{ width: 45, height: 45, background: `linear-gradient(135deg, ${theme.functional.warning.main}, ${theme.functional.warning.main}CC)` }}>
+                    <Folder sx={{ fontSize: 22 }} />
+                  </Avatar>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h5" sx={{ color: theme.text.primary, fontWeight: 800, lineHeight: 1 }}>{totalCategories}</Typography>
+                    <Typography variant="caption" sx={{ color: theme.text.secondary }}>категорий</Typography>
                   </Box>
-                ))}
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, mb: 2, borderRadius: 2, background: `linear-gradient(135deg, ${theme.functional.info.main}15, ${theme.functional.info.main}05)`, border: `1px solid ${theme.functional.info.main}30` }}>
+                  <Avatar sx={{ width: 45, height: 45, background: `linear-gradient(135deg, ${theme.functional.info.main}, ${theme.functional.info.main}CC)` }}>
+                    <Timer sx={{ fontSize: 22 }} />
+                  </Avatar>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h5" sx={{ color: theme.text.primary, fontWeight: 800, lineHeight: 1 }}>{formatSLATime(avgSLA)}</Typography>
+                    <Typography variant="caption" sx={{ color: theme.text.secondary }}>средний SLA</Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, mb: 2, borderRadius: 2, background: `linear-gradient(135deg, ${theme.functional.success.main}15, ${theme.functional.success.main}05)`, border: `1px solid ${theme.functional.success.main}30` }}>
+                  <Avatar sx={{ width: 45, height: 45, background: `linear-gradient(135deg, ${theme.functional.success.main}, ${theme.functional.success.main}CC)` }}>
+                    <Speed sx={{ fontSize: 22 }} />
+                  </Avatar>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h5" sx={{ color: theme.text.primary, fontWeight: 800, lineHeight: 1 }}>{fastCategories}</Typography>
+                    <Typography variant="caption" sx={{ color: theme.text.secondary }}>быстрых (≤1 ч)</Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, borderRadius: 2, background: `linear-gradient(135deg, ${theme.functional.error.main}15, ${theme.functional.error.main}05)`, border: `1px solid ${theme.functional.error.main}30` }}>
+                  <Avatar sx={{ width: 45, height: 45, background: `linear-gradient(135deg, ${theme.functional.error.main}, ${theme.functional.error.main}CC)` }}>
+                    <Schedule sx={{ fontSize: 22 }} />
+                  </Avatar>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h5" sx={{ color: theme.text.primary, fontWeight: 800, lineHeight: 1 }}>{slowCategories}</Typography>
+                    <Typography variant="caption" sx={{ color: theme.text.secondary }}>длительных ({'>'}4 ч)</Typography>
+                  </Box>
+                </Box>
+              </GlassCard>
+            </motion.div>
+
+            {/* SLA Распределение */}
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
+              <GlassCard variant="dark" sx={{ p: 3, mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+                  <AccessTime sx={{ color: theme.primary.main }} />
+                  <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 700 }}>SLA Распределение</Typography>
+                </Box>
+
+                {/* Быстрый */}
+                <Box sx={{ mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" sx={{ color: theme.text.secondary }}>Быстрый (≤1 ч)</Typography>
+                    <Typography variant="body2" sx={{ color: theme.functional.success.main, fontWeight: 700 }}>{fastCategories}</Typography>
+                  </Box>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={totalCategories > 0 ? (fastCategories / totalCategories) * 100 : 0}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: `${theme.functional.success.main}20`,
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: theme.functional.success.main,
+                        borderRadius: 4
+                      }
+                    }}
+                  />
+                </Box>
+
+                {/* Стандартный */}
+                <Box sx={{ mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" sx={{ color: theme.text.secondary }}>Стандартный (1-2 ч)</Typography>
+                    <Typography variant="body2" sx={{ color: theme.functional.warning.main, fontWeight: 700 }}>
+                      {categories.filter(c => c.slaTime > 60 && c.slaTime <= 120).length}
+                    </Typography>
+                  </Box>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={totalCategories > 0 ? (categories.filter(c => c.slaTime > 60 && c.slaTime <= 120).length / totalCategories) * 100 : 0}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: `${theme.functional.warning.main}20`,
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: theme.functional.warning.main,
+                        borderRadius: 4
+                      }
+                    }}
+                  />
+                </Box>
+
+                {/* Расширенный */}
+                <Box sx={{ mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" sx={{ color: theme.text.secondary }}>Расширенный (2-4 ч)</Typography>
+                    <Typography variant="body2" sx={{ color: theme.functional.error.main, fontWeight: 700 }}>
+                      {categories.filter(c => c.slaTime > 120 && c.slaTime <= 240).length}
+                    </Typography>
+                  </Box>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={totalCategories > 0 ? (categories.filter(c => c.slaTime > 120 && c.slaTime <= 240).length / totalCategories) * 100 : 0}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: `${theme.functional.error.main}20`,
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: theme.functional.error.main,
+                        borderRadius: 4
+                      }
+                    }}
+                  />
+                </Box>
+
+                {/* Длительный */}
+                <Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" sx={{ color: theme.text.secondary }}>Длительный ({'>'}4 ч)</Typography>
+                    <Typography variant="body2" sx={{ color: theme.primary.main, fontWeight: 700 }}>{slowCategories}</Typography>
+                  </Box>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={totalCategories > 0 ? (slowCategories / totalCategories) * 100 : 0}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: `${theme.primary.main}20`,
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: theme.primary.main,
+                        borderRadius: 4
+                      }
+                    }}
+                  />
+                </Box>
+              </GlassCard>
+            </motion.div>
+
+            {/* Подсказки */}
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
+              <GlassCard variant="dark" sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <LocalOffer sx={{ color: theme.functional.info.main }} />
+                  <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 700 }}>Подсказки</Typography>
+                </Box>
+
+                <Box sx={{ p: 2, borderRadius: 2, background: `${theme.functional.info.main}10`, border: `1px solid ${theme.functional.info.main}30`, mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: theme.text.secondary, lineHeight: 1.6 }}>
+                    <strong style={{ color: theme.text.primary }}>SLA</strong> — время, за которое инженер должен начать работу над заявкой.
+                  </Typography>
+                </Box>
+
+                <Box sx={{ p: 2, borderRadius: 2, background: `${theme.functional.success.main}10`, border: `1px solid ${theme.functional.success.main}30`, mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: theme.text.secondary, lineHeight: 1.6 }}>
+                    Рекомендуем устанавливать <strong style={{ color: theme.functional.success.main }}>SLA ≤ 2 часов</strong> для критичных категорий.
+                  </Typography>
+                </Box>
+
+                <Box sx={{ p: 2, borderRadius: 2, background: `${theme.functional.warning.main}10`, border: `1px solid ${theme.functional.warning.main}30` }}>
+                  <Typography variant="body2" sx={{ color: theme.text.secondary, lineHeight: 1.6 }}>
+                    Категории с <strong style={{ color: theme.functional.warning.main }}>SLA {'>'} 4 часов</strong> могут снижать удовлетворённость пользователей.
+                  </Typography>
+                </Box>
+              </GlassCard>
+            </motion.div>
+          </Box>
+
+          {/* ПРАВАЯ КОЛОНКА */}
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+
+            {/* Заголовок */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Category sx={{ color: theme.functional.warning.main }} />
+                  <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 700 }}>Все категории</Typography>
+                  <Chip label={totalCategories} size="small" sx={{ ml: 1, backgroundColor: theme.functional.warning.main, color: '#fff', fontWeight: 700 }} />
+                </Box>
               </Box>
+            </motion.div>
+
+            {/* Список категорий */}
+            {categories.length === 0 ? (
+              <GlassCard variant="dark" sx={{ p: 6, textAlign: 'center' }}>
+                <Folder sx={{ fontSize: 64, color: theme.text.disabled, mb: 2 }} />
+                <Typography variant="h6" sx={{ color: theme.text.primary, mb: 1 }}>Категории не найдены</Typography>
+                <Typography sx={{ color: theme.text.disabled }}>Создайте первую категорию для организации заявок</Typography>
+              </GlassCard>
             ) : (
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ 
-                        color: theme.text.primary,
-                        fontWeight: 700, 
-                        fontSize: '1rem',
-                        borderBottom: `2px solid ${theme.primary.main}4D`,
-                        background: `${theme.primary.main}1A`
-                      }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <ViewList size={20} />
-                          Название
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ 
-                        color: theme.text.primary,
-                        fontWeight: 700, 
-                        fontSize: '1rem',
-                        borderBottom: `2px solid ${theme.primary.main}4D`,
-                        background: `${theme.primary.main}1A`
-                      }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Info size={20} />
-                          Описание
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ 
-                        color: theme.text.primary,
-                        fontWeight: 700, 
-                        fontSize: '1rem',
-                        borderBottom: `2px solid ${theme.primary.main}4D`,
-                        background: `${theme.primary.main}1A`
-                      }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <AccessTime size={20} />
-                          SLA
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ 
-                        color: theme.text.primary,
-                        fontWeight: 700, 
-                        fontSize: '1rem',
-                        borderBottom: `2px solid ${theme.primary.main}4D`,
-                        background: `${theme.primary.main}1A`
-                      }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Settings size={20} />
-                          Действия
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {categories.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} align="center" sx={{ 
-                          py: 6, 
-                          color: theme.text.secondary,
-                          borderBottom: 'none'
-                        }}>
-                          <motion.div
-                            animate={{ 
-                              scale: [1, 1.1, 1],
-                              opacity: [0.7, 1, 0.7]
-                            }}
-                            transition={{ 
-                              duration: 2,
-                              repeat: Infinity
-                            }}
-                          >
-                            <Typography variant="h6" sx={{ mb: 2 }}>
-                              📂 Категории не найдены
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {categories.map((category, index) => {
+                  const colorSet = getCategoryColor(index);
+                  const slaColor = getSLAColor(category.slaTime);
+                  
+                  return (
+                    <motion.div
+                      key={category.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                    >
+                      <GlassCard
+                        variant="dark"
+                        sx={{
+                          p: 3,
+                          border: `2px solid ${theme.border.main}`,
+                          '&:hover': {
+                            border: `2px solid ${colorSet.border}`,
+                            boxShadow: `0 10px 30px ${colorSet.border}25`
+                          },
+                          transition: 'all 0.3s ease'
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                          
+                          {/* Иконка */}
+                          <Avatar sx={{
+                            width: 60,
+                            height: 60,
+                            background: colorSet.gradient,
+                            boxShadow: `0 8px 20px ${colorSet.border}40`
+                          }}>
+                            <Category sx={{ fontSize: 28, color: '#fff' }} />
+                          </Avatar>
+
+                          {/* Контент */}
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="h6" sx={{ color: theme.text.primary, fontWeight: 700, mb: 0.5 }}>
+                              {category.name}
                             </Typography>
-                            <Typography variant="body2" sx={{ color: theme.text.disabled }}>
-                              Создайте первую категорию для организации заявок
+                            <Typography variant="body2" sx={{ color: theme.text.secondary, mb: 1.5, lineHeight: 1.5 }}>
+                              {category.description || 'Описание не указано'}
                             </Typography>
-                          </motion.div>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      categories.map((category, index) => (
-                        <motion.tr
-                          key={category.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.1 }}
-                          component={TableRow}
-                          whileHover={{ backgroundColor: `${theme.primary.main}0D` }}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <TableCell sx={{ 
-                            color: theme.text.primary,
-                            fontWeight: 600,
-                            borderBottom: `1px solid ${theme.border.main}`
-                          }}>
-                            {category.name}
-                          </TableCell>
-                          <TableCell sx={{ 
-                            color: theme.text.secondary,
-                            borderBottom: `1px solid ${theme.border.main}`,
-                            maxWidth: 300
-                          }}>
-                            {category.description}
-                          </TableCell>
-                          <TableCell sx={{ 
-                            borderBottom: `1px solid ${theme.border.main}`
-                          }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            
+                            {/* SLA и метки */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                               <Chip
-                                label={`${category.slaTime} мин`}
+                                icon={<AccessTime sx={{ fontSize: 14 }} />}
+                                label={formatSLATime(category.slaTime)}
                                 size="small"
                                 sx={{
-                                  background: `linear-gradient(135deg, ${getSLAColor(category.slaTime)}, ${getSLAColor(category.slaTime)}CC)`,
-                                  color: theme.text.primary,
+                                  background: `${slaColor}20`,
+                                  color: slaColor,
+                                  border: `1px solid ${slaColor}`,
+                                  fontWeight: 700
+                                }}
+                              />
+                              <Chip
+                                label={getSLALabel(category.slaTime)}
+                                size="small"
+                                sx={{
+                                  background: theme.background.elevated,
+                                  color: theme.text.secondary,
                                   fontWeight: 600
                                 }}
                               />
-                              <Typography variant="caption" sx={{ 
-                                color: getSLAColor(category.slaTime),
-                                fontWeight: 600
-                              }}>
-                                {getSLALabel(category.slaTime)}
-                              </Typography>
+                              {category.articlesCount > 0 && (
+                                <Chip
+                                  icon={<Assignment sx={{ fontSize: 14 }} />}
+                                  label={`${category.articlesCount} заявок`}
+                                  size="small"
+                                  sx={{
+                                    background: `${theme.functional.info.main}15`,
+                                    color: theme.functional.info.main,
+                                    border: `1px solid ${theme.functional.info.main}`,
+                                    fontWeight: 600
+                                  }}
+                                />
+                              )}
                             </Box>
-                          </TableCell>
-                          <TableCell sx={{ 
-                            borderBottom: `1px solid ${theme.border.main}`
-                          }}>
-                            <Box sx={{ display: 'flex', gap: 1 }}>
-                              <Tooltip title="Редактировать">
-                                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => handleOpenDialog(category)}
-                                    sx={{
-                                      background: theme.functional.info.bg,
-                                      color: theme.functional.info.main,
-                                      '&:hover': {
-                                        background: `${theme.functional.info.main}4D`,
-                                      }
-                                    }}
-                                  >
-                                    <Edit size={16} />
-                                  </IconButton>
-                                </motion.div>
-                              </Tooltip>
-                              
-                              <Tooltip title="Удалить">
-                                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => setDeleteConfirmId(category.id)}
-                                    sx={{
-                                      background: theme.functional.error.bg,
-                                      color: theme.functional.error.main,
-                                      '&:hover': {
-                                        background: `${theme.functional.error.main}4D`,
-                                      }
-                                    }}
-                                  >
-                                    <Delete size={16} />
-                                  </IconButton>
-                                </motion.div>
-                              </Tooltip>
-                            </Box>
-                          </TableCell>
-                        </motion.tr>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </GlassCard>
-        </motion.div>
+                          </Box>
 
-        {/* Диалог создания/редактирования - ИСПРАВЛЕНЫ TextField */}
-        <Dialog 
-          open={openDialog} 
-          onClose={handleCloseDialog} 
-          maxWidth="sm" 
+                          {/* Действия */}
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Tooltip title="Редактировать">
+                              <IconButton
+                                onClick={() => handleOpenDialog(category)}
+                                sx={{
+                                  backgroundColor: `${theme.functional.info.main}20`,
+                                  color: theme.functional.info.main,
+                                  border: `2px solid ${theme.functional.info.main}`,
+                                  width: 40,
+                                  height: 40,
+                                  '&:hover': {
+                                    backgroundColor: theme.functional.info.main,
+                                    color: '#fff'
+                                  }
+                                }}
+                              >
+                                <Edit sx={{ fontSize: 20 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Удалить">
+                              <IconButton
+                                onClick={() => setDeleteConfirmId(category.id)}
+                                sx={{
+                                  backgroundColor: `${theme.functional.error.main}20`,
+                                  color: theme.functional.error.main,
+                                  border: `2px solid ${theme.functional.error.main}`,
+                                  width: 40,
+                                  height: 40,
+                                  '&:hover': {
+                                    backgroundColor: theme.functional.error.main,
+                                    color: '#fff'
+                                  }
+                                }}
+                              >
+                                <Delete sx={{ fontSize: 20 }} />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        </Box>
+                      </GlassCard>
+                    </motion.div>
+                  );
+                })}
+              </Box>
+            )}
+          </Box>
+        </Box>
+
+        {/* ДИАЛОГ СОЗДАНИЯ/РЕДАКТИРОВАНИЯ */}
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          maxWidth="sm"
           fullWidth
           PaperProps={{
             sx: {
-              background: theme.background.secondary,
-              backdropFilter: 'blur(20px)',
+              background: '#1a1a2e',
               border: `1px solid ${theme.border.main}`,
               borderRadius: 4,
-              boxShadow: theme.glass.dark.shadow
+              overflow: 'hidden'
             }
           }}
         >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <DialogTitle sx={{ 
-              color: theme.text.primary,
-              fontWeight: 700, 
-              fontSize: '1.5rem',
-              borderBottom: `1px solid ${theme.border.main}`
-            }}>
-              {editingCategory ? '✏️ Редактировать категорию' : 'Создать категорию'}
-            </DialogTitle>
-            
-            <DialogContent sx={{ pt: 3 }}>
-              {/* ПОЛЕ НАЗВАНИЕ - ИСПРАВЛЕНО */}
-              <TextField
-                fullWidth
-                label="Название"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: theme.background.elevated,
-                    '& fieldset': {
-                      borderColor: theme.border.main,
-                    },
-                    '&:hover fieldset': {
-                      borderColor: theme.primary.main,
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: theme.primary.main,
-                    },
-                  },
-                  '& .MuiOutlinedInput-input': {
-                    color: '#ffffff',
-                    fontWeight: 500,
-                    '&::placeholder': {
-                      color: '#ffffff',
-                      opacity: 0.9
-                    }
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: '#ffffff',
-                    opacity: 0.9,
-                    fontWeight: 600,
-                    '&.Mui-focused': {
-                      color: theme.primary.main,
-                    },
-                  },
-                }}
-              />
-              
-              {/* ПОЛЕ ОПИСАНИЕ - ИСПРАВЛЕНО */}
-              <TextField
-                fullWidth
-                label="Описание"
-                multiline
-                rows={3}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: theme.background.elevated,
-                    '& fieldset': {
-                      borderColor: theme.border.main,
-                    },
-                    '&:hover fieldset': {
-                      borderColor: theme.primary.main,
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: theme.primary.main,
-                    },
-                  },
-                  '& .MuiOutlinedInput-input': {
-                    color: '#ffffff',
-                    fontWeight: 500,
-                    '&::placeholder': {
-                      color: '#ffffff',
-                      opacity: 0.9
-                    }
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: '#ffffff',
-                    opacity: 0.9,
-                    fontWeight: 600,
-                    '&.Mui-focused': {
-                      color: theme.primary.main,
-                    },
-                  },
-                }}
-              />
-              
-              {/* ПОЛЕ SLA ВРЕМЯ - ИСПРАВЛЕНО */}
-              <TextField
-                fullWidth
-                label="SLA (минуты)"
-                type="number"
-                value={formData.slaTime}
-                onChange={(e) => setFormData({ ...formData, slaTime: parseInt(e.target.value) || 0 })}
-                margin="normal"
-                helperText="Время реакции на заявки данной категории"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: theme.background.elevated,
-                    '& fieldset': {
-                      borderColor: theme.border.main,
-                    },
-                    '&:hover fieldset': {
-                      borderColor: theme.primary.main,
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: theme.primary.main,
-                    },
-                  },
-                  '& .MuiOutlinedInput-input': {
-                    color: '#ffffff',
-                    fontWeight: 500,
-                    '&::placeholder': {
-                      color: '#ffffff',
-                      opacity: 0.9
-                    }
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: '#ffffff',
-                    opacity: 0.9,
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
-                    '&.Mui-focused': {
-                      color: theme.primary.main,
-                    },
-                    '&.MuiInputLabel-shrink': {
-                      fontSize: '0.75rem',
-                      transform: 'translate(14px, -18px) scale(1)',
-                      backgroundColor: theme.background.secondary,
-                      px: -0.5,
-                      borderRadius: '4px'
-                    }
-                  },
-                  '& .MuiFormHelperText-root': {
-                    color: theme.text.disabled,
-                  },
-                }}
-              />
-            </DialogContent>
-            
-            <DialogActions sx={{ p: 3, borderTop: `1px solid ${theme.border.main}` }}>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  onClick={handleCloseDialog}
-                  sx={{
-                    color: theme.text.secondary,
-                    borderColor: theme.border.main,
-                    '&:hover': {
-                      borderColor: theme.border.light,
-                      backgroundColor: theme.background.elevated,
-                    }
+          {/* Шапка с градиентом */}
+          <Box sx={{ 
+            background: editingCategory 
+              ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' 
+              : 'linear-gradient(135deg, #f59e0b, #ea580c)', 
+            p: 3, 
+            position: 'relative', 
+            overflow: 'hidden' 
+          }}>
+            <Box sx={{ position: 'absolute', top: -50, right: -50, width: 150, height: 150, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+            <Box sx={{ position: 'absolute', bottom: -30, left: -30, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, position: 'relative', zIndex: 1 }}>
+              <Avatar sx={{ width: 60, height: 60, background: 'rgba(255,255,255,0.2)', border: '3px solid rgba(255,255,255,0.4)' }}>
+                {editingCategory ? <Edit sx={{ color: '#fff', fontSize: 28 }} /> : <Add sx={{ color: '#fff', fontSize: 28 }} />}
+              </Avatar>
+              <Box>
+                <Typography variant="h5" sx={{ color: '#fff', fontWeight: 800 }}>
+                  {editingCategory ? 'Редактировать категорию' : 'Новая категория'}
+                </Typography>
+                <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                  {editingCategory ? 'Изменение параметров категории' : 'Создание новой категории услуг'}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          <DialogContent sx={{ p: 2.5, background: '#1a1a2e' }}>
+            {/* Название */}
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontWeight: 500, fontSize: '0.7rem', mb: 0.5, display: 'block' }}>
+                Название категории
+              </Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1.5, 
+                p: 1.5, 
+                borderRadius: 2, 
+                background: 'rgba(255,255,255,0.05)', 
+                border: '1px solid rgba(255,255,255,0.1)',
+                '&:focus-within': { border: '1px solid rgba(245, 158, 11, 0.5)', background: 'rgba(255,255,255,0.08)' }
+              }}>
+                <Avatar sx={{ width: 36, height: 36, background: 'linear-gradient(135deg, #f59e0b, #ea580c)' }}>
+                  <Category sx={{ color: '#fff', fontSize: 18 }} />
+                </Avatar>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Например: Проблемы с оборудованием"
+                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: '0.95rem', fontWeight: 500, fontFamily: 'inherit' }}
+                />
+              </Box>
+            </Box>
+
+            {/* Описание */}
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontWeight: 500, fontSize: '0.7rem', mb: 0.5, display: 'block' }}>
+                Описание
+              </Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'flex-start', 
+                gap: 1.5, 
+                p: 1.5, 
+                borderRadius: 2, 
+                background: 'rgba(255,255,255,0.05)', 
+                border: '1px solid rgba(255,255,255,0.1)',
+                '&:focus-within': { border: '1px solid rgba(245, 158, 11, 0.5)', background: 'rgba(255,255,255,0.08)' }
+              }}>
+                <Avatar sx={{ width: 36, height: 36, background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' }}>
+                  <Assignment sx={{ color: '#fff', fontSize: 18 }} />
+                </Avatar>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Краткое описание категории..."
+                  rows={3}
+                  style={{ 
+                    flex: 1, 
+                    background: 'transparent', 
+                    border: 'none', 
+                    outline: 'none', 
+                    color: '#fff', 
+                    fontSize: '0.95rem', 
+                    fontWeight: 500, 
+                    fontFamily: 'inherit',
+                    resize: 'none',
+                    lineHeight: 1.5
                   }}
-                  variant="outlined"
-                >
-                  Отмена
-                </Button>
-              </motion.div>
-              
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  onClick={handleSave} 
-                  variant="contained"
-                  disabled={!formData.name.trim()}
-                  sx={{
-                    background: theme.gradients.primary,
-                    fontWeight: 700,
-                    boxShadow: `0 4px 15px ${theme.primary.main}66`,
-                    '&:hover': {
-                      background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
-                      boxShadow: `0 8px 25px ${theme.primary.main}99`,
-                    },
-                    '&:disabled': {
-                      background: theme.background.secondary,
-                      color: theme.text.disabled,
-                    }
-                  }}
-                >
-                  Сохранить
-                </Button>
-              </motion.div>
-            </DialogActions>
-          </motion.div>
+                />
+              </Box>
+            </Box>
+
+            {/* SLA */}
+            <Box sx={{ mb: 1 }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontWeight: 500, fontSize: '0.7rem', mb: 0.5, display: 'block' }}>
+                SLA (время реакции)
+              </Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1.5, 
+                p: 1.5, 
+                borderRadius: 2, 
+                background: 'rgba(255,255,255,0.05)', 
+                border: '1px solid rgba(255,255,255,0.1)',
+                '&:focus-within': { border: '1px solid rgba(245, 158, 11, 0.5)', background: 'rgba(255,255,255,0.08)' }
+              }}>
+                <Avatar sx={{ width: 36, height: 36, background: `linear-gradient(135deg, ${getSLAColor(formData.slaTime)}, ${getSLAColor(formData.slaTime)}CC)` }}>
+                  <AccessTime sx={{ color: '#fff', fontSize: 18 }} />
+                </Avatar>
+                <input
+                  type="number"
+                  value={formData.slaTime}
+                  onChange={(e) => setFormData({ ...formData, slaTime: parseInt(e.target.value) || 0 })}
+                  placeholder="120"
+                  min="1"
+                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: '0.95rem', fontWeight: 500, fontFamily: 'inherit' }}
+                />
+                <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', fontWeight: 500 }}>
+                  минут
+                </Typography>
+                <Chip 
+                  label={getSLALabel(formData.slaTime)} 
+                  size="small" 
+                  sx={{ 
+                    background: `${getSLAColor(formData.slaTime)}20`, 
+                    color: getSLAColor(formData.slaTime), 
+                    fontWeight: 600,
+                    border: `1px solid ${getSLAColor(formData.slaTime)}50`
+                  }} 
+                />
+              </Box>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', mt: 0.5, display: 'block', pl: 1 }}>
+                Время, за которое инженер должен начать работу над заявкой
+              </Typography>
+            </Box>
+          </DialogContent>
+
+          <DialogActions sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.1)', background: '#1a1a2e', justifyContent: 'flex-end', gap: 1 }}>
+            <Button 
+              onClick={handleCloseDialog} 
+              variant="contained" 
+              sx={{ 
+                background: 'rgba(255,255,255,0.1)', 
+                color: '#fff', 
+                fontWeight: 600,
+                border: '2px solid transparent', 
+                '&:hover': { background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.3)' } 
+              }}
+            >
+              Отмена
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              variant="contained" 
+              disabled={!formData.name.trim()}
+              sx={{ 
+                background: editingCategory 
+                  ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' 
+                  : 'linear-gradient(135deg, #f59e0b, #ea580c)', 
+                color: '#fff',
+                fontWeight: 700, 
+                border: '2px solid transparent', 
+                '&:hover': { border: '2px solid #fff' }, 
+                '&:disabled': { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.3)' } 
+              }}
+            >
+              {editingCategory ? 'Сохранить' : 'Создать'}
+            </Button>
+          </DialogActions>
         </Dialog>
 
-        {/* Диалог подтверждения удаления */}
-        <Dialog 
-          open={!!deleteConfirmId} 
+        {/* ДИАЛОГ УДАЛЕНИЯ */}
+        <Dialog
+          open={!!deleteConfirmId}
           onClose={() => setDeleteConfirmId(null)}
           PaperProps={{
             sx: {
-              background: theme.background.secondary,
-              backdropFilter: 'blur(20px)',
-              border: `1px solid ${theme.functional.error.border}`,
+              background: '#1a1a2e',
+              border: '1px solid rgba(239,68,68,0.3)',
               borderRadius: 4,
-              boxShadow: theme.glass.dark.shadow
+              overflow: 'hidden'
             }
           }}
         >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <DialogTitle sx={{ color: theme.functional.error.main, fontWeight: 700, textAlign: 'center' }}>
-              ⚠️ Подтверждение удаления
-            </DialogTitle>
-            
-            <DialogContent sx={{ textAlign: 'center', pb: 2 }}>
-              <Typography sx={{ color: theme.text.primary, fontSize: '1.1rem' }}>
-                Вы уверены, что хотите удалить эту категорию?
-              </Typography>
-              <Typography sx={{ color: theme.text.secondary, mt: 1 }}>
-                Это действие нельзя отменить
-              </Typography>
-            </DialogContent>
-            
-            <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  onClick={() => setDeleteConfirmId(null)}
-                  variant="outlined"
-                  sx={{
-                    color: theme.text.secondary,
-                    borderColor: theme.border.main,
-                    '&:hover': {
-                      borderColor: theme.border.light,
-                      backgroundColor: theme.background.elevated,
-                    }
-                  }}
-                >
-                  Отмена
-                </Button>
-              </motion.div>
-              
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  onClick={() => handleDelete(deleteConfirmId)}
-                  variant="contained"
-                  sx={{
-                    background: `linear-gradient(135deg, ${theme.functional.error.main} 0%, #dc2626 100%)`,
-                    fontWeight: 700,
-                    boxShadow: `0 4px 15px ${theme.functional.error.main}66`,
-                    '&:hover': {
-                      background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-                      boxShadow: `0 8px 25px ${theme.functional.error.main}99`,
-                    }
-                  }}
-                >
-                  Удалить
-                </Button>
-              </motion.div>
-            </DialogActions>
-          </motion.div>
+          <Box sx={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', p: 2.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Avatar sx={{ width: 50, height: 50, background: 'rgba(255,255,255,0.2)' }}>
+                <Delete sx={{ color: '#fff', fontSize: 24 }} />
+              </Avatar>
+              <Typography variant="h6" sx={{ color: '#fff', fontWeight: 700 }}>Удаление категории</Typography>
+            </Box>
+          </Box>
+          <DialogContent sx={{ p: 2.5, background: '#1a1a2e', textAlign: 'center' }}>
+            <Typography sx={{ color: '#fff', fontSize: '1rem' }}>
+              Вы уверены, что хотите удалить эту категорию?
+            </Typography>
+            <Typography sx={{ color: 'rgba(255,255,255,0.5)', mt: 1 }}>
+              Это действие нельзя отменить
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.1)', background: '#1a1a2e', justifyContent: 'center' }}>
+            <Button onClick={() => setDeleteConfirmId(null)} sx={{ color: '#fff' }}>Отмена</Button>
+            <Button 
+              onClick={() => handleDelete(deleteConfirmId)} 
+              variant="contained" 
+              sx={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', fontWeight: 700 }}
+            >
+              Удалить
+            </Button>
+          </DialogActions>
         </Dialog>
-      </Container>
+
+      </Box>
     </Box>
   );
 };

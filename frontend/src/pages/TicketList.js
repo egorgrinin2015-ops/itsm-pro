@@ -36,7 +36,8 @@ import {
   Clock,
   Users,
   Target,
-  Sparkles
+  Sparkles,
+  Send
 } from 'lucide-react';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 
@@ -139,6 +140,9 @@ const TicketList = () => {
   const { user, isEngineer } = useAuth();
   const navigate = useNavigate();
   
+  // Проверка роли - обычный пользователь
+  const isRegularUser = user?.role === 'user';
+  
   // Проверка роли инженера
   const isEngineerRole = user && ['engineer', 'engineer2', 'engineer3', 'engineer4', 'engineer5'].includes(user.role);
   
@@ -175,7 +179,7 @@ const TicketList = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [myTicketsOnly, setMyTicketsOnly] = useState(false); // ← НОВОЕ СОСТОЯНИЕ
+  const [myTicketsOnly, setMyTicketsOnly] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
     status: [],
@@ -186,7 +190,7 @@ const TicketList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [filters, currentPage, myTicketsOnly]); // ← ДОБАВЛЕНО В ЗАВИСИМОСТИ
+  }, [filters, currentPage, myTicketsOnly]);
 
   useEffect(() => {
     fetchCategories();
@@ -215,7 +219,8 @@ const TicketList = () => {
         status: filters.status.join(','),
         priority: filters.priority.join(','),
         categoryId: filters.categoryId.join(','),
-        myTickets: myTicketsOnly // ← ДОБАВЛЕН ПАРАМЕТР
+        myTickets: myTicketsOnly,
+        showClosed: 'false'
       };
 
       Object.keys(params).forEach(key => {
@@ -303,6 +308,315 @@ const TicketList = () => {
     </motion.div>
   );
 
+  // ========================================
+  // УПРОЩЁННЫЙ ИНТЕРФЕЙС ДЛЯ ПОЛЬЗОВАТЕЛЯ
+  // ========================================
+  if (isRegularUser) {
+    return (
+      <Box sx={{ position: 'relative', minHeight: '100vh' }}>
+        {darkBackgroundStyles}
+        <ITBackground />
+        
+        <Container maxWidth="lg" sx={{ py: 4, position: 'relative', zIndex: 10 }}>
+          {/* Заголовок для пользователя */}
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <GlassCard variant="dark" sx={{ mb: 4, p: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <motion.div
+                    animate={{
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 70,
+                        height: 70,
+                        borderRadius: 3,
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 20px 60px rgba(99, 102, 241, 0.4)'
+                      }}
+                    >
+                      <Send size={32} color="white" />
+                    </Box>
+                  </motion.div>
+                  
+                  <Box>
+                    <Typography
+                      variant="h3"
+                      sx={{
+                        fontWeight: 900,
+                        color: '#ffffff',
+                        textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(99, 102, 241, 0.5)',
+                        mb: 1,
+                        background: 'linear-gradient(135deg, #ffffff 0%, #6366f1 100%)',
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent'
+                      }}
+                    >
+                      Мои заявки
+                    </Typography>
+                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '1.1rem' }}>
+                      Отслеживайте статус ваших обращений
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    variant="contained"
+                    startIcon={<Plus />}
+                    onClick={() => navigate('/tickets/create')}
+                    sx={{
+                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                      borderRadius: 3,
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: 700,
+                      fontSize: '1rem',
+                      boxShadow: '0 8px 25px rgba(99, 102, 241, 0.4)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                        boxShadow: '0 15px 40px rgba(99, 102, 241, 0.6)',
+                      }
+                    }}
+                  >
+                    Создать заявку
+                  </Button>
+                </motion.div>
+              </Box>
+            </GlassCard>
+          </motion.div>
+
+          {/* Краткая статистика для пользователя */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+              <Grid container spacing={3} sx={{ maxWidth: '600px' }}>
+                {[
+                  { 
+                    title: 'Всего заявок', 
+                    value: quickStats.total, 
+                    color: theme.functional.info.main, 
+                    icon: Target
+                  },
+                  { 
+                    title: 'В обработке', 
+                    value: quickStats.newTickets + quickStats.inProgress, 
+                    color: theme.functional.warning.main, 
+                    icon: Clock
+                  }
+                ].map((stat, index) => (
+                  <Grid size={{ xs: 6 }} key={index}>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ scale: 1.05, y: -5 }}
+                    >
+                      <Box
+                        sx={{
+                          p: 3,
+                          textAlign: 'center',
+                          borderRadius: 3,
+                          background: theme.background.secondary,
+                          backdropFilter: 'blur(20px)',
+                          border: `1px solid ${stat.color}40`,
+                          boxShadow: `${theme.glass.dark.shadow}, 0 0 20px ${stat.color}33`,
+                        }}
+                      >
+                        <Box sx={{ mb: 1.5 }}>
+                          <stat.icon size={28} color={stat.color} />
+                        </Box>
+                        <Typography 
+                          variant="h3" 
+                          sx={{ 
+                            fontWeight: 800, 
+                            color: theme.text.primary,
+                            mb: 1
+                          }}
+                        >
+                          {stat.value}
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ color: theme.text.secondary, fontWeight: 600 }}
+                        >
+                          {stat.title}
+                        </Typography>
+                      </Box>
+                    </motion.div>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          </motion.div>
+
+          {/* Ошибки */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              <GlassCard variant="colored" color="red" sx={{ mb: 3, p: 2 }}>
+                <Alert severity="error" sx={{ background: 'transparent', color: theme.text.primary }}>
+                  {error}
+                </Alert>
+              </GlassCard>
+            </motion.div>
+          )}
+
+          {/* Список заявок пользователя */}
+          <Box sx={{ minHeight: 400 }}>
+            {loading ? (
+              <Grid container spacing={3}>
+                {[...Array(6)].map((_, index) => (
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+                    <TicketSkeleton delay={index * 0.05} />
+                  </Grid>
+                ))}
+              </Grid>
+            ) : tickets.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+              >
+                <GlassCard variant="dark" sx={{ p: 8, textAlign: 'center' }}>
+                  <motion.div
+                    animate={{ 
+                      rotate: [0, 10, -10, 0],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    <Typography variant="h1" sx={{ mb: 3, fontSize: '4rem' }}>
+                      📭
+                    </Typography>
+                  </motion.div>
+                  
+                  <Typography 
+                    variant="h5" 
+                    sx={{ mb: 2, color: theme.text.primary, fontWeight: 700 }}
+                  >
+                    У вас пока нет заявок
+                  </Typography>
+                  
+                  <Typography sx={{ mb: 4, color: theme.text.secondary, fontSize: '1.1rem' }}>
+                    Создайте первую заявку, чтобы получить помощь от технической поддержки
+                  </Typography>
+                  
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant="contained"
+                      startIcon={<Plus />}
+                      onClick={() => navigate('/tickets/create')}
+                      sx={{
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                        borderRadius: 3,
+                        px: 4,
+                        py: 2,
+                        fontWeight: 700,
+                        fontSize: '1.1rem',
+                        boxShadow: '0 8px 25px rgba(99, 102, 241, 0.4)',
+                      }}
+                    >
+                      Создать заявку
+                    </Button>
+                  </motion.div>
+                </GlassCard>
+              </motion.div>
+            ) : (
+              <Grid container spacing={3}>
+                {tickets.map((ticket, index) => (
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={ticket.id}>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.05 }}
+                    >
+                      <TicketCard ticket={ticket} delay={index * 0.05} />
+                    </motion.div>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </Box>
+
+          {/* Пагинация */}
+          {!loading && totalPages > 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <GlassCard variant="dark" sx={{ p: 2 }}>
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    size="large"
+                    sx={{
+                      '& .MuiPaginationItem-root': {
+                        color: theme.text.secondary,
+                        '&.Mui-selected': {
+                          background: theme.gradients.primary,
+                          color: theme.text.primary,
+                        }
+                      }
+                    }}
+                  />
+                </GlassCard>
+              </Box>
+            </motion.div>
+          )}
+
+          {/* Плавающая кнопка */}
+          <Zoom in={!loading}>
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              <Fab
+                sx={{
+                  position: 'fixed',
+                  bottom: 32,
+                  right: 32,
+                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  boxShadow: '0 8px 25px rgba(99, 102, 241, 0.4)',
+                }}
+                onClick={() => navigate('/tickets/create')}
+              >
+                <Plus size={28} color="white" />
+              </Fab>
+            </motion.div>
+          </Zoom>
+        </Container>
+      </Box>
+    );
+  }
+
+  // ========================================
+  // ПОЛНЫЙ ИНТЕРФЕЙС ДЛЯ ИНЖЕНЕРОВ/МЕНЕДЖЕРОВ
+  // ========================================
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh' }}>
       {darkBackgroundStyles}
@@ -318,7 +632,6 @@ const TicketList = () => {
           <GlassCard variant="dark" sx={{ mb: 4, p: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                {/* ЛОГОТИП - ГОЛУБОЙ */}
                 <motion.div
                   animate={{
                     rotate: [0, 360],
@@ -346,7 +659,6 @@ const TicketList = () => {
                   </Box>
                 </motion.div>
                 
-                {/* ТЕКСТ - КАК В БАЗЕ ЗНАНИЙ */}
                 <Box>
                   <Typography
                     variant="h3"
@@ -379,7 +691,6 @@ const TicketList = () => {
                   sx={{
                     background: theme.background.elevated,
                     borderRadius: 3,
-                    backdropFilter: 'blur(10px)',
                     '& .MuiToggleButton-root': {
                       border: 'none',
                       color: theme.text.secondary,
@@ -387,11 +698,7 @@ const TicketList = () => {
                       '&.Mui-selected': {
                         backgroundColor: theme.primary.main,
                         color: theme.text.primary,
-                        boxShadow: `0 4px 15px ${theme.primary.main}66`,
                       },
-                      '&:hover': {
-                        backgroundColor: `${theme.primary.main}4D`,
-                      }
                     }
                   }}
                 >
@@ -403,10 +710,7 @@ const TicketList = () => {
                   </ToggleButton>
                 </ToggleButtonGroup>
 
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
+                <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     variant="contained"
                     startIcon={<Plus />}
@@ -419,10 +723,8 @@ const TicketList = () => {
                       fontWeight: 700,
                       fontSize: '1rem',
                       boxShadow: '0 8px 25px rgba(6, 182, 212, 0.4)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
                       '&:hover': {
                         background: 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)',
-                        boxShadow: '0 15px 40px rgba(6, 182, 212, 0.6)',
                       }
                     }}
                   >
@@ -464,23 +766,10 @@ const TicketList = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <AssignmentIndIcon sx={{ color: theme.primary.main, fontSize: 28 }} />
                     <Box>
-                      <Typography 
-                        variant="body1" 
-                        sx={{ 
-                          color: '#ffffff',
-                          fontWeight: 700,
-                          fontSize: '1.1rem'
-                        }}
-                      >
+                      <Typography variant="body1" sx={{ color: '#ffffff', fontWeight: 700, fontSize: '1.1rem' }}>
                         Только мои заявки
                       </Typography>
-                      <Typography 
-                        variant="caption" 
-                        sx={{ 
-                          color: theme.text.secondary,
-                          fontSize: '0.85rem'
-                        }}
-                      >
+                      <Typography variant="caption" sx={{ color: theme.text.secondary, fontSize: '0.85rem' }}>
                         Показать заявки, назначенные на меня
                       </Typography>
                     </Box>
@@ -500,34 +789,10 @@ const TicketList = () => {
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
             <Grid container spacing={3} sx={{ maxWidth: '1000px' }}>
               {[
-                { 
-                  title: 'Всего заявок', 
-                  value: quickStats.total, 
-                  color: theme.functional.info.main, 
-                  icon: Target,
-                  delay: 0 
-                },
-                { 
-                  title: 'Новые', 
-                  value: quickStats.newTickets, 
-                  color: theme.functional.success.main, 
-                  icon: Clock,
-                  delay: 0.1 
-                },
-                { 
-                  title: 'В работе', 
-                  value: quickStats.inProgress, 
-                  color: theme.functional.warning.main, 
-                  icon: TrendingUp,
-                  delay: 0.2 
-                },
-                { 
-                  title: 'Приоритет', 
-                  value: quickStats.highPriority, 
-                  color: theme.functional.error.main, 
-                  icon: Users,
-                  delay: 0.3 
-                }
+                { title: 'Всего заявок', value: quickStats.total, color: theme.functional.info.main, icon: Target, delay: 0 },
+                { title: 'Новые', value: quickStats.newTickets, color: theme.functional.success.main, icon: Clock, delay: 0.1 },
+                { title: 'В работе', value: quickStats.inProgress, color: theme.functional.warning.main, icon: TrendingUp, delay: 0.2 },
+                { title: 'Приоритет', value: quickStats.highPriority, color: theme.functional.error.main, icon: Users, delay: 0.3 }
               ].map((stat, index) => (
                 <Grid size={{ xs: 6, sm: 3 }} key={index}>
                   <motion.div
@@ -544,56 +809,21 @@ const TicketList = () => {
                         background: theme.background.secondary,
                         backdropFilter: 'blur(20px)',
                         border: `1px solid ${stat.color}40`,
-                        boxShadow: `${theme.glass.dark.shadow}, 0 0 20px ${stat.color}33, inset 0 1px 0 ${theme.border.light}`,
-                        transition: 'all 0.3s ease',
+                        boxShadow: `${theme.glass.dark.shadow}, 0 0 20px ${stat.color}33`,
+                        minHeight: '140px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        minHeight: '140px',
-                        '&:hover': {
-                          boxShadow: `0 12px 40px rgba(0, 0, 0, 0.5), 0 0 30px ${stat.color}4D, inset 0 1px 0 ${theme.border.main}`,
-                          border: `1px solid ${stat.color}99`,
-                        }
                       }}
                     >
-                      {/* Иконка */}
-                      <Box 
-                        sx={{ 
-                          mb: 1.5,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                      >
+                      <Box sx={{ mb: 1.5 }}>
                         <stat.icon size={28} color={stat.color} />
                       </Box>
-                      
-                      {/* Число */}
-                      <Typography 
-                        variant="h3" 
-                        sx={{ 
-                          fontWeight: 800, 
-                          color: theme.text.primary,
-                          textShadow: `0 2px 8px ${stat.color}99, 0 0 20px ${stat.color}66`,
-                          mb: 1,
-                          lineHeight: 1
-                        }}
-                      >
+                      <Typography variant="h3" sx={{ fontWeight: 800, color: theme.text.primary, mb: 1 }}>
                         {stat.value}
                       </Typography>
-                      
-                      {/* Заголовок */}
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          color: theme.text.secondary,
-                          fontWeight: 600,
-                          textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
-                          fontSize: '0.875rem',
-                          lineHeight: 1.2
-                        }}
-                      >
+                      <Typography variant="body2" sx={{ color: theme.text.secondary, fontWeight: 600 }}>
                         {stat.title}
                       </Typography>
                     </Box>
@@ -619,22 +849,9 @@ const TicketList = () => {
 
         {/* Ошибки */}
         {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
             <GlassCard variant="colored" color="red" sx={{ mb: 3, p: 2 }}>
-              <Alert 
-                severity="error" 
-                sx={{ 
-                  background: 'transparent',
-                  color: theme.text.primary,
-                  '& .MuiAlert-icon': {
-                    color: theme.functional.error.main
-                  }
-                }}
-              >
+              <Alert severity="error" sx={{ background: 'transparent', color: theme.text.primary }}>
                 {error}
               </Alert>
             </GlassCard>
@@ -652,87 +869,18 @@ const TicketList = () => {
               ))}
             </Grid>
           ) : tickets.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
               <GlassCard variant="dark" sx={{ p: 8, textAlign: 'center' }}>
-                <motion.div
-                  animate={{ 
-                    rotate: [0, 10, -10, 0],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{ 
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  <Typography 
-                    variant="h1" 
-                    sx={{ 
-                      mb: 3, 
-                      fontSize: '4rem',
-                      filter: 'grayscale(0.3)'
-                    }}
-                  >
-                    🔍
-                  </Typography>
-                </motion.div>
-                
-                <Typography 
-                  variant="h5" 
-                  sx={{ 
-                    mb: 2, 
-                    color: theme.text.primary,
-                    fontWeight: 700,
-                    textShadow: '0 2px 8px rgba(0,0,0,0.5)'
-                  }}
-                >
+                <Typography variant="h1" sx={{ mb: 3, fontSize: '4rem' }}>🔍</Typography>
+                <Typography variant="h5" sx={{ mb: 2, color: theme.text.primary, fontWeight: 700 }}>
                   {myTicketsOnly ? 'У вас нет назначенных заявок' : 'Заявки не найдены'}
                 </Typography>
-                
-                <Typography 
-                  sx={{ 
-                    mb: 4, 
-                    color: theme.text.secondary,
-                    fontSize: '1.1rem'
-                  }}
-                >
+                <Typography sx={{ mb: 4, color: theme.text.secondary }}>
                   {myTicketsOnly 
-                    ? 'Пока на вас не назначены заявки. Попробуйте отключить фильтр "Только мои заявки".'
-                    : 'Попробуйте изменить параметры поиска или создайте новую заявку'
+                    ? 'Попробуйте отключить фильтр "Только мои заявки".'
+                    : 'Попробуйте изменить параметры поиска'
                   }
                 </Typography>
-                
-                {!myTicketsOnly && (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      variant="contained"
-                      startIcon={<Plus />}
-                      onClick={() => navigate('/tickets/create')}
-                      sx={{
-                        background: theme.gradients.primary,
-                        borderRadius: 3,
-                        px: 4,
-                        py: 2,
-                        fontWeight: 700,
-                        fontSize: '1.1rem',
-                        boxShadow: `0 8px 25px ${theme.primary.main}66`,
-                        '&:hover': {
-                          background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
-                          boxShadow: `0 15px 40px ${theme.primary.main}99`,
-                        }
-                      }}
-                    >
-                      Создать заявку
-                    </Button>
-                  </motion.div>
-                )}
               </GlassCard>
             </motion.div>
           ) : (
@@ -742,234 +890,56 @@ const TicketList = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
               >
                 {viewMode === 'grid' ? (
-                  // РЕЖИМ СЕТКИ
                   <Grid container spacing={3}>
                     {tickets.map((ticket, index) => (
-                      <Grid 
-                        size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                        key={ticket.id}
-                      >
+                      <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={ticket.id}>
                         <motion.div
                           initial={{ opacity: 0, scale: 0.9, y: 20 }}
                           animate={{ opacity: 1, scale: 1, y: 0 }}
-                          transition={{ 
-                            duration: 0.5, 
-                            delay: index * 0.05,
-                            type: "spring",
-                            stiffness: 100 
-                          }}
+                          transition={{ duration: 0.5, delay: index * 0.05 }}
                         >
-                          <TicketCard 
-                            ticket={ticket} 
-                            delay={index * 0.05}
-                          />
+                          <TicketCard ticket={ticket} delay={index * 0.05} />
                         </motion.div>
                       </Grid>
                     ))}
                   </Grid>
                 ) : (
-                  // РЕЖИМ СПИСКА
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     {tickets.map((ticket, index) => (
                       <motion.div
                         key={ticket.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ 
-                          duration: 0.4, 
-                          delay: index * 0.03
-                        }}
+                        transition={{ duration: 0.4, delay: index * 0.03 }}
                       >
                         <GlassCard 
                           variant="dark"
                           sx={{ 
                             cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              transform: 'translateX(8px)',
-                              boxShadow: `0 8px 30px ${theme.primary.main}4D`,
-                              border: `1px solid ${theme.primary.main}80`,
-                            }
+                            '&:hover': { transform: 'translateX(8px)' }
                           }}
                           onClick={() => navigate(`/tickets/${ticket.id}`)}
                         >
-                          <Box sx={{ 
-                            p: 2.5, 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 3,
-                            flexWrap: 'wrap'
-                          }}>
-                            {/* ID заявки */}
-                            <Box
-                              sx={{
-                                minWidth: 80,
-                                px: 2,
-                                py: 1,
-                                borderRadius: 2,
-                                background: theme.functional.info.bg,
-                                border: `1px solid ${theme.functional.info.border}`,
-                                textAlign: 'center'
-                              }}
-                            >
-                              <Typography 
-                                variant="h6" 
-                                sx={{ 
-                                  fontWeight: 800,
-                                  color: theme.functional.info.main,
-                                  fontSize: '0.9rem'
-                                }}
-                              >
+                          <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
+                            <Box sx={{ minWidth: 80, px: 2, py: 1, borderRadius: 2, background: theme.functional.info.bg, textAlign: 'center' }}>
+                              <Typography variant="h6" sx={{ fontWeight: 800, color: theme.functional.info.main, fontSize: '0.9rem' }}>
                                 #{ticket.id}
                               </Typography>
                             </Box>
-
-                            {/* Заголовок и описание */}
                             <Box sx={{ flex: 1, minWidth: 250 }}>
-                              <Typography 
-                                variant="h6" 
-                                sx={{ 
-                                  fontWeight: 700, 
-                                  color: theme.text.primary,
-                                  mb: 0.5,
-                                  fontSize: '1rem'
-                                }}
-                              >
+                              <Typography variant="h6" sx={{ fontWeight: 700, color: theme.text.primary, mb: 0.5, fontSize: '1rem' }}>
                                 {ticket.title}
                               </Typography>
-                              <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                  color: theme.text.secondary,
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                  maxWidth: '500px'
-                                }}
-                              >
+                              <Typography variant="body2" sx={{ color: theme.text.secondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '500px' }}>
                                 {ticket.description}
                               </Typography>
                             </Box>
-
-                            {/* SLA BADGE */}
-                            <SlaBadge 
-                              slaStatus={ticket.slaStatus} 
-                              slaDeadline={ticket.slaDeadline}
-                            />
-
-                            {/* Статус */}
-                            <Box
-                              sx={{
-                                px: 2,
-                                py: 0.75,
-                                borderRadius: 2,
-                                background: ticket.status === 'new' ? theme.functional.info.bg :
-                                          ticket.status === 'in_progress' ? theme.functional.warning.bg :
-                                          ticket.status === 'resolved' ? theme.functional.success.bg :
-                                          ticket.status === 'closed' ? `${theme.text.secondary}33` :
-                                          `${theme.primary.main}33`,
-                                border: `1px solid ${
-                                  ticket.status === 'new' ? theme.functional.info.border :
-                                  ticket.status === 'in_progress' ? theme.functional.warning.border :
-                                  ticket.status === 'resolved' ? theme.functional.success.border :
-                                  ticket.status === 'closed' ? theme.text.secondary :
-                                  theme.primary.main
-                                }66`
-                              }}
-                            >
-                              <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                  fontWeight: 700,
-                                  color: ticket.status === 'new' ? theme.functional.info.main :
-                                        ticket.status === 'in_progress' ? theme.functional.warning.main :
-                                        ticket.status === 'resolved' ? theme.functional.success.main :
-                                        ticket.status === 'closed' ? theme.text.secondary :
-                                        theme.primary.main,
-                                  fontSize: '0.85rem'
-                                }}
-                              >
-                                {ticket.status === 'new' ? 'Новая' :
-                                 ticket.status === 'in_progress' ? 'В работе' :
-                                 ticket.status === 'resolved' ? 'Решена' :
-                                 ticket.status === 'closed' ? 'Закрыта' :
-                                 ticket.status === 'waiting' ? 'Ожидание' : ticket.status}
-                              </Typography>
-                            </Box>
-
-                            {/* Приоритет */}
-                            <Box
-                              sx={{
-                                px: 2,
-                                py: 0.75,
-                                borderRadius: 2,
-                                background: ticket.priority === 'critical' ? theme.functional.error.bg :
-                                          ticket.priority === 'high' ? theme.functional.warning.bg :
-                                          ticket.priority === 'medium' ? theme.functional.info.bg :
-                                          theme.functional.success.bg,
-                                border: `1px solid ${
-                                  ticket.priority === 'critical' ? theme.functional.error.border :
-                                  ticket.priority === 'high' ? theme.functional.warning.border :
-                                  ticket.priority === 'medium' ? theme.functional.info.border :
-                                  theme.functional.success.border
-                                }66`
-                              }}
-                            >
-                              <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                  fontWeight: 700,
-                                  color: ticket.priority === 'critical' ? theme.functional.error.main :
-                                        ticket.priority === 'high' ? theme.functional.warning.main :
-                                        ticket.priority === 'medium' ? theme.functional.info.main :
-                                        theme.functional.success.main,
-                                  fontSize: '0.85rem'
-                                }}
-                              >
-                                {ticket.priority === 'critical' ? '🔴 Критичный' :
-                                 ticket.priority === 'high' ? '🟡 Высокий' :
-                                 ticket.priority === 'medium' ? '🔵 Средний' :
-                                 '🟢 Низкий'}
-                              </Typography>
-                            </Box>
-
-                            {/* Категория */}
-                            {ticket.categoryName && (
-                              <Box
-                                sx={{
-                                  px: 2,
-                                  py: 0.75,
-                                  borderRadius: 2,
-                                  background: `${theme.primary.main}33`,
-                                  border: `1px solid ${theme.primary.main}66`
-                                }}
-                              >
-                                <Typography 
-                                  variant="body2" 
-                                  sx={{ 
-                                    fontWeight: 600,
-                                    color: theme.primary.main,
-                                    fontSize: '0.85rem'
-                                  }}
-                                >
-                                  📂 {ticket.categoryName}
-                                </Typography>
-                              </Box>
-                            )}
-
-                            {/* Дата */}
+                            <SlaBadge slaStatus={ticket.slaStatus} slaDeadline={ticket.slaDeadline} />
                             <Box sx={{ minWidth: 150 }}>
-                              <Typography 
-                                variant="caption" 
-                                sx={{ 
-                                  color: theme.text.disabled,
-                                  fontSize: '0.75rem'
-                                }}
-                              >
-                                {formatDate(ticket.createdAt || ticket.created_at)}
+                              <Typography variant="caption" sx={{ color: theme.text.disabled }}>
+                                {formatDate(ticket.createdAt)}
                               </Typography>
                             </Box>
                           </Box>
@@ -985,50 +955,30 @@ const TicketList = () => {
 
         {/* Пагинация */}
         {!loading && totalPages > 1 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-              <GlassCard variant="dark" sx={{ p: 2 }}>
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={handlePageChange}
-                  size="large"
-                  sx={{
-                    '& .MuiPaginationItem-root': {
-                      color: theme.text.secondary,
-                      borderRadius: 2,
-                      border: `1px solid ${theme.border.main}`,
-                      '&:hover': {
-                        backgroundColor: `${theme.functional.info.main}33`,
-                        borderColor: theme.functional.info.main,
-                      },
-                      '&.Mui-selected': {
-                        background: theme.gradients.primary,
-                        color: theme.text.primary,
-                        borderColor: 'transparent',
-                        boxShadow: `0 4px 15px ${theme.primary.main}66`,
-                        '&:hover': {
-                          background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
-                        }
-                      }
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <GlassCard variant="dark" sx={{ p: 2 }}>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                size="large"
+                sx={{
+                  '& .MuiPaginationItem-root': {
+                    color: theme.text.secondary,
+                    '&.Mui-selected': {
+                      background: theme.gradients.primary,
+                      color: theme.text.primary,
                     }
-                  }}
-                />
-              </GlassCard>
-            </Box>
-          </motion.div>
+                  }
+                }}
+              />
+            </GlassCard>
+          </Box>
         )}
 
-        {/* Плавающая кнопка создания */}
+        {/* Плавающая кнопка */}
         <Zoom in={!loading}>
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             <Fab
               sx={{
                 position: 'fixed',
@@ -1036,11 +986,6 @@ const TicketList = () => {
                 right: 32,
                 background: theme.gradients.primary,
                 boxShadow: `0 8px 25px ${theme.primary.main}66`,
-                border: `1px solid ${theme.border.main}`,
-                '&:hover': {
-                  background: `linear-gradient(135deg, ${theme.primary.dark} 0%, ${theme.primary.main} 100%)`,
-                  boxShadow: `0 15px 40px ${theme.primary.main}99`,
-                }
               }}
               onClick={() => navigate('/tickets/create')}
             >

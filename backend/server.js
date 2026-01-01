@@ -19,7 +19,10 @@ const subtaskRoutes = require('./routes/subtaskRoutes');
 const statsRoutes = require('./routes/statsRoutes');
 const kbRoutes = require('./routes/kbRoutes');
 const slaRoutes = require('./routes/slaRoutes');
-const userRoutes = require('./routes/userRoutes'); // ← ДОБАВЛЕНО!
+const userRoutes = require('./routes/userRoutes');
+const timeLogRoutes = require('./routes/timeLogRoutes');
+const equipmentRoutes = require('./routes/equipmentRoutes');
+const auditRoutes = require('./routes/auditRoutes'); // ← НОВОЕ: аудит!
 
 console.log('📦 Все маршруты загружены');
 
@@ -32,7 +35,10 @@ app.use('/api/subtasks', subtaskRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/kb', kbRoutes);
 app.use('/api/sla', slaRoutes);
-app.use('/api/users', userRoutes); // ← ТЕПЕРЬ РАБОТАЕТ!
+app.use('/api/users', userRoutes);
+app.use('/api', timeLogRoutes);
+app.use('/api/equipment', equipmentRoutes);
+app.use('/api/audit', auditRoutes); // ← НОВОЕ: аудит!
 
 console.log('✅ Все маршруты подключены');
 
@@ -78,7 +84,10 @@ const startServer = async () => {
       console.log('   • /api/stats (статистика)');
       console.log('   • /api/kb (база знаний)');
       console.log('   • /api/sla (🎯 SLA!)');
-      console.log('   • /api/users (👷 пользователи!)'); // ← ДОБАВЛЕНО!
+      console.log('   • /api/users (👷 пользователи!)');
+      console.log('   • /api/tickets/:id/time-logs (⏱️  учёт времени!)');
+      console.log('   • /api/equipment (🖥️  инвентаризация CMDB!)');
+      console.log('   • /api/audit (🔐 журнал аудита!)'); // ← НОВОЕ!
       console.log('\n🚀 Backend готов к работе!\n');
     });
   } else {

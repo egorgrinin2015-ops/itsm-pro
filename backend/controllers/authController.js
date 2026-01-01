@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const auditService = require('../services/auditService');
 
 // Регистрация нового пользователя
 exports.register = async (req, res) => {
@@ -37,6 +38,12 @@ exports.register = async (req, res) => {
     });
 
     console.log('✅ Пользователь зарегистрирован:', user.email);
+
+    // 📝 АУДИТ: Регистрация пользователя
+    await auditService.logCreate(req, 'user', user.id, user.fullName, {
+      email: user.email,
+      role: user.role
+    });
 
     res.status(201).json({
       message: 'Пользователь успешно зарегистрирован',
@@ -118,6 +125,9 @@ exports.login = async (req, res) => {
 
     console.log('✅ Вход успешен для:', user.email);
     console.log('🎫 Токен создан:', token.substring(0, 20) + '...');
+
+    // 📝 АУДИТ: Вход в систему
+    await auditService.logLogin(req, user.id, user.fullName);
 
     res.json({
       message: 'Вход выполнен успешно',

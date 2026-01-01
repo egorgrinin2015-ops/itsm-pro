@@ -3,28 +3,31 @@ const router = express.Router();
 const ticketController = require('../controllers/ticketController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Все маршруты требуют авторизации
-router.use(authMiddleware);
+// Получить все заявки (с фильтрами)
+router.get('/', authMiddleware, ticketController.getTickets);
 
-// Получение всех заявок (с фильтрами)
-router.get('/', ticketController.getTickets);
+// Получить статистику заявок
+router.get('/stats', authMiddleware, ticketController.getTicketStats);
 
-// Получение одной заявки
-router.get('/:id', ticketController.getTicketById);
+// НОВОЕ: Получить загруженность инженеров
+router.get('/engineers-load', authMiddleware, ticketController.getEngineersLoad);
 
-// Создание заявки
-router.post('/', ticketController.createTicket);
+// Получить заявку по ID
+router.get('/:id', authMiddleware, ticketController.getTicketById);
 
-// Обновление заявки
-router.put('/:id', ticketController.updateTicket);
+// Создать новую заявку
+router.post('/', authMiddleware, ticketController.createTicket);
 
-// Удаление заявки (только менеджеры)
-router.delete('/:id', ticketController.deleteTicket);
+// Обновить статус заявки
+router.patch('/:id/status', authMiddleware, ticketController.updateTicketStatus);
 
-// НОВОЕ: Изменение статуса заявки (только менеджеры)
-router.put('/:id/status', ticketController.updateTicketStatus);
+// Назначить исполнителя
+router.patch('/:id/assign', authMiddleware, ticketController.assignTicket);
 
-// НОВОЕ: Назначение ответственного исполнителя (только менеджеры)
-router.put('/:id/assign', ticketController.assignTicket);
+// Обновить заявку
+router.put('/:id', authMiddleware, ticketController.updateTicket);
+
+// Удалить заявку
+router.delete('/:id', authMiddleware, ticketController.deleteTicket);
 
 module.exports = router;

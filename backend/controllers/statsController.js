@@ -192,7 +192,7 @@ exports.getTopPerformers = async (req, res) => {
         COUNT(t.id) as "resolvedCount"
       FROM users u
       INNER JOIN tickets t ON u.id = t."assignedTo"
-      WHERE t.status = 'resolved'
+      WHERE t.status IN ('resolved', 'closed')
       GROUP BY u.id, u."fullName"
       ORDER BY COUNT(t.id) DESC
       LIMIT 5
