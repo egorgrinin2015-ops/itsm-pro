@@ -1,39 +1,79 @@
 # Dependencies
 node_modules/
-**/node_modules/
-npm-debug.log*
-yarn-debug.log*
+/.pnp
+.pnp.js
 
-# Environment variables
+# Build
+/build
+/dist
+frontend/build/
+
+# Environment
 .env
 .env.local
 .env.development.local
-
-# Database files
-*.sqlite
-*.db
-database_backup.sql
+.env.test.local
+.env.production.local
+backend/.env
 
 # Logs
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Build outputs
-build/
-dist/
+# Runtime
+pids/
+*.pid
+*.seed
+*.pid.lock
 
-# Cache and temp
-.cache/
-.npm/
-tmp/
-temp/
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
 
-# OS files
+# OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# IDE files
-.vscode/
-.idea/
+# Testing
+/coverage
+*.lcov
 
-# Package locks 
-# package-lock.json
+# Misc
+*.tgz
+.eslintcache
+.cache/
+.parcel-cache/
+
+# Optional npm cache
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Uploads (if any)
+uploads/
+!uploads/.gitkeep
+
+# Database
+*.sql.backup
+*.dump
